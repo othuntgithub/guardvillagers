@@ -27,10 +27,12 @@ public class GuardEntity extends CreatureEntity
 		super(type, world);
 	}
 	
-	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
-	{
-		this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-	}
+	@Override
+	 protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
+	 {
+		super.setEquipmentBasedOnDifficulty(difficulty);
+	    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
+	 }
 	
 	protected void registerGoals() 
 	{
