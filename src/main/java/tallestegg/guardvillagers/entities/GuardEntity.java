@@ -1,8 +1,12 @@
 package tallestegg.guardvillagers.entities;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
@@ -12,11 +16,14 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
+import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 public class GuardEntity extends CreatureEntity
@@ -27,12 +34,12 @@ public class GuardEntity extends CreatureEntity
 		super(type, world);
 	}
 	
+	
 	@Override
-	 protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
-	 {
-		super.setEquipmentBasedOnDifficulty(difficulty);
-	    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
-	 }
+	   public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) {
+	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
+	      return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+	}
 	
 	protected void registerGoals() 
 	{
@@ -46,6 +53,7 @@ public class GuardEntity extends CreatureEntity
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
+	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	}
 	
 	protected void registerAttributes() 
