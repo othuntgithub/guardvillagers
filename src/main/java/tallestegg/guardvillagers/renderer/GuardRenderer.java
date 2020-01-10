@@ -1,26 +1,28 @@
 package tallestegg.guardvillagers.renderer;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.HeadLayer;
-import net.minecraft.client.renderer.entity.layers.VillagerHeldItemLayer;
-import net.minecraft.client.renderer.entity.model.VillagerModel;
+import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.util.ResourceLocation;
 import tallestegg.guardvillagers.entities.GuardEntity;
+import tallestegg.guardvillagers.models.VillagerGuard;
 
-public class GuardRenderer extends MobRenderer<GuardEntity, VillagerModel<GuardEntity>>
+
+public class GuardRenderer extends MobRenderer<GuardEntity, VillagerGuard>
 {
-	 private static final ResourceLocation VILLAGER_TEXTURES = new ResourceLocation("textures/entity/villager/villager.png");
-	 
-	 public GuardRenderer (EntityRendererManager manager) 
-		{
-		 super(manager, new VillagerModel<>(0.0F), 0.5F);
-		      this.addLayer(new HeadLayer<>(this));
-		      this.addLayer(new VillagerHeldItemLayer<>(this));
-		}
-	 
-	 protected ResourceLocation getEntityTexture(GuardEntity entity) 
-	 {
-	      return VILLAGER_TEXTURES;
-	 }
+    private static final ResourceLocation GUARD_TEXTURES = new ResourceLocation("guardvillagers:textures/entity/guard/guard.png");
+
+    public GuardRenderer(EntityRendererManager manager) 
+    {
+        super(manager, new VillagerGuard(), 0.5f);
+        this.addLayer(new HeldItemLayer<>(this));
+    }
+
+    @Nullable
+    @Override
+    protected ResourceLocation getEntityTexture(GuardEntity entity) {
+        return GUARD_TEXTURES;
+    }
 }
