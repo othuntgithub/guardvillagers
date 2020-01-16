@@ -15,6 +15,7 @@ import net.minecraft.entity.ai.goal.MoveTowardsVillageGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
+import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
@@ -37,9 +38,14 @@ public class GuardEntity extends CreatureEntity
 	
 	@Override
 	   public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) {
-	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
+		  this.setEquipmentBasedOnDifficulty(difficultyIn);
 	      return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
+	
+	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
+	{
+	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
+	   }
 	
 	protected void registerGoals() 
 	{
@@ -54,14 +60,15 @@ public class GuardEntity extends CreatureEntity
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
+	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
 	}
 	
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
+	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(35.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
 	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0D);
 	}
-
 }

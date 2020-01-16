@@ -22,11 +22,13 @@ public class GuardConfig
 	public static boolean GuardModel;
 	public static boolean RaidAnimals;
 	public static boolean WitchesVillager;
+	public static boolean IllusionerRaids;
 
 	public static void bakeConfig() {
 		GuardModel = CLIENT.GuardModel.get();
 		RaidAnimals = CLIENT.RaidAnimals.get();
 		WitchesVillager = CLIENT.WitchesVillager.get();
+		IllusionerRaids = CLIENT.IllusionerRaids.get();
 	}
 
 	@SubscribeEvent
@@ -42,6 +44,7 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue GuardModel;
 		public final ForgeConfigSpec.BooleanValue RaidAnimals;
 		public final ForgeConfigSpec.BooleanValue WitchesVillager;
+		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
 
 		public ClientConfig(ForgeConfigSpec.Builder builder) 
 		{
@@ -59,6 +62,10 @@ public class GuardConfig
 					.comment("Witches Attack Villagers?")
 					.translation(GuardVillagers.MODID + ".config.WitchesVillager")
 					.define("Witches Attack Villagers?", true);
+			IllusionerRaids = builder
+					.comment("Illusioners in Raids?")
+					.translation(GuardVillagers.MODID + ".config.IllusionerRaids")
+					.define("Illusioners in Raids?", true);
 		}
 	}
 }

@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.stream.Collectors;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod("guardvillagers")
 public class GuardVillagers
 {  
@@ -36,7 +35,8 @@ public class GuardVillagers
 	
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public GuardVillagers() {
+    public GuardVillagers() 
+    {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
@@ -44,7 +44,8 @@ public class GuardVillagers
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, GuardConfig.CLIENT_SPEC);
 
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(HandlerEvents.class);
+        MinecraftForge.EVENT_BUS.register(new HandlerEvents());
+        MinecraftForge.EVENT_BUS.register(new GuardSpawner());
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -83,11 +84,7 @@ public class GuardVillagers
     	  @SubscribeEvent
           public static void onEntityRegistry(final RegistryEvent.Register<EntityType<?>> event) 
     	  {
-              event.getRegistry().register(EntityType.Builder.create(GuardEntity::new, EntityClassification.MISC)
-                      .size(0.6F, 1.95F)
-                      .setShouldReceiveVelocityUpdates(false)
-                      .build("guard").setRegistryName("guard"));
-
+    	  event.getRegistry().register(EntityType.Builder.create(GuardEntity::new, EntityClassification.MISC).size(0.6F, 1.95F).setShouldReceiveVelocityUpdates(true).build("guard").setRegistryName("guard"));
           }
       }
 }
