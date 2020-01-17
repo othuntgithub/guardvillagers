@@ -18,7 +18,7 @@ public class GuardRenderer2 extends MobRenderer<GuardEntity, VillagerModel<Guard
 		      this.addLayer(new GuardHeldItemLayerRender<>(this));
 		}
 	 
-	 protected ResourceLocation getEntityTexture(GuardEntity entity) 
+	 public ResourceLocation getEntityTexture(GuardEntity entity) 
 	 {
 	      return VILLAGER_TEXTURES;
 	 }

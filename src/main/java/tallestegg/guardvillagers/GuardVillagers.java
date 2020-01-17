@@ -46,6 +46,7 @@ public class GuardVillagers
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new HandlerEvents());
         MinecraftForge.EVENT_BUS.register(new GuardSpawner());
+        MinecraftForge.EVENT_BUS.register(new GuardEntityType());
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -57,9 +58,9 @@ public class GuardVillagers
     private void doClientStuff(final FMLClientSetupEvent event) 
     {
     	if (GuardConfig.GuardModel == false)
-    	RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer::new);
+    	RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer::new);
     	else
-        RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer2::new);
+        RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer2::new);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -81,12 +82,8 @@ public class GuardVillagers
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents 
     {
-    	  @SubscribeEvent
-          public static void onEntityRegistry(final RegistryEvent.Register<EntityType<?>> event) 
-    	  {
-    	  event.getRegistry().register(EntityType.Builder.create(GuardEntity::new, EntityClassification.MISC).size(0.6F, 1.95F).setShouldReceiveVelocityUpdates(true).build("guard").setRegistryName("guard"));
-          }
-      }
+ 
+    }
 }
 
 

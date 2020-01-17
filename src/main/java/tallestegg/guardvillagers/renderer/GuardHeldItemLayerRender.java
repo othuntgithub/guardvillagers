@@ -1,49 +1,36 @@
 package tallestegg.guardvillagers.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.VillagerModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
 
 public class GuardHeldItemLayerRender<T extends LivingEntity> extends LayerRenderer<T, VillagerModel<T>> {
-	   private final ItemRenderer field_215347_a = Minecraft.getInstance().getItemRenderer();
+	   public GuardHeldItemLayerRender(IEntityRenderer<T, VillagerModel<T>> p_i226037_1_) {
+		      super(p_i226037_1_);
+		   }
 
-	   public GuardHeldItemLayerRender(IEntityRenderer<T, VillagerModel<T>> p_i50917_1_) {
-	      super(p_i50917_1_);
-	   }
+		   public void func_225628_a_(MatrixStack p_225628_1_, IRenderTypeBuffer p_225628_2_, int p_225628_3_, T p_225628_4_, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
+		      p_225628_1_.func_227860_a_();
+		      p_225628_1_.func_227861_a_(0.0D, (double)0.10F, (double)-0.3F);
+		      p_225628_1_.func_227863_a_(Vector3f.field_229183_f_.func_229187_a_(450.0F));
+		         p_225628_1_.func_227863_a_(Vector3f.field_229179_b_.func_229187_a_(90.0F));
+		         p_225628_1_.func_227863_a_(Vector3f.field_229183_f_.func_229187_a_(10.0F));
+		         p_225628_1_.func_227863_a_(Vector3f.field_229183_f_.func_229187_a_(150.0F));
+		      ItemStack itemstack = p_225628_4_.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+		      Minecraft.getInstance().getFirstPersonRenderer().func_228397_a_(p_225628_4_, itemstack, ItemCameraTransforms.TransformType.GROUND, false, p_225628_1_, p_225628_2_, p_225628_3_);
+		      p_225628_1_.func_227865_b_();
+		   }
+		}
 
-	   public void render(T entityIn, float p_212842_2_, float p_212842_3_, float p_212842_4_, float p_212842_5_, float p_212842_6_, float p_212842_7_, float p_212842_8_) {
-	      ItemStack itemstack = entityIn.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
-	      if (!itemstack.isEmpty()) {
-	         Item item = itemstack.getItem();
-	         Block block = Block.getBlockFromItem(item);
-	         GlStateManager.pushMatrix();
-	         boolean flag = this.field_215347_a.shouldRenderItemIn3D(itemstack) && block.getRenderLayer() == BlockRenderLayer.TRANSLUCENT;
-	         if (flag) {
-	            GlStateManager.depthMask(false);
-	         }
-	         GlStateManager.translatef(0.0F, 0.15F, -0.4F);
-	         GlStateManager.rotatef(-480.0F, 50.0F, -50.0F, 50.0F);
-	         this.field_215347_a.renderItem(itemstack, entityIn, ItemCameraTransforms.TransformType.GROUND, false);
-	         if (flag) {
-	            GlStateManager.depthMask(true);
-	         }
 
-	         GlStateManager.popMatrix();
-	      }
-	   }
-
-	   public boolean shouldCombineTextures() {
-	      return false;
-	   }
-	}
+	      
+	     
