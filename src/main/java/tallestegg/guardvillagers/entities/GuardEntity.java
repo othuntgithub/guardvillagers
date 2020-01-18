@@ -67,7 +67,7 @@ public class GuardEntity extends CreatureEntity
 	{
 	      super.registerAttributes();
 	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(35.0D);
-	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
+	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(25.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
 	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0D);
 	}

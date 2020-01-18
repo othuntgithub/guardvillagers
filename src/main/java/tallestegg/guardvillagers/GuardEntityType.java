@@ -17,9 +17,9 @@ public class GuardEntityType
 	
 	
 	@SubscribeEvent
-    public static void registerEntity(RegistryEvent.Register<EntityType<?>> event) {
+    public static void registerEntity(RegistryEvent.Register<EntityType<?>> event)
+	{
 		event.getRegistry().register(GUARD.setRegistryName("guard"));
-	
 	}
 }
 

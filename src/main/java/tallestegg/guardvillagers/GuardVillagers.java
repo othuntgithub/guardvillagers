@@ -1,11 +1,12 @@
 package tallestegg.guardvillagers;
 
-import net.minecraft.block.Blocks;
+import java.util.stream.Collectors;
 
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -19,14 +20,8 @@ import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tallestegg.guardvillagers.configuration.GuardConfig;
-import tallestegg.guardvillagers.entities.GuardEntity;
 import tallestegg.guardvillagers.renderer.GuardRenderer;
 import tallestegg.guardvillagers.renderer.GuardRenderer2;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.stream.Collectors;
 
 @Mod("guardvillagers")
 public class GuardVillagers
