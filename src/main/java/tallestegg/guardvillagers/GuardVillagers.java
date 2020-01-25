@@ -1,9 +1,15 @@
 package tallestegg.guardvillagers;
 
-import net.minecraft.block.Blocks;
+import java.util.stream.Collectors;
 
-import net.minecraft.entity.EntityClassification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,11 +29,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 import tallestegg.guardvillagers.renderer.GuardRenderer;
 import tallestegg.guardvillagers.renderer.GuardRenderer2;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.stream.Collectors;
-
 @Mod("guardvillagers")
 public class GuardVillagers
 {  
@@ -46,6 +47,8 @@ public class GuardVillagers
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new HandlerEvents());
         MinecraftForge.EVENT_BUS.register(new GuardSpawner());
+        MinecraftForge.EVENT_BUS.register(new GuardEntityType());
+        MinecraftForge.EVENT_BUS.register(new VillagerToGuard());
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -74,19 +77,30 @@ public class GuardVillagers
                 collect(Collectors.toList()));
     }
     @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
+    public void onServerStarting(FMLServerStartingEvent event)
+    {
         LOGGER.info("HELLO from server starting");
     }
-
+    
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents 
     {
-    	  @SubscribeEvent
-          public static void onEntityRegistry(final RegistryEvent.Register<EntityType<?>> event) 
-    	  {
-    	  event.getRegistry().register(EntityType.Builder.create(GuardEntity::new, EntityClassification.MISC).size(0.6F, 1.95F).setShouldReceiveVelocityUpdates(true).build("guard").setRegistryName("guard"));
-          }
-      }
-}
+    	@SubscribeEvent
+        public static void registerSpawnEggs(final RegistryEvent.Register<Item> event) 
+    	{
+    		 event.getRegistry().registerAll
+    		 (
+    		 new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg")
+    		 );
+    		 
+    		 event.getRegistry().registerAll
+    		 (
+    		 new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg")
+    		 );
+    	 } 
+    	}
+    }
+
+
 
 
