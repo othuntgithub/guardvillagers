@@ -16,11 +16,9 @@ public class GuardRenderer extends MobRenderer<GuardEntity, VillagerGuard<GuardE
 
     public GuardRenderer(EntityRendererManager manager) 
     {
-        super(manager, new VillagerGuard<GuardEntity>(), 0.5F);
+        super(manager, new VillagerGuard<GuardEntity>(), 0.5f);
         this.addLayer(new HeldItemLayer<>(this));
     }
-    
-    
 
     @Nullable
     @Override
