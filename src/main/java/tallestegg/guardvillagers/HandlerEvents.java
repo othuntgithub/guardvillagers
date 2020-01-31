@@ -34,6 +34,7 @@ public class HandlerEvents
 	    {
 	      MonsterEntity monster = (MonsterEntity)event.getEntity();
 	      monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GuardEntity.class, false));
+	      monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AbstractVillagerEntity.class, false));
 	    }
 	    
 		if (GuardConfig.AttackAllMobs == true)
@@ -59,7 +60,7 @@ public class HandlerEvents
 	if(event.getEntity() instanceof IronGolemEntity) 
 	{
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
-	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(50.0D);
+	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
 	}
 	
 	if(event.getEntity() instanceof VexEntity) 
