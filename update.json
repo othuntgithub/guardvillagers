@@ -1,7 +1,9 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/guard-villagers/files",
   "promos": {
-    "1.14.4-latest": "1.0.2",
+    "1.15.2-latest": "1.0.1",
+    "1.15.2-recommended": "1.0.0",
+    "1.14.4-latest": "1.0.1",
     "1.14.4-recommended": "1.0.0",
   }
 }
