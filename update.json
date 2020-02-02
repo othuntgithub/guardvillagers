@@ -1,0 +1,14 @@
+{
+  "homepage": "https://www.curseforge.com/minecraft/mc-mods/guard-villagers",
+  "1.14.4": {
+    "1.0.1": "blah blah blah", 
+  },
+  ...
+  "promos": {
+    "1.14.4-latest": "1.0.2",
+    // Declare the latest "bleeding-edge" version of your mod for the given Minecraft version
+    "1.14.4-recommended": "1.0.1",
+    // Declare the latest "stable" version of your mod for the given Minecraft version
+    ...
+  }
+}
