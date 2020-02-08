@@ -89,11 +89,7 @@ public class GuardVillagers
     	{
     		 event.getRegistry().registerAll
     		 (
-    		 new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg")
-    		 );
-    		 
-    		 event.getRegistry().registerAll
-    		 (
+    		 new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg"),
     		 new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg")
     		 );
     	 } 
