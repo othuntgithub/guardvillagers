@@ -1,7 +1,5 @@
 package tallestegg.guardvillagers;
 
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,7 +11,6 @@ import net.minecraft.item.SpawnEggItem;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -67,19 +64,17 @@ public class GuardVillagers
 
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
-        InterModComms.sendTo("examplemod", "helloworld", () -> { LOGGER.info("Hello world from the MDK"); return "Hello world";});
+        
     }
 
     private void processIMC(final InterModProcessEvent event)
     {
-        LOGGER.info("Got IMC {}", event.getIMCStream().
-                map(m->m.getMessageSupplier().get()).
-                collect(Collectors.toList()));
+
     }
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event)
     {
-        LOGGER.info("HELLO from server starting");
+       
     }
     
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
@@ -90,17 +85,12 @@ public class GuardVillagers
     	{
     		 event.getRegistry().registerAll
     		 (
-    		 new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg")
+    		   new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg"),
+    		   new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg")
     		 );
-    		 
-    		 event.getRegistry().registerAll
-    		 (
-    		 new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg")
-    		 );
-    	 } 
     	}
     }
-
+}
 
 
 

@@ -32,7 +32,7 @@ public class GuardSpawner {
 	}
 
 	private void addGolem(final MinecraftServer server) {
-	    final Template golem = server.getWorld(DimensionType.OVERWORLD).getSaveHandler()
+	    final Template golem = server.func_71218_a(DimensionType.OVERWORLD).getSaveHandler()
 	        .getStructureTemplateManager().getTemplate(new ResourceLocation("village/common/iron_golem"));
 	    if (golem != null) {
 	        final List<Template.EntityInfo> entities = ObfuscationReflectionHelper.getPrivateValue(Template.class, golem, "field_186271_b");
@@ -40,42 +40,42 @@ public class GuardSpawner {
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putString("guard", ITextComponent.Serializer.toJson(new StringTextComponent("guard")));
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
+	        nbt.putString("id", "guardvillagers:guard");
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        final ListNBT items1 = new ListNBT();
-	        items1.add(new ItemStack(Items.STONE_SWORD).write(new CompoundNBT()));
+	        items1.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items1);
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putString("guard", ITextComponent.Serializer.toJson(new StringTextComponent("guard")));
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
+	        nbt.putString("id", "guardvillagers:guard");
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        final ListNBT items2 = new ListNBT();
-	        items2.add(new ItemStack(Items.STONE_SWORD).write(new CompoundNBT()));
+	        items2.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items2);
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putString("guard", ITextComponent.Serializer.toJson(new StringTextComponent("guard")));
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
+	        nbt.putString("id", "guardvillagers:guard");
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        final ListNBT items3 = new ListNBT();
-	        items3.add(new ItemStack(Items.STONE_SWORD).write(new CompoundNBT()));
+	        items3.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items3);
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putString("guard", ITextComponent.Serializer.toJson(new StringTextComponent("guard")));
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
+	        nbt.putString("id", "guardvillagers:guard");
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        final ListNBT items4 = new ListNBT();
-	        items4.add(new ItemStack(Items.STONE_SWORD).write(new CompoundNBT()));
+	        items4.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items4);
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putString("guard", ITextComponent.Serializer.toJson(new StringTextComponent("guard")));
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
+	        nbt.putString("id", "guardvillagers:guard");
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        final ListNBT items = new ListNBT();
-	        items.add(new ItemStack(Items.STONE_SWORD).write(new CompoundNBT()));
+	        items.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items);
 	    }
 	}

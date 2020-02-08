@@ -34,7 +34,6 @@ public class HandlerEvents
 	    {
 	       MonsterEntity monster = (MonsterEntity)event.getEntity();
 	       monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GuardEntity.class, false));
-	       monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AbstractVillagerEntity.class, false));
 	    }
 	    
 		if (GuardConfig.AttackAllMobs == true)
@@ -62,6 +61,11 @@ public class HandlerEvents
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
 	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
 	   golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, WitchEntity.class, false));  
+	   if (GuardConfig.AttackAllMobs == true) 
+	   {
+		 golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, MonsterEntity.class, false));  
+	   }
+		   
 	}
 	
 	if(event.getEntity() instanceof VexEntity) 
@@ -91,11 +95,11 @@ public class HandlerEvents
 		 if (GuardConfig.WitchesVillager == true)
 		  if (witch.isRaidActive()) 
 		  {
-           witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
-	       witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
-	       witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
-	       witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
+            witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
+	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
+	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
 		  }
+	       witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
 	    if (GuardConfig.RaidAnimals == true)
 	    if (witch.isRaidActive()) 
 	    {
