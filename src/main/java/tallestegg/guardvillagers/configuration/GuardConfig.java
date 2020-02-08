@@ -32,7 +32,6 @@ public class GuardConfig
 		WitchesVillager = CLIENT.WitchesVillager.get();
 		IllusionerRaids = CLIENT.IllusionerRaids.get();
 		AttackAllMobs = CLIENT.AttackAllMobs.get();
-		GuardSurrender = CLIENT.GuardSurrender.get();
 	}
 
 	@SubscribeEvent
@@ -50,7 +49,6 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue WitchesVillager;
 		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
 		public final ForgeConfigSpec.BooleanValue AttackAllMobs;
-		public final ForgeConfigSpec.BooleanValue GuardSurrender;
 
 		public ClientConfig(ForgeConfigSpec.Builder builder) 
 		{
@@ -76,10 +74,6 @@ public class GuardConfig
 					.comment("Guards Attack All Mobs?")
 					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
 					.define("Guards Attack All Mobs?", false);
-			GuardSurrender = builder
-					.comment("Guards Runaway From Ravagers When Low On Health?")
-					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
-					.define("Guards Runaway From Ravagers When Low On Health?", true);
 		}
 	}
 }
