@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.configuration;
+	package tallestegg.guardvillagers.configuration;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -24,6 +24,7 @@ public class GuardConfig
 	public static boolean WitchesVillager;
 	public static boolean IllusionerRaids;
 	public static boolean AttackAllMobs;
+	public static boolean GuardSurrender;
 	
 	public static void bakeConfig() {
 		GuardModel = CLIENT.GuardModel.get();
@@ -31,6 +32,7 @@ public class GuardConfig
 		WitchesVillager = CLIENT.WitchesVillager.get();
 		IllusionerRaids = CLIENT.IllusionerRaids.get();
 		AttackAllMobs = CLIENT.AttackAllMobs.get();
+		GuardSurrender = CLIENT.GuardSurrender.get();
 	}
 
 	@SubscribeEvent
@@ -48,11 +50,12 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue WitchesVillager;
 		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
 		public final ForgeConfigSpec.BooleanValue AttackAllMobs;
+		public final ForgeConfigSpec.BooleanValue GuardSurrender;
 
 		public ClientConfig(ForgeConfigSpec.Builder builder) 
 		{
 			GuardModel = builder
-					.comment("Switch Guard Model To Vanilla Style?")
+					.comment("Switch Guard Model To Vanilla Style?, (textures not completed yet)")
 					.translation(GuardVillagers.MODID + ".config.GuardModel")
 					.define("Vanilla Styled Model?", false);
 			
@@ -73,6 +76,10 @@ public class GuardConfig
 					.comment("Guards Attack All Mobs?")
 					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
 					.define("Guards Attack All Mobs?", false);
+			GuardSurrender = builder
+					.comment("Guards Runaway From Ravagers When Low On Health?")
+					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
+					.define("Guards Runaway From Ravagers When Low On Health?", true);
 		}
 	}
 }
