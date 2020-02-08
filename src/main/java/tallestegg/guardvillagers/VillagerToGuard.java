@@ -19,36 +19,37 @@ public class VillagerToGuard
 	@SubscribeEvent
 	  public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
 	    {
-	    if ((e.getWorld()).isRemote) 
+	     if ((e.getWorld()).isRemote) 
 	    {
 	      return;
 	    }
-	    ItemStack itemstack = e.getItemStack();
-	    if (itemstack.getItem() instanceof SwordItem) {
-	      Entity target = e.getTarget();
-	      if ((target instanceof VillagerEntity)) {
-	        PlayerEntity player = e.getPlayer();
-	        VillagerEntity villager = (VillagerEntity) e.getTarget();
+	     ItemStack itemstack = e.getItemStack();
+	     if (itemstack.getItem() instanceof SwordItem) {
+	       Entity target = e.getTarget();
+	       if ((target instanceof VillagerEntity)) {
+	         PlayerEntity player = e.getPlayer();
+	         VillagerEntity villager = (VillagerEntity) e.getTarget();
 	        
-	        if (player.inventory.getFirstEmptyStack() < 0) 
+	         if (player.inventory.getFirstEmptyStack() < 0) 
 	        {
-	          return;
+	           return;
 	        }
-	        this.VillagerConvert(villager);
-	        
-	        itemstack.shrink(1);
+	         this.VillagerConvert(villager);
+	         
+	         itemstack.shrink(1);
 	   } 
 	} 
   }
 
 	private void VillagerConvert(LivingEntity entity) 
 	{
-	if (entity instanceof VillagerEntity);
-	GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
-	VillagerEntity villagerentity = (VillagerEntity)entity;
-	guard.setLocationAndAngles(villagerentity.posX, villagerentity.posY, villagerentity.posZ, villagerentity.rotationYaw, villagerentity.rotationPitch);
-	guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
-	villagerentity.world.addEntity(guard);
-    villagerentity.remove();	
+	  if (entity instanceof VillagerEntity);
+	   GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
+	   VillagerEntity villagerentity = (VillagerEntity)entity;
+	   guard.copyLocationAndAnglesFrom(villagerentity);
+	   guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
+	   guard.setGuardVariant(guard.getGuardVariant());
+	   villagerentity.world.addEntity(guard);
+       villagerentity.remove();	 
 	} 
 }
