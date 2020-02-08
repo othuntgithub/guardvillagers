@@ -1,16 +1,18 @@
 modLoader="javafml" #mandatory
-loaderVersion="[28,)" #mandatory
-credits="TallestEgg" #optional
-authors="TallestEgg" #optional
-
+loaderVersion="[28,)" #mandatory (28 is current forge version)
+issueTrackerURL="https://github.com/seymourimadeit/guardvillagers/issues" #optional
+# A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 modId="guardvillagers" #mandatory
-version="1.0" #mandatory
+version="1.0.1" #mandatory
 displayName="Guard Villagers" #mandatory
+updateJSONURL="https://raw.githubusercontent.com/seymourimadeit/guardvillagers/master/update.json" #optional
+displayURL="https://www.curseforge.com/minecraft/mc-mods/guard-villagers" #optional
+credits="TallestEgg and HadeZ/SadNya69 for the models." #optional
+authors="TallestEgg, HadeZ/SadNya69 for the models." #optional
 description='''
-This mod adds guard villagers.
+Need some help with pest control? These Guard Villagers are ready to help!
 '''
-
 [[dependencies.guardvillagers]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
