@@ -86,7 +86,9 @@ public class GuardVillagers
     		 event.getRegistry().registerAll
     		 (
     		   new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg"),
-    		   new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg")
+    		   new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg"),
+    		   new SpawnEggItem(EntityType.IRON_GOLEM, 12960449, 16769484, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "iron_golem_spawn_egg"),
+    		   new SpawnEggItem(EntityType.SNOW_GOLEM, 15663103, 16753185, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "snow_golem_spawn_egg")
     		 );
     	}
     }
