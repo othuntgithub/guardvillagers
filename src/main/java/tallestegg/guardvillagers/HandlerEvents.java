@@ -86,12 +86,13 @@ public class HandlerEvents
 	    if (GuardConfig.RaidAnimals == true)
 	     if (ravager.isRaidActive())
           {
-	       ravager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
+	        ravager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
 	      }
 	}
 	if(event.getEntity() instanceof WitchEntity) 
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
+	    witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
 		 if (GuardConfig.WitchesVillager == true)
 		  if (witch.isRaidActive()) 
 		  {
@@ -99,7 +100,6 @@ public class HandlerEvents
 	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
 	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
 		  }
-	       witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
 	    if (GuardConfig.RaidAnimals == true)
 	    if (witch.isRaidActive()) 
 	    {
