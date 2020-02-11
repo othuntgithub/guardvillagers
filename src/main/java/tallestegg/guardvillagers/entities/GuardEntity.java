@@ -46,6 +46,7 @@ import tallestegg.guardvillagers.configuration.GuardConfig;
 
 public class GuardEntity extends CreatureEntity
 {
+	
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
@@ -56,13 +57,14 @@ public class GuardEntity extends CreatureEntity
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
-		int type = this.getRandomTypeForBiome(worldIn);
-		if (spawnDataIn instanceof GuardEntity.GuardData) {
-			type = ((GuardEntity.GuardData)spawnDataIn).variantData;
-				spawnDataIn = new GuardEntity.GuardData(type);
-			}
+	 int type = this.getRandomTypeForBiome(worldIn);
+	  if (spawnDataIn instanceof GuardEntity.GuardData) 
+	  {
+        type = ((GuardEntity.GuardData)spawnDataIn).variantData;
+	    spawnDataIn = new GuardEntity.GuardData(type);
+	  }
 		
-		this.setGuardVariant(type);
+	   this.setGuardVariant(type);
 	   this.setEquipmentBasedOnDifficulty(difficultyIn);
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
@@ -135,7 +137,7 @@ public class GuardEntity extends CreatureEntity
 		this.setGuardVariant(compound.getInt("Type"));
 	}
 	
-	private int getRandomTypeForBiome(IWorld world) {
+	public int getRandomTypeForBiome(IWorld world) {
 		Biome biome = world.getBiome(new BlockPos(this));
 		if (!this.world.isRemote) 
 		{
