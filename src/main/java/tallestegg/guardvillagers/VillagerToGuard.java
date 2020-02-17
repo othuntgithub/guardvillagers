@@ -3,10 +3,8 @@ package tallestegg.guardvillagers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,31 +22,34 @@ public class VillagerToGuard
 	      return;
 	    }
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem) {
+	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking()) 
+	     {
 	       Entity target = e.getTarget();
-	       if ((target instanceof VillagerEntity)) {
-	         PlayerEntity player = e.getPlayer();
+	       if ((target instanceof VillagerEntity)) 
+	       {
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
-	        
-	         if (player.inventory.getFirstEmptyStack() < 0) 
-	        {
-	           return;
-	        }
-	         this.VillagerConvert(villager);
-	         
+	         this.VillagerConvert(villager, e);
 	         itemstack.shrink(1);
-	   } 
+	       } 
 	} 
   }
 
-	private void VillagerConvert(LivingEntity entity) 
+	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
 	{
-	  if (entity instanceof VillagerEntity);
-	   GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
-	   VillagerEntity villagerentity = (VillagerEntity)entity;
-	   guard.copyLocationAndAnglesFrom(villagerentity);
-	   guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.STONE_SWORD));
-	   villagerentity.world.addEntity(guard);
-       villagerentity.remove();	 
+		  if (entity instanceof VillagerEntity);
+		    ItemStack itemstack = e.getItemStack();
+		    GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
+		    VillagerEntity villager = (VillagerEntity)entity;
+		    guard.copyLocationAndAnglesFrom(villager);
+		    guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
+		    int i = guard.getRandomTypeForBiome(guard.world);
+		    guard.setGuardVariant(i);
+		    if (villager.hasCustomName()) 
+		    {
+		      guard.setCustomName(villager.getCustomName());
+		      guard.setCustomNameVisible(villager.isCustomNameVisible());
+		    }
+		    villager.world.addEntity(guard);
+	        villager.remove();	 
 	} 
 }
