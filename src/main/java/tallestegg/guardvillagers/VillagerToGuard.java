@@ -14,7 +14,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 public class VillagerToGuard 
 {
-	
 	@SubscribeEvent
 	  public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
 	    {
@@ -23,7 +22,7 @@ public class VillagerToGuard
 	      return;
 	    }
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem) 
+	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking()) 
 	     {
 	       Entity target = e.getTarget();
 	       if ((target instanceof VillagerEntity)) 
@@ -37,19 +36,19 @@ public class VillagerToGuard
 
 	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
 	{
-		  if (entity instanceof VillagerEntity);  
-		  ItemStack itemstack = e.getItemStack();
-		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
-		  VillagerEntity villager = (VillagerEntity)entity;
-   	      guard.copyLocationAndAnglesFrom(villager);
-		  guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
-		  int i = guard.getRandomTypeForBiome(guard.world);
-		  guard.setGuardVariant(i);
-		  if (villager.hasCustomName()) 
-		  {
-		    guard.setCustomName(villager.getCustomName());
-		    guard.setCustomNameVisible(villager.isCustomNameVisible());
-		  }
+		  if (entity instanceof VillagerEntity);
+		    ItemStack itemstack = e.getItemStack();
+		    GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
+		    VillagerEntity villager = (VillagerEntity)entity;
+		    guard.copyLocationAndAnglesFrom(villager);
+		    guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
+		    int i = guard.getRandomTypeForBiome(guard.world);
+		    guard.setGuardVariant(i);
+		    if (villager.hasCustomName()) 
+		    {
+		      guard.setCustomName(villager.getCustomName());
+		      guard.setCustomNameVisible(villager.isCustomNameVisible());
+		    }
 		    villager.world.addEntity(guard);
 	        villager.remove();	 
 	} 
