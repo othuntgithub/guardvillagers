@@ -47,7 +47,7 @@ public class HandlerEvents
 	   {
 		 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 	     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-	     illager.goalSelector.addGoal(8, new OpenDoorGoal(illager, true));
+	     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
 	     if (GuardConfig.RaidAnimals == true)
 	     if (illager.isRaidActive()) 
 	     {

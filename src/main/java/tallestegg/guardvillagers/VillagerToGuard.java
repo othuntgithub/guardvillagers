@@ -5,7 +5,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,22 +29,28 @@ public class VillagerToGuard
 	       if ((target instanceof VillagerEntity)) 
 	       {
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
-	         this.VillagerConvert(villager);
+	         this.VillagerConvert(villager, e);
 	         itemstack.shrink(1);
 	       } 
 	} 
   }
 
-	private void VillagerConvert(LivingEntity entity) 
+	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
 	{
-	   if (entity instanceof VillagerEntity);
-	    GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
-	    VillagerEntity villagerentity = (VillagerEntity)entity;
-	    guard.copyLocationAndAnglesFrom(villagerentity);
-	    guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-	    int i = guard.getRandomTypeForBiome(guard.world);
-	    guard.setGuardVariant(i);
-	    villagerentity.world.addEntity(guard);
-        villagerentity.remove();	 
+		  if (entity instanceof VillagerEntity);  
+		  ItemStack itemstack = e.getItemStack();
+		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
+		  VillagerEntity villager = (VillagerEntity)entity;
+   	      guard.copyLocationAndAnglesFrom(villager);
+		  guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
+		  int i = guard.getRandomTypeForBiome(guard.world);
+		  guard.setGuardVariant(i);
+		  if (villager.hasCustomName()) 
+		  {
+		    guard.setCustomName(villager.getCustomName());
+		    guard.setCustomNameVisible(villager.isCustomNameVisible());
+		  }
+		    villager.world.addEntity(guard);
+	        villager.remove();	 
 	} 
 }
