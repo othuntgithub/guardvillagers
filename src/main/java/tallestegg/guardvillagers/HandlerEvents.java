@@ -60,6 +60,7 @@ public class HandlerEvents
 	{
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
 	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
+	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
 	   golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, WitchEntity.class, false));  
 	   if (GuardConfig.AttackAllMobs == true) 
 	   {

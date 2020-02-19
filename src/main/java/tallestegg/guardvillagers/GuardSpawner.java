@@ -44,32 +44,30 @@ public class GuardSpawner {
 	        items.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items);
 	        nbt.putString("id", "guardvillagers:guard");
+	        nbt.putBoolean("InitialSpawn", true);
 	        nbt.putBoolean("PersistenceRequired", true);
+	        nbt.putString("id", "guardvillagers:guard");
+	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
+	        nbt.putString("id", "guardvillagers:guard");
+	        nbt.putBoolean("PersistenceRequired", true);
+	        nbt.putBoolean("InitialSpawn", true);
+	        nbt.putString("id", "guardvillagers:guard");
+	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
+	        nbt.putString("id", "guardvillagers:guard");
+	        nbt.putBoolean("PersistenceRequired", true);
+	        nbt.putBoolean("InitialSpawn", true);
 	        nbt.putString("id", "guardvillagers:guard");;
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
+	        nbt.putBoolean("InitialSpawn", true);
+	        nbt.putString("id", "guardvillagers:guard");
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        nbt.putString("id", "guardvillagers:guard");
 	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
-	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
+	        nbt.putBoolean("InitialSpawn", true);
 	        nbt.putString("id", "guardvillagers:guard");
-	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
 	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
-	        nbt.putString("id", "guardvillagers:guard");
-	        nbt.putBoolean("PersistenceRequired", true);
-	        nbt.putString("id", "guardvillagers:guard");;
-	        entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
-	        if (this.rand.nextInt(50) == 0) 
-	        {
-	          nbt.putString("id", "guardvillagers:guard");
-	          nbt.putBoolean("PersistenceRequired", true);
-	          nbt.putString("id", "guardvillagers:guard");
-	          entities.add(new Template.EntityInfo(new Vec3d(0.5D, 1.0D, 0.5D), new BlockPos(0, 1, 0), nbt));
 	        }
 	    }
 	}
-}
