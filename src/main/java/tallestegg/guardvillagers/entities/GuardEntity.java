@@ -142,7 +142,6 @@ public class GuardEntity extends CreatureEntity
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
 	      if (GuardConfig.AttackAllMobs == true)
