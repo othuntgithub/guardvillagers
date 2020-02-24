@@ -8,10 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
-@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 public class VillagerToGuard 
 {
 	@SubscribeEvent
@@ -29,7 +27,8 @@ public class VillagerToGuard
 	       {
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
 	         this.VillagerConvert(villager, e);
-	         itemstack.shrink(1);
+	         if (!e.getPlayer().abilities.isCreativeMode)
+		         itemstack.shrink(1);
 	       } 
 	} 
   }
