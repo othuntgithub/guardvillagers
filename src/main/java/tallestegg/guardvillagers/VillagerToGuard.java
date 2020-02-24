@@ -22,13 +22,14 @@ public class VillagerToGuard
 	      return;
 	    }
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking()) 
+	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isShiftKeyDown()) 
 	     {
 	       Entity target = e.getTarget();
 	       if ((target instanceof VillagerEntity)) 
 	       {
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
 	         this.VillagerConvert(villager, e);
+	         if (!e.getPlayer().abilities.isCreativeMode)
 	         itemstack.shrink(1);
 	       } 
 	} 
