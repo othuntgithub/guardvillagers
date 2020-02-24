@@ -36,7 +36,10 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
@@ -47,6 +50,7 @@ import tallestegg.guardvillagers.configuration.GuardConfig;
 
 public class GuardEntity extends CreatureEntity
 {
+	
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
@@ -57,23 +61,46 @@ public class GuardEntity extends CreatureEntity
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
-		int type = this.getRandomTypeForBiome(worldIn);
-		if (spawnDataIn instanceof GuardEntity.GuardData) {
-			type = ((GuardEntity.GuardData)spawnDataIn).variantData;
-				spawnDataIn = new GuardEntity.GuardData(type);
-			}
+	 int type = this.getRandomTypeForBiome(worldIn);
+	  if (spawnDataIn instanceof GuardEntity.GuardData) 
+	  {
+        type = ((GuardEntity.GuardData)spawnDataIn).variantData;
+	    spawnDataIn = new GuardEntity.GuardData(type);
+	  }
 		
-		this.setGuardVariant(type);
+	   this.setGuardVariant(type);
 	   this.setEquipmentBasedOnDifficulty(difficultyIn);
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
+	   protected SoundEvent getAmbientSound() 
+	   {
+	     return SoundEvents.ENTITY_VILLAGER_AMBIENT;
+	   }
+
+	   protected SoundEvent getHurtSound(DamageSource damageSourceIn) 
+	   {
+	      return SoundEvents.ENTITY_VILLAGER_HURT;
+	   }
+
+	   protected SoundEvent getDeathSound() 
+	   {
+	      return SoundEvents.ENTITY_VILLAGER_DEATH;
+	   }
+	   
+	@Override
+	public void readAdditional(CompoundNBT compound) 
+	{
+		super.readAdditional(compound);
+		this.setGuardVariant(compound.getInt("Type"));
+	}
 	
-	 public void livingTick() 
-	 {
-       super.livingTick();
-	   this.updateArmSwingProgress();
-	 }
+	
+	public void livingTick() 
+	{
+	    this.updateArmSwingProgress();
+	    super.livingTick();
+	}
 	
 	@Override
 	protected void registerData() 
@@ -107,17 +134,16 @@ public class GuardEntity extends CreatureEntity
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
-	      this.goalSelector.addGoal(8, new OpenDoorGoal(this, true));
-	      this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
+	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
 	      this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+	      this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      if (GuardConfig.AttackAllMobs == true)
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MonsterEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, GhastEntity.class, true));
@@ -131,17 +157,15 @@ public class GuardEntity extends CreatureEntity
 		compound.putInt("Type", this.getGuardVariant());
 	}
 	
-	@Override
-	public void readAdditional(CompoundNBT compound) 
-	{
-		super.readAdditional(compound);
-		this.setGuardVariant(compound.getInt("Type"));
-	}
-	
-	private int getRandomTypeForBiome(IWorld world) {
+	public int getRandomTypeForBiome(IWorld world) {
 		Biome biome = world.getBiome(new BlockPos(this));
 		if (!this.world.isRemote) 
 		{
+			if(biome.getCategory() == Category.PLAINS) 
+			{
+					return 0;
+			}
+			
 			if(biome.getCategory() == Category.DESERT) 
 			{
 					return 1;
@@ -179,13 +203,12 @@ public class GuardEntity extends CreatureEntity
 		return 0;
 	}
 	
-	
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	    if (!this.world.isRemote) 
 	    {
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem)
+	        if (heldStack.getItem() instanceof SwordItem && player.isShiftKeyDown())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
@@ -217,20 +240,11 @@ public class GuardEntity extends CreatureEntity
 		return "";
 	}
 	
-	public static enum ArmPose {
-	      ATTACKING;
-	   }
-	
-	public GuardEntity.ArmPose getArmPose() {
-	      return GuardEntity.ArmPose.ATTACKING;
-	   }
-
-	 
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
 	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(50.0D);
-	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(8.0D);
+	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(5.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
 	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0D);
