@@ -76,9 +76,9 @@ public final class GuardSpawner extends JigsawPatternRegistry {
             throw new RuntimeException(e);
         }
     }
-	
+
     private static final class Processor extends StructureProcessor 
-    {
+    {		
         public Processor() 
         {
 
@@ -88,14 +88,15 @@ public final class GuardSpawner extends JigsawPatternRegistry {
         { 
         	
         }
-        
+
         @Override
+        
         public Template.EntityInfo processEntity(final IWorldReader world, final BlockPos pos, final Template.EntityInfo rawInfo, final Template.EntityInfo info, final PlacementSettings settings, final Template template) {
         	final CompoundNBT nbt = info.nbt.copy();
             final ListNBT items = new ListNBT();
 	        items.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items);
-	        nbt.putInt("Type", GuardEntity.getRandomTypeForBiome((IWorld) world, pos));
+	        nbt.putInt("Type",  GuardEntity.getRandomTypeForBiome((IWorld) world, pos));
             return new Template.EntityInfo(info.pos, info.blockPos, nbt);
         }
 
