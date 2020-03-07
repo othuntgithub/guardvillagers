@@ -15,10 +15,6 @@ public class VillagerToGuard
 	@SubscribeEvent
 	  public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
 	    {
-	     if ((e.getWorld()).isRemote) 
-	    {
-	      return;
-	    }
 	     ItemStack itemstack = e.getItemStack();
 	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking()) 
 	     {
