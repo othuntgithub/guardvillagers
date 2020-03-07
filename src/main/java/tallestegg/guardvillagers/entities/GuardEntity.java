@@ -49,27 +49,27 @@ import net.minecraft.world.biome.Biome.Category;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 
 public class GuardEntity extends CreatureEntity
-{
-	
+{ 
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
-	
+	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
+		enablePersistence();
 	}
 
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
-	 int type = this.getRandomTypeForBiome(worldIn);
+	  int type = GuardEntity.getRandomTypeForBiome(world, this.getPosition());
 	  if (spawnDataIn instanceof GuardEntity.GuardData) 
 	  {
         type = ((GuardEntity.GuardData)spawnDataIn).variantData;
 	    spawnDataIn = new GuardEntity.GuardData(type);
 	  }
-		
 	   this.setGuardVariant(type);
 	   this.setEquipmentBasedOnDifficulty(difficultyIn);
+	   
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
@@ -144,10 +144,13 @@ public class GuardEntity extends CreatureEntity
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
-	      if (GuardConfig.AttackAllMobs == true)
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MonsterEntity.class, true));
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, GhastEntity.class, true));
+	     if (GuardConfig.AttackAllMobs == true) 
+	      {
+	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MonsterEntity.class, true));
+	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, GhastEntity.class, true));
+	      }
 	 }
+	
 	
 	
 	@Override
@@ -157,67 +160,59 @@ public class GuardEntity extends CreatureEntity
 		compound.putInt("Type", this.getGuardVariant());
 	}
 	
-	public int getRandomTypeForBiome(IWorld world) {
-		Biome biome = world.getBiome(new BlockPos(this));
-		if (!this.world.isRemote) 
-		{
+	public static int getRandomTypeForBiome(IWorld world, BlockPos pos) {
+		    Biome biome = world.getBiome(pos);
 			if(biome.getCategory() == Category.PLAINS) 
 			{
 					return 0;
 			}
 			
-			if(biome.getCategory() == Category.DESERT) 
+			if (biome.getCategory() == Category.DESERT) 
 			{
 					return 1;
 			}
 			
-			if(biome.getCategory() == Category.SAVANNA) 
+			if (biome.getCategory() == Category.SAVANNA) 
 			{
 					return 2;
 			}
 			
-			if(biome.getCategory() == Category.SWAMP) 
+			if (biome.getCategory() == Category.SWAMP) 
 			{
 					return 3;
 			}
 			
-			if(biome.getCategory() == Category.JUNGLE) 
+			if (biome.getCategory() == Category.JUNGLE) 
 			{
 					return 4;
 			}
 			
-			if(biome.getCategory() == Category.TAIGA) 
+			if (biome.getCategory() == Category.TAIGA) 
 			{
 					return 5;
 			}
 			
-			if(biome.getCategory() == Category.ICY) 
+			if (biome.getCategory() == Category.ICY) 
 			{
 					return 6;
 			}
-			
-		}
-		else {
-			return 0;
-		}
-		return 0;
+			else 
+			{
+			  return 0;
+			}
 	}
 	
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
-	    if (!this.world.isRemote) 
-	    {
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem && player.isSneaking())
+	        if (heldStack.getItem() instanceof SwordItem && player.isShiftKeyDown())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
 	                heldStack.shrink(1);
+	            }
+			    return true;
 	        }
-	    }
-	    return true;
-	}
-	
 	public static String getNameByType(int id) 
 	{
 		switch(id) 
@@ -240,6 +235,7 @@ public class GuardEntity extends CreatureEntity
 		return "";
 	}
 	
+	
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
@@ -259,7 +255,9 @@ public class GuardEntity extends CreatureEntity
 			this.variantData = type;
 		}
 	}
-	
+
+
+
 	/**
 	 * Credit - SmellyModder for Biome Specific Textures
 	 */
