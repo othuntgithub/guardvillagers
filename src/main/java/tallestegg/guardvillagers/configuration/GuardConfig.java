@@ -11,12 +11,12 @@ import tallestegg.guardvillagers.GuardVillagers;
 @EventBusSubscriber(modid = GuardVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class GuardConfig 
 {
-	public static final ClientConfig CLIENT;
-	public static final ForgeConfigSpec CLIENT_SPEC;
+	public static final ForgeConfigSpec COMMON_SPEC;
+	public static final CommonConfig COMMON;
 	static {
-		final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
-		CLIENT_SPEC = specPair.getRight();
-		CLIENT = specPair.getLeft();
+		final Pair<CommonConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(CommonConfig::new);
+		COMMON_SPEC = specPair.getRight();
+		COMMON = specPair.getLeft();
 	}
 	
 	public static boolean GuardModel;
@@ -27,21 +27,21 @@ public class GuardConfig
 	public static boolean GuardSurrender;
 	
 	public static void bakeConfig() {
-		GuardModel = CLIENT.GuardModel.get();
-		RaidAnimals = CLIENT.RaidAnimals.get();
-		WitchesVillager = CLIENT.WitchesVillager.get();
-		IllusionerRaids = CLIENT.IllusionerRaids.get();
-		AttackAllMobs = CLIENT.AttackAllMobs.get();
+		GuardModel = COMMON.GuardModel.get();
+		RaidAnimals = COMMON.RaidAnimals.get();
+		WitchesVillager = COMMON.WitchesVillager.get();
+		IllusionerRaids = COMMON.IllusionerRaids.get();
+		AttackAllMobs = COMMON.AttackAllMobs.get();
 	}
 
 	@SubscribeEvent
 	public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent) {
-		if (configEvent.getConfig().getSpec() == GuardConfig.CLIENT_SPEC) {
+		if (configEvent.getConfig().getSpec() == GuardConfig.COMMON_SPEC) {
 			bakeConfig();
 		}
 	}
 	
-	public static class ClientConfig 
+	public static class CommonConfig 
 	{
 
 		public final ForgeConfigSpec.BooleanValue GuardModel;
@@ -50,7 +50,7 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
 		public final ForgeConfigSpec.BooleanValue AttackAllMobs;
 
-		public ClientConfig(ForgeConfigSpec.Builder builder) 
+		public CommonConfig(ForgeConfigSpec.Builder builder) 
 		{
 			GuardModel = builder
 					.comment("Switch Guard Model To Vanilla Style?, (textures not completed yet)")
