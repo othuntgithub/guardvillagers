@@ -20,9 +20,8 @@ import net.minecraft.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.entity.ai.goal.RandomWalkingGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
-import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
@@ -135,22 +134,38 @@ public class GuardEntity extends CreatureEntity
 	      this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
-	      this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D));
+	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D){
+				@Override
+				public boolean shouldExecute() {
+					return ((GuardEntity)this.entity).getHealth() <= 13 && super.shouldExecute();
+				}
+				
+			});
+	      
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      this.targetSelector.addGoal(2, new HurtByTargetGoal(this));
+	      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
+				@Override
+				public boolean shouldExecute() {
+					return ((GuardEntity)this.goalOwner).getHealth() >= 13 && super.shouldExecute();
+				}
+				
+			});
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
-	     if (GuardConfig.AttackAllMobs == true) 
+	      if (GuardConfig.AttackAllMobs == true)
 	      {
-	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MonsterEntity.class, true));
-	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, GhastEntity.class, true));
+	    	  this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, false, false, (mob) ->
+	  		{
+	  			return mob instanceof IMob;
+	  		}));
+
 	      }
 	 }
-	
 	
 	
 	@Override
