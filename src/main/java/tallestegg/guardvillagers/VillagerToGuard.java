@@ -8,8 +8,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
+@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 public class VillagerToGuard 
 {
 	@SubscribeEvent
@@ -20,7 +22,7 @@ public class VillagerToGuard
 	      return;
 	    }
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking()) 
+	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isShiftKeyDown()) 
 	     {
 	       Entity target = e.getTarget();
 	       if ((target instanceof VillagerEntity)) 
@@ -28,7 +30,7 @@ public class VillagerToGuard
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
 	         this.VillagerConvert(villager, e);
 	         if (!e.getPlayer().abilities.isCreativeMode)
-		         itemstack.shrink(1);
+	         itemstack.shrink(1);
 	       } 
 	} 
   }
@@ -41,7 +43,7 @@ public class VillagerToGuard
 		    VillagerEntity villager = (VillagerEntity)entity;
 		    guard.copyLocationAndAnglesFrom(villager);
 		    guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
-		    int i = guard.getRandomTypeForBiome(guard.world);
+		    int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.getPosition());
 		    guard.setGuardVariant(i);
 		    if (villager.hasCustomName()) 
 		    {

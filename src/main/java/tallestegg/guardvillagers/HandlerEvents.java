@@ -34,6 +34,7 @@ public class HandlerEvents
 	    {
 	       MonsterEntity monster = (MonsterEntity)event.getEntity();
 	       monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GuardEntity.class, false));
+	       monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AbstractVillagerEntity.class, false));
 	    }
 	    
 		if (GuardConfig.AttackAllMobs == true)
@@ -60,13 +61,8 @@ public class HandlerEvents
 	{
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
 	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
-	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
+	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(5.0D);
 	   golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, WitchEntity.class, false));  
-	   if (GuardConfig.AttackAllMobs == true) 
-	   {
-		 golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, MonsterEntity.class, false));  
-	   }
-		   
 	}
 	
 	if(event.getEntity() instanceof VexEntity) 
@@ -87,13 +83,13 @@ public class HandlerEvents
 	    if (GuardConfig.RaidAnimals == true)
 	     if (ravager.isRaidActive())
           {
-	        ravager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
+	       ravager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
 	      }
 	}
 	if(event.getEntity() instanceof WitchEntity) 
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
-	    witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
+		 witch.goalSelector.addGoal(4, new OpenDoorGoal(witch, true));
 		 if (GuardConfig.WitchesVillager == true)
 		  if (witch.isRaidActive()) 
 		  {
@@ -123,24 +119,23 @@ public class HandlerEvents
 	@SubscribeEvent
     public void onEntityJoin(EntityJoinWorldEvent event) 
 	{
-      World world = event.getWorld();
-      if (GuardConfig.IllusionerRaids == true)
-	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
-	   {
-         AbstractIllagerEntity illager = (AbstractIllagerEntity) event.getEntity();
-        
-         if (illager.getRaid() != null && !illager.isLeader() && world.rand.nextInt(8) == 0) 
-          {
-            for (int i = 0; i < 1 + world.rand.nextInt(1); i++) 
-          {
-            IllusionerEntity illusioner = EntityType.ILLUSIONER.create(world);
-            illager.getRaid().func_221317_a(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(), false);
-          } 
-            illager.remove();
-          }
-      }
-  }	
-}
+       World world = event.getWorld();
+       if (GuardConfig.IllusionerRaids == true)
+ 	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
+ 	   {
+          AbstractIllagerEntity illager = (AbstractIllagerEntity) event.getEntity();
+         
+          if (illager.getRaid() != null && !illager.isLeader() && world.rand.nextInt(8) == 0) 
+           {
+             for (int i = 0; i < 1 + world.rand.nextInt(1); i++) 
+           {
+             IllusionerEntity illusioner = EntityType.ILLUSIONER.create(world);
+             illager.getRaid().func_221317_a(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(),  false);
+           } 
+           }
+       }
+   }	
+ }
 
 
 

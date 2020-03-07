@@ -19,6 +19,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.gen.feature.jigsaw.JigsawManager;
 import net.minecraft.world.gen.feature.jigsaw.JigsawPattern;
@@ -30,6 +31,7 @@ import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.feature.template.StructureProcessor;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import tallestegg.guardvillagers.entities.GuardEntity;
 
 public final class GuardSpawner extends JigsawPatternRegistry {
     private static final IStructureProcessorType PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, new ResourceLocation(GuardVillagers.MODID, "golem"), Processor::new);
@@ -74,20 +76,26 @@ public final class GuardSpawner extends JigsawPatternRegistry {
             throw new RuntimeException(e);
         }
     }
+	
+    private static final class Processor extends StructureProcessor 
+    {
+        public Processor() 
+        {
 
-    private static final class Processor extends StructureProcessor {
-        public Processor() {
         }
 
-        public Processor(final Dynamic<?> dynamic) {
+        public Processor(final Dynamic<?> dynamic) 
+        { 
+        	
         }
-
+        
         @Override
         public Template.EntityInfo processEntity(final IWorldReader world, final BlockPos pos, final Template.EntityInfo rawInfo, final Template.EntityInfo info, final PlacementSettings settings, final Template template) {
-            final CompoundNBT nbt = info.nbt.copy();
+        	final CompoundNBT nbt = info.nbt.copy();
             final ListNBT items = new ListNBT();
 	        items.add(new ItemStack(Items.IRON_SWORD).write(new CompoundNBT()));
 	        nbt.put("HandItems", items);
+	        nbt.putInt("Type", GuardEntity.getRandomTypeForBiome((IWorld) world, pos));
             return new Template.EntityInfo(info.pos, info.blockPos, nbt);
         }
 
