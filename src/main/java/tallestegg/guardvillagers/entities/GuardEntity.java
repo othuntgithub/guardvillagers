@@ -54,6 +54,7 @@ public class GuardEntity extends CreatureEntity
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
+		enablePersistence();
 	}
 
 	@Override
