@@ -47,28 +47,27 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 
-public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TODO
-{ 
+public class GuardEntity extends CreatureEntity
+{
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
-	 
+	
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
-		enablePersistence();
 	}
 
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
-	  int type = GuardEntity.getRandomTypeForBiome(world, this.getPosition());
+	 int type = GuardEntity.getRandomTypeForBiome(worldIn, this.getPosition());
 	  if (spawnDataIn instanceof GuardEntity.GuardData) 
 	  {
         type = ((GuardEntity.GuardData)spawnDataIn).variantData;
 	    spawnDataIn = new GuardEntity.GuardData(type);
 	  }
+		
 	   this.setGuardVariant(type);
 	   this.setEquipmentBasedOnDifficulty(difficultyIn);
-	   
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
@@ -121,6 +120,7 @@ public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TOD
 	     }
 	  this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
 	}
+	
 	
 	public int getGuardVariant()
     {
@@ -183,58 +183,59 @@ public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TOD
 	}
 	
 	public static int getRandomTypeForBiome(IWorld world, BlockPos pos) {
-		    Biome biome = world.getBiome(pos);
-			if(biome.getCategory() == Category.PLAINS) 
-			{
-					return 0;
-			}
-			
-			if (biome.getCategory() == Category.DESERT) 
-			{
-					return 1;
-			}
-			
-			if (biome.getCategory() == Category.SAVANNA) 
-			{
-					return 2;
-			}
-			
-			if (biome.getCategory() == Category.SWAMP) 
-			{
-					return 3;
-			}
-			
-			if (biome.getCategory() == Category.JUNGLE) 
-			{
-					return 4;
-			}
-			
-			if (biome.getCategory() == Category.TAIGA) 
-			{
-					return 5;
-			}
-			
-			if (biome.getCategory() == Category.ICY) 
-			{
-					return 6;
-			}
-			else 
-			{
-			  return 0;
-			}
-	}
+	    Biome biome = world.getBiome(pos);
+		if(biome.getCategory() == Category.PLAINS) 
+		{
+				return 0;
+		}
+		
+		if (biome.getCategory() == Category.DESERT) 
+		{
+				return 1;
+		}
+		
+		if (biome.getCategory() == Category.SAVANNA) 
+		{
+				return 2;
+		}
+		
+		if (biome.getCategory() == Category.SWAMP) 
+		{
+				return 3;
+		}
+		
+		if (biome.getCategory() == Category.JUNGLE) 
+		{
+				return 4;
+		}
+		
+		if (biome.getCategory() == Category.TAIGA) 
+		{
+				return 5;
+		}
+		
+		if (biome.getCategory() == Category.ICY) 
+		{
+				return 6;
+		}
+		else 
+		{
+		  return 0;
+		}
+}
 	
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem && player.isShiftKeyDown())
+	        if (heldStack.getItem() instanceof SwordItem && player.isSneaking())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
 	                heldStack.shrink(1);
-	            }
-			    return true;
 	        }
+			return true;
+	    }
+	
 	public static String getNameByType(int id) 
 	{
 		switch(id) 
@@ -257,7 +258,6 @@ public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TOD
 		return "";
 	}
 	
-	
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
@@ -277,9 +277,7 @@ public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TOD
 			this.variantData = type;
 		}
 	}
-
-
-
+	
 	/**
 	 * Credit - SmellyModder for Biome Specific Textures
 	 */
