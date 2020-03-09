@@ -47,7 +47,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 
-public class GuardEntity extends CreatureEntity
+public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TODO
 { 
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	 
@@ -110,8 +110,16 @@ public class GuardEntity extends CreatureEntity
 	
 	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
 	{
+	  int i = this.rand.nextInt(2);
+		if (i == 0) 
+		{
 	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-	      this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
+	    } 
+		 else 
+	     {
+	       this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));
+	     }
+	  this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
 	}
 	
 	public int getGuardVariant()
@@ -131,7 +139,6 @@ public class GuardEntity extends CreatureEntity
 	      this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, true));
 	      this.goalSelector.addGoal(2, new MoveTowardsTargetGoal(this, 0.9D, 32.0F));
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
-	      this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
 	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D){
