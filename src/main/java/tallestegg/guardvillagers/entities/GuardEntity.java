@@ -47,27 +47,28 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 
-public class GuardEntity extends CreatureEntity
-{
+public class GuardEntity extends CreatureEntity //implements ICrossbowUser //TODO
+{ 
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
-	
+	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
+		enablePersistence();
 	}
 
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
-	 int type = GuardEntity.getRandomTypeForBiome(worldIn, this.getPosition());
+	  int type = GuardEntity.getRandomTypeForBiome(world, this.getPosition());
 	  if (spawnDataIn instanceof GuardEntity.GuardData) 
 	  {
         type = ((GuardEntity.GuardData)spawnDataIn).variantData;
 	    spawnDataIn = new GuardEntity.GuardData(type);
 	  }
-		
 	   this.setGuardVariant(type);
 	   this.setEquipmentBasedOnDifficulty(difficultyIn);
+	   
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
@@ -109,8 +110,16 @@ public class GuardEntity extends CreatureEntity
 	
 	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
 	{
+	  int i = this.rand.nextInt(2);
+		if (i == 0) 
+		{
 	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-	      this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
+	    } 
+		 else 
+	     {
+	       this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));
+	     }
+	  this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
 	}
 	
 	public int getGuardVariant()
@@ -130,7 +139,6 @@ public class GuardEntity extends CreatureEntity
 	      this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, true));
 	      this.goalSelector.addGoal(2, new MoveTowardsTargetGoal(this, 0.9D, 32.0F));
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
-	      this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
 	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D){
@@ -175,59 +183,58 @@ public class GuardEntity extends CreatureEntity
 	}
 	
 	public static int getRandomTypeForBiome(IWorld world, BlockPos pos) {
-	    Biome biome = world.getBiome(pos);
-		if(biome.getCategory() == Category.PLAINS) 
-		{
-				return 0;
-		}
-		
-		if (biome.getCategory() == Category.DESERT) 
-		{
-				return 1;
-		}
-		
-		if (biome.getCategory() == Category.SAVANNA) 
-		{
-				return 2;
-		}
-		
-		if (biome.getCategory() == Category.SWAMP) 
-		{
-				return 3;
-		}
-		
-		if (biome.getCategory() == Category.JUNGLE) 
-		{
-				return 4;
-		}
-		
-		if (biome.getCategory() == Category.TAIGA) 
-		{
-				return 5;
-		}
-		
-		if (biome.getCategory() == Category.ICY) 
-		{
-				return 6;
-		}
-		else 
-		{
-		  return 0;
-		}
-}
+		    Biome biome = world.getBiome(pos);
+			if(biome.getCategory() == Category.PLAINS) 
+			{
+					return 0;
+			}
+			
+			if (biome.getCategory() == Category.DESERT) 
+			{
+					return 1;
+			}
+			
+			if (biome.getCategory() == Category.SAVANNA) 
+			{
+					return 2;
+			}
+			
+			if (biome.getCategory() == Category.SWAMP) 
+			{
+					return 3;
+			}
+			
+			if (biome.getCategory() == Category.JUNGLE) 
+			{
+					return 4;
+			}
+			
+			if (biome.getCategory() == Category.TAIGA) 
+			{
+					return 5;
+			}
+			
+			if (biome.getCategory() == Category.ICY) 
+			{
+					return 6;
+			}
+			else 
+			{
+			  return 0;
+			}
+	}
 	
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem && player.isSneaking())
+	        if (heldStack.getItem() instanceof SwordItem && player.isShiftKeyDown())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
 	                heldStack.shrink(1);
+	            }
+			    return true;
 	        }
-			return true;
-	    }
-	
 	public static String getNameByType(int id) 
 	{
 		switch(id) 
@@ -250,6 +257,7 @@ public class GuardEntity extends CreatureEntity
 		return "";
 	}
 	
+	
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
@@ -269,7 +277,9 @@ public class GuardEntity extends CreatureEntity
 			this.variantData = type;
 		}
 	}
-	
+
+
+
 	/**
 	 * Credit - SmellyModder for Biome Specific Textures
 	 */
