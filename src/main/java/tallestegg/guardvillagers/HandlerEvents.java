@@ -10,6 +10,7 @@ import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.PhantomEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
@@ -25,7 +26,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class HandlerEvents 
 {
-
 	@SubscribeEvent
 	public void onLivingSpawned(EntityJoinWorldEvent event) 
 	{
@@ -42,12 +42,19 @@ public class HandlerEvents
 	    	GhastEntity ghast = (GhastEntity)event.getEntity();
 	    	ghast.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(ghast, GuardEntity.class, true));   
 		}
+		
+		if (GuardConfig.AttackAllMobs == true)
+		    if(event.getEntity() instanceof PhantomEntity) 
+			{
+		    	PhantomEntity phantom = (PhantomEntity)event.getEntity();
+		    	phantom.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(phantom, GuardEntity.class, true));   
+			}
 	    
 	   if(event.getEntity() instanceof AbstractIllagerEntity) 
 	   {
 		 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 	     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-	     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
+	     illager.goalSelector.addGoal(10, new OpenDoorGoal(illager, true));
 	     if (GuardConfig.RaidAnimals == true)
 	     if (illager.isRaidActive()) 
 	     {
@@ -94,10 +101,10 @@ public class HandlerEvents
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
 	    witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
-		 if (GuardConfig.WitchesVillager == true)
+		 if (GuardConfig.WitchesVillager == true) {
+	       witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
 		  if (witch.isRaidActive()) 
 		  {
-            witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
 	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
 	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
 		  }
@@ -119,6 +126,7 @@ public class HandlerEvents
 		}   
 	   }
 	}
+  }
 	
 	@SubscribeEvent
     public void onEntityJoin(EntityJoinWorldEvent event) 
