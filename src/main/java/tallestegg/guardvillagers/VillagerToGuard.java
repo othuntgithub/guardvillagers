@@ -22,9 +22,10 @@ public class VillagerToGuard
 	     if (itemstack.getItem() instanceof SwordItem || itemstack.getItem() instanceof ShootableItem && e.getPlayer().isShiftKeyDown()) 
 	     {
 	       Entity target = e.getTarget();
-	       if ((target instanceof VillagerEntity)) 
+	       if (target instanceof VillagerEntity)
 	       {
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
+	       if (villager.isChild() == false)
 	         this.VillagerConvert(villager, e);
 	         if (!e.getPlayer().abilities.isCreativeMode)
 	         itemstack.shrink(1);
