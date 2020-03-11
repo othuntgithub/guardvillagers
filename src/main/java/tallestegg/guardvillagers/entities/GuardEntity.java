@@ -30,6 +30,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShootableItem;
 import net.minecraft.item.SwordItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
@@ -164,7 +165,7 @@ public class GuardEntity extends CreatureEntity
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
-	      this.targetSelector.addGoal(3, (new HurtByTargetGoal(this, GuardEntity.class)).setCallsForHelp());
+	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class)).setCallsForHelp());
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
 	      if (GuardConfig.AttackAllMobs == true)
 	      {
@@ -229,7 +230,7 @@ public class GuardEntity extends CreatureEntity
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem && player.isSneaking())
+	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof ShootableItem && player.isSneaking())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
