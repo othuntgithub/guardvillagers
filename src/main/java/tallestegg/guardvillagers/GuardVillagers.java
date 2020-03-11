@@ -1,11 +1,8 @@
 package tallestegg.guardvillagers;
 
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -13,7 +10,6 @@ import net.minecraft.item.SpawnEggItem;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -32,8 +28,6 @@ import tallestegg.guardvillagers.renderer.GuardRenderer2;
 public class GuardVillagers
 {  
 	public static final String MODID = "guardvillagers";
-	
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public GuardVillagers() 
     {
@@ -53,8 +47,7 @@ public class GuardVillagers
 
     private void setup(final FMLCommonSetupEvent event)
     {
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+    	
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) 
@@ -67,19 +60,17 @@ public class GuardVillagers
 
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
-        InterModComms.sendTo("examplemod", "helloworld", () -> { LOGGER.info("Hello world from the MDK"); return "Hello world";});
+     
     }
 
     private void processIMC(final InterModProcessEvent event)
     {
-        LOGGER.info("Got IMC {}", event.getIMCStream().
-                map(m->m.getMessageSupplier().get()).
-                collect(Collectors.toList()));
+
     }
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event)
     {
-        LOGGER.info("HELLO from server starting");
+        
     }
     
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
