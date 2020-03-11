@@ -48,7 +48,7 @@ public class HandlerEvents
 	   {
 		 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 	     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-	     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
+	     illager.goalSelector.addGoal(10, new OpenDoorGoal(illager, true));
 	     if (GuardConfig.RaidAnimals == true)
 	     if (illager.isRaidActive()) 
 	     {
@@ -124,13 +124,12 @@ public class HandlerEvents
  	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
  	   {
           AbstractIllagerEntity illager = (AbstractIllagerEntity) event.getEntity();
-         
           if (illager.getRaid() != null && !illager.isLeader() && world.rand.nextInt(8) == 0) 
            {
              for (int i = 0; i < 1 + world.rand.nextInt(1); i++) 
            {
              IllusionerEntity illusioner = EntityType.ILLUSIONER.create(world);
-             illager.getRaid().func_221317_a(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(),  false);
+             illager.getRaid().func_221317_a(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(), false);
            } 
            }
        }
