@@ -20,6 +20,7 @@ import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import tallestegg.guardvillagers.configuration.GuardConfig;
+import tallestegg.guardvillagers.entities.goals.DefendVillageGuardGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 
 public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob
@@ -44,7 +45,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             GuardEntity.this.setAggroed(true);
         }
     };
-    private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 12.0F);
+    private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
 	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
@@ -164,6 +165,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new MoveTowardsTargetGoal(this, 0.9D, 32.0F));
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
+	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
 	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D) {
 				@Override
@@ -173,7 +175,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 				
 			});	      
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
-	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
@@ -213,12 +214,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    @Override
    public void setItemStackToSlot(EquipmentSlotType slotIn, ItemStack stack)
    {
-		      super.setItemStackToSlot(slotIn, stack);
-		      if (!this.world.isRemote) 
-		      {
-		         this.setCombatTask();
-		      }
-
+	  super.setItemStackToSlot(slotIn, stack);
+	  if (!this.world.isRemote) 
+	  {
+		this.setCombatTask();
+	  }
     }
    
    
@@ -317,6 +317,27 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			}
 	}
 	
+	 public GuardEntity.ArmPose getArmPose() {
+	      /*if (this.isCharging()) 
+	      {
+	        return GuardEntity.ArmPose.CROSSBOW_CHARGE;
+	      }*/
+	      /*else*/ if (this.isHolding(Items.CROSSBOW)) {
+	            return GuardEntity.ArmPose.CROSSBOW_HOLD;
+	     } else {
+          return this.isAggressive() ? GuardEntity.ArmPose.NEUTRAL : GuardEntity.ArmPose.NEUTRAL;
+	     }
+		  
+	   }
+
+	   public void updateRidden() {
+		      super.updateRidden();
+		      if (this.getRidingEntity() instanceof CreatureEntity) {
+		         CreatureEntity creatureentity = (CreatureEntity)this.getRidingEntity();
+		         this.renderYawOffset = creatureentity.renderYawOffset;
+		      }
+
+		   }
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
@@ -370,6 +391,13 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			this.variantData = type;
 		}
 	}
+	
+	 public static enum ArmPose {
+	      BOW_AND_ARROW, //Maybe?
+	      CROSSBOW_HOLD,
+	      CROSSBOW_CHARGE,
+	      NEUTRAL;
+	   }
 
 	/**
 	 * Credit - SmellyModder for Biome Specific Textures
