@@ -175,6 +175,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 				
 			});	      
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
