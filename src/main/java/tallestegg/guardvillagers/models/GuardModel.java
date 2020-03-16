@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.model.IHasArm;
 import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.item.Items;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -89,27 +90,32 @@ public class GuardModel <T extends GuardEntity> extends SegmentedModel<T> implem
 			ModelRenderer.rotateAngleZ = z;
 		}
 
-		public void render(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+		public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
 		{
 			float f = MathHelper.sin(this.swingProgress * (float) Math.PI);
 	        float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float) Math.PI);
-	        this.LegL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-	        this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount;
+	        this.Head.rotateAngleY = netHeadYaw * ((float)Math.PI / 180F);
+	        this.Head.rotateAngleX = headPitch * ((float)Math.PI / 180F);
 	        this.ArmR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.5F;
 	        this.ArmL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
 	        this.ArmR.rotateAngleZ = 0.0F;
 	        this.ArmL.rotateAngleZ = 0.0F;
-	        this.Head.rotateAngleY = netHeadYaw * 0.017453292F;
-	        this.Head.rotateAngleX = headPitch * 0.017453292F;
+	        this.LegL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+	        this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount;
+	        this.LegR.rotateAngleY = 0.0F;
+	        this.LegL.rotateAngleY = 0.0F;
 	         if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
 	         {
-	           this.ArmR.rotateAngleX -= f * 1.2F - f1 * 0.4F;
+	           this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
 	         }
-	          else 
+	          else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
 	          {
-	            this.ArmL.rotateAngleX -= f * 1.2F - f1 * 0.4F;
+	           this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
 	          }
-
+	       if (entityIn.isHolding(Items.CROSSBOW)) 
+	       {
+	    	   
+	       }
 		}
 
 		  public ModelRenderer getModelHead() {
@@ -120,11 +126,12 @@ public class GuardModel <T extends GuardEntity> extends SegmentedModel<T> implem
 			  float f = p_225599_1_ == HandSide.RIGHT ? 2.0F : -1.0F;
 		      ModelRenderer modelrenderer = this.getArmForSide(p_225599_1_);
 		      modelrenderer.rotationPointX += f;
-		      modelrenderer.setAnglesAndRotation(p_225599_2_);
+		      modelrenderer.translateRotate(p_225599_2_);
 		      modelrenderer.rotationPointX -= f;
 		  }
 
 		   protected ModelRenderer getArmForSide(HandSide p_187074_1_) {
 		      return p_187074_1_ == HandSide.LEFT ? this.ArmL : this.ArmR;
 		   }
+
 	}
