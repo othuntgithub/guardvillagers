@@ -25,7 +25,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class HandlerEvents 
 {
-
 	@SubscribeEvent
 	public void onLivingSpawned(EntityJoinWorldEvent event) 
 	{
@@ -129,7 +128,7 @@ public class HandlerEvents
              for (int i = 0; i < 1 + world.rand.nextInt(1); i++) 
            {
              IllusionerEntity illusioner = EntityType.ILLUSIONER.create(world);
-             illager.getRaid().func_221317_a(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(), false);
+             illager.getRaid().joinRaid(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(), false);
            } 
            }
        }
