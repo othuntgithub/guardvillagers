@@ -96,14 +96,35 @@ public class GuardModel <T extends GuardEntity> extends SegmentedModel<T> implem
 	        float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float) Math.PI);
 	        this.Head.rotateAngleY = netHeadYaw * ((float)Math.PI / 180F);
 	        this.Head.rotateAngleX = headPitch * ((float)Math.PI / 180F);
-	        this.ArmR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.5F;
-	        this.ArmL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
-	        this.ArmR.rotateAngleZ = 0.0F;
-	        this.ArmL.rotateAngleZ = 0.0F;
-	        this.LegL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-	        this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount;
-	        this.LegR.rotateAngleY = 0.0F;
-	        this.LegL.rotateAngleY = 0.0F;
+	        if (this.isSitting) 
+	        {
+	            this.ArmR.rotateAngleX = (-(float)Math.PI / 5F);
+	            this.ArmR.rotateAngleY = 0.0F;
+	            this.ArmR.rotateAngleZ = 0.0F;
+	            this.ArmL.rotateAngleX = (-(float)Math.PI / 5F);
+	            this.ArmL.rotateAngleY = 0.0F;
+	            this.ArmL.rotateAngleZ = 0.0F;
+	            this.LegL.rotateAngleX = -1.4137167F;
+	            this.LegL.rotateAngleY = ((float)Math.PI / 10F);
+	            this.LegL.rotateAngleZ = 0.07853982F;
+	            this.LegR.rotateAngleX = -1.4137167F;
+	            this.LegR.rotateAngleY = (-(float)Math.PI / 10F);
+	            this.LegR.rotateAngleZ = -0.07853982F;
+	        } 
+	         else 
+	         {
+	           this.ArmR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.5F;
+	           this.ArmR.rotateAngleY = 0.0F;
+	           this.ArmR.rotateAngleZ = 0.0F;
+	           this.ArmL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
+	           this.ArmL.rotateAngleY = 0.0F;
+	           this.ArmL.rotateAngleZ = 0.0F;
+               this.LegL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * 0.5F;
+               this.LegL.rotateAngleY = 0.0F;
+	           this.LegL.rotateAngleZ = 0.0F;
+	           this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * 0.5F;
+	           this.LegR.rotateAngleY = 0.0F;
+               this.LegR.rotateAngleZ = 0.0F;
 	         if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
 	         {
 	           this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
@@ -112,10 +133,30 @@ public class GuardModel <T extends GuardEntity> extends SegmentedModel<T> implem
 	          {
 	           this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
 	          }
-	       if (entityIn.isHolding(Items.CROSSBOW)) 
-	       {
-	    	   
-	       }
+	        }
+	        if (entityIn.isHolding(Items.CROSSBOW)) 
+	        {
+	        	 if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+		          {
+	        		 this.ArmR.rotateAngleY = 0.3F;
+		             this.ArmL.rotateAngleY = -0.6F;
+		             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+		             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
+		          }
+	        	   else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+		           {
+	            	 this.ArmR.rotateAngleY = -0.6F + this.Head.rotateAngleY;
+		             this.ArmL.rotateAngleY = 0.3F + this.Head.rotateAngleY;
+		             this.ArmR.rotateAngleX = -1.5F + this.Head.rotateAngleX; 
+		             this.ArmL.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+		           }
+	        }
+	        if (entityIn.isCharging()) {
+	           this.ArmR.rotateAngleY = -100.0F;
+	           this.ArmR.rotateAngleX = -0.97079635F;
+	           this.ArmL.rotateAngleX = -0.97079635F;
+	           this.ArmL.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
+	        }
 		}
 
 		  public ModelRenderer getModelHead() {
