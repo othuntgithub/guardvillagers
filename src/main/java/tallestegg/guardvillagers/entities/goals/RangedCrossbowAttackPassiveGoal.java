@@ -21,7 +21,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	   private int field_220753_f;
 
 	   public RangedCrossbowAttackPassiveGoal(T p_i50322_1_, double p_i50322_2_, float p_i50322_4_) {
-	      this.field_220748_a = p_i50322_1_;
+		  this.field_220748_a = p_i50322_1_;
 	      this.field_220750_c = p_i50322_2_;
 	      this.field_220751_d = p_i50322_4_ * p_i50322_4_;
 	      this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
@@ -63,7 +63,6 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	         ((ICrossbowUser)this.field_220748_a).setCharging(false);
 	         CrossbowItem.setCharged(this.field_220748_a.getActiveItemStack(), false);
 	      }
-
 	   }
 
 	   /**
@@ -85,9 +84,11 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	         }
 
 	         double d0 = this.field_220748_a.getDistanceSq(livingentity);
+	         this.field_220748_a.getMoveHelper().strafe(-50.0F, 0);
+	         this.field_220748_a.faceEntity(livingentity, 30.0F, 30.0F);
 	         boolean flag2 = (d0 > (double)this.field_220751_d || this.field_220752_e < 5) && this.field_220753_f == 0;
 	         if (flag2) {
-	            this.field_220748_a.getNavigator().tryMoveToEntityLiving(livingentity, this.func_220747_j() ? this.field_220750_c : this.field_220750_c * 0.5D);
+	        	 this.field_220748_a.getNavigator().tryMoveToEntityLiving(livingentity, this.func_220747_j() ? this.field_220750_c : this.field_220750_c * 0.5D);
 	         } else {
 	            this.field_220748_a.getNavigator().clearPath();
 	         }
@@ -99,7 +100,8 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING;
 	               ((ICrossbowUser)this.field_220748_a).setCharging(true);
 	            }
-	         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING) {
+	         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING) 
+	         {
 	            if (!this.field_220748_a.isHandActive()) {
 	               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
 	            }
@@ -123,7 +125,6 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	            CrossbowItem.setCharged(itemstack1, false);
 	            this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
 	         }
-
 	      }
 	   }
 
