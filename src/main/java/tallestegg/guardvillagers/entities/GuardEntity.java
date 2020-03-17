@@ -167,26 +167,32 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
+	      if (GuardConfig.GuardSurrender == true) {
 	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
-				}
-				
+				}		
 			});	      
+	      }
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+	      if (GuardConfig.GuardSurrender == true) {
 	      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.goalOwner).getHealth() >= 15 && super.shouldExecute();
 				}
-				
 			});
+	      }
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
+	      if (GuardConfig.GuardSurrender == false) 
+	      {
+	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
+	      }
 	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class)).setCallsForHelp());
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
 	      if (GuardConfig.AttackAllMobs == true)
@@ -226,17 +232,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	@Override
 	public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
 	{
-	      Entity entity = (Entity)projectile;
-	      double d0 = target.posX - this.posX;
-	      double d1 = target.posZ - this.posZ;
+		  Entity entity = (Entity)projectile;
+	      double d0 = target.getPosX() - this.getPosX();
+	      double d1 = target.getPosZ() - this.getPosZ();
 	      double d2 = (double)MathHelper.sqrt(d0 * d0 + d1 * d1);
-	      double d3 = target.getBoundingBox().minY + (double)(target.getHeight() / 3.0F) - entity.posY + d2 * (double)0.2F;
+	      double d3 = target.getPosYHeight(0.3333333333333333D) - entity.getPosY() + d2 * (double)0.2F;
 	      Vector3f vector3f = this.func_213673_a(new Vec3d(d0, d3, d1), projectileAngle);
 	      projectile.shoot((double)vector3f.getX(), (double)vector3f.getY(), (double)vector3f.getZ(), 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
 	      this.playSound(SoundEvents.ITEM_CROSSBOW_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
 	}
 	
-	 private Vector3f func_213673_a(Vec3d p_213673_1_, float p_213673_2_) {
+	private Vector3f func_213673_a(Vec3d p_213673_1_, float p_213673_2_) {
 	      Vec3d vec3d = p_213673_1_.normalize();
 	      Vec3d vec3d1 = vec3d.crossProduct(new Vec3d(0.0D, 1.0D, 0.0D));
 	      if (vec3d1.lengthSquared() <= 1.0E-7D) {
@@ -245,13 +251,13 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
 	      Quaternion quaternion = new Quaternion(new Vector3f(vec3d1), 90.0F, true);
 	      Vector3f vector3f = new Vector3f(vec3d);
-	      vector3f.func_214905_a(quaternion);
+	      vector3f.transform(quaternion);
 	      Quaternion quaternion1 = new Quaternion(vector3f, p_213673_2_, true);
 	      Vector3f vector3f1 = new Vector3f(vec3d);
-	      vector3f1.func_214905_a(quaternion1);
+	      vector3f1.transform(quaternion1);
 	      return vector3f1;
 	   }
-
+	
 	
 	
 	 @Override
@@ -317,19 +323,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			  return 0;
 			}
 	}
-	
-	 public GuardEntity.ArmPose getArmPose() {
-	      /*if (this.isCharging()) 
-	      {
-	        return GuardEntity.ArmPose.CROSSBOW_CHARGE;
-	      }*/
-	      /*else*/ if (this.isHolding(Items.CROSSBOW)) {
-	            return GuardEntity.ArmPose.CROSSBOW_HOLD;
-	     } else {
-          return this.isAggressive() ? GuardEntity.ArmPose.NEUTRAL : GuardEntity.ArmPose.NEUTRAL;
-	     }
-		  
-	   }
 
 	   public void updateRidden() {
 		      super.updateRidden();
@@ -342,7 +335,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof CrossbowItem && player.isSneaking())
+	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof ShootableItem && player.isShiftKeyDown())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
@@ -392,13 +385,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			this.variantData = type;
 		}
 	}
-	
-	 public static enum ArmPose {
-	      BOW_AND_ARROW, //Maybe?
-	      CROSSBOW_HOLD,
-	      CROSSBOW_CHARGE,
-	      NEUTRAL;
-	   }
 
 	/**
 	 * Credit - SmellyModder for Biome Specific Textures
