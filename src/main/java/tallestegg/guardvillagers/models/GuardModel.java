@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.entity.model.IHasArm;
 import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.entity.model.RendererModel;
+import net.minecraft.item.Items;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -21,6 +22,7 @@ public class GuardModel <T extends GuardEntity> extends EntityModel<T> implement
     public RendererModel ArmShoulderPadR;
     public RendererModel Nose;
     public RendererModel HelmetDetail;
+    
     
  
     public GuardModel() {
@@ -99,24 +101,70 @@ public class GuardModel <T extends GuardEntity> extends EntityModel<T> implement
     @Override
     public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor)
     {
-        float f = MathHelper.sin(this.swingProgress * (float) Math.PI);
+		float f = MathHelper.sin(this.swingProgress * (float) Math.PI);
         float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float) Math.PI);
-        this.LegL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-        this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount;
-        this.ArmR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.5F;
-        this.ArmL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
-        this.ArmR.rotateAngleZ = 0.0F;
-        this.ArmL.rotateAngleZ = 0.0F;
-        this.Head.rotateAngleY = netHeadYaw * 0.017453292F;
-        this.Head.rotateAngleX = headPitch * 0.017453292F;
-       
-        if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+        this.Head.rotateAngleY = netHeadYaw * ((float)Math.PI / 180F);
+        this.Head.rotateAngleX = headPitch * ((float)Math.PI / 180F);
+        if (this.isSitting) 
         {
-          this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
+            this.ArmR.rotateAngleX = (-(float)Math.PI / 5F);
+            this.ArmR.rotateAngleY = 0.0F;
+            this.ArmR.rotateAngleZ = 0.0F;
+            this.ArmL.rotateAngleX = (-(float)Math.PI / 5F);
+            this.ArmL.rotateAngleY = 0.0F;
+            this.ArmL.rotateAngleZ = 0.0F;
+            this.LegL.rotateAngleX = -1.4137167F;
+            this.LegL.rotateAngleY = ((float)Math.PI / 10F);
+            this.LegL.rotateAngleZ = 0.07853982F;
+            this.LegR.rotateAngleX = -1.4137167F;
+            this.LegR.rotateAngleY = (-(float)Math.PI / 10F);
+            this.LegR.rotateAngleZ = -0.07853982F;
+        } 
+         else 
+         {
+           this.ArmR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.5F;
+           this.ArmR.rotateAngleY = 0.0F;
+           this.ArmR.rotateAngleZ = 0.0F;
+           this.ArmL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
+           this.ArmL.rotateAngleY = 0.0F;
+           this.ArmL.rotateAngleZ = 0.0F;
+           this.LegL.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * 0.5F;
+           this.LegL.rotateAngleY = 0.0F;
+           this.LegL.rotateAngleZ = 0.0F;
+           this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * 0.5F;
+           this.LegR.rotateAngleY = 0.0F;
+           this.LegR.rotateAngleZ = 0.0F;
+         if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+         {
+           this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
+         }
+          else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+          {
+           this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
+          }
         }
-        else 
+        if (entityIn.isHolding(Items.CROSSBOW)) 
         {
-          this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
+        	 if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+	          {
+        		 this.ArmR.rotateAngleY = 0.3F;
+	             this.ArmL.rotateAngleY = -0.6F;
+	             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+	             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
+	          }
+        	   else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+	           {
+            	 this.ArmR.rotateAngleY = -0.6F + this.Head.rotateAngleY;
+	             this.ArmL.rotateAngleY = 0.3F + this.Head.rotateAngleY;
+	             this.ArmR.rotateAngleX = -1.5F + this.Head.rotateAngleX; 
+	             this.ArmL.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+	           }
+        }
+        if (entityIn.isCharging()) {
+           this.ArmR.rotateAngleY = -100.0F;
+           this.ArmR.rotateAngleX = -0.97079635F;
+           this.ArmL.rotateAngleX = -0.97079635F;
+           this.ArmL.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
         }
     }
  
