@@ -126,11 +126,6 @@ public class HandlerEvents
 		}   
 	   }
 	}
-  }
-	
-	@SubscribeEvent
-    public void onEntityJoin(EntityJoinWorldEvent event) 
-	{
       World world = event.getWorld();
       if (GuardConfig.IllusionerRaids == true)
 	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
