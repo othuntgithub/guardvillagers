@@ -317,19 +317,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			  return 0;
 			}
 	}
-	
-	 public GuardEntity.ArmPose getArmPose() {
-	      /*if (this.isCharging()) 
-	      {
-	        return GuardEntity.ArmPose.CROSSBOW_CHARGE;
-	      }*/
-	      /*else*/ if (this.isHolding(Items.CROSSBOW)) {
-	            return GuardEntity.ArmPose.CROSSBOW_HOLD;
-	     } else {
-          return this.isAggressive() ? GuardEntity.ArmPose.NEUTRAL : GuardEntity.ArmPose.NEUTRAL;
-	     }
-		  
-	   }
 
 	   public void updateRidden() {
 		      super.updateRidden();
@@ -392,13 +379,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			this.variantData = type;
 		}
 	}
-	
-	 public static enum ArmPose {
-	      BOW_AND_ARROW, //Maybe?
-	      CROSSBOW_HOLD,
-	      CROSSBOW_CHARGE,
-	      NEUTRAL;
-	   }
 
 	/**
 	 * Credit - SmellyModder for Biome Specific Textures
