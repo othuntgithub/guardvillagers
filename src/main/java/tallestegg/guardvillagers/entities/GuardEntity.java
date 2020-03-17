@@ -226,23 +226,26 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  {
 		this.setCombatTask();
 	  }
+	  
+	  
+	  
+	  
+	  
     }
-   
-   
-	@Override
-	public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
+    @Override
+    public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
 	{
-		  Entity entity = (Entity)projectile;
-	      double d0 = target.getPosX() - this.getPosX();
-	      double d1 = target.getPosZ() - this.getPosZ();
+	      Entity entity = (Entity)projectile;
+	      double d0 = target.posX - this.posX;
+	      double d1 = target.posZ - this.posZ;
 	      double d2 = (double)MathHelper.sqrt(d0 * d0 + d1 * d1);
-	      double d3 = target.getPosYHeight(0.3333333333333333D) - entity.getPosY() + d2 * (double)0.2F;
+	      double d3 = target.getBoundingBox().minY + (double)(target.getHeight() / 3.0F) - entity.posY + d2 * (double)0.2F;
 	      Vector3f vector3f = this.func_213673_a(new Vec3d(d0, d3, d1), projectileAngle);
 	      projectile.shoot((double)vector3f.getX(), (double)vector3f.getY(), (double)vector3f.getZ(), 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
 	      this.playSound(SoundEvents.ITEM_CROSSBOW_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
 	}
 	
-	private Vector3f func_213673_a(Vec3d p_213673_1_, float p_213673_2_) {
+	 private Vector3f func_213673_a(Vec3d p_213673_1_, float p_213673_2_) {
 	      Vec3d vec3d = p_213673_1_.normalize();
 	      Vec3d vec3d1 = vec3d.crossProduct(new Vec3d(0.0D, 1.0D, 0.0D));
 	      if (vec3d1.lengthSquared() <= 1.0E-7D) {
@@ -251,10 +254,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
 	      Quaternion quaternion = new Quaternion(new Vector3f(vec3d1), 90.0F, true);
 	      Vector3f vector3f = new Vector3f(vec3d);
-	      vector3f.transform(quaternion);
+	      vector3f.func_214905_a(quaternion);
 	      Quaternion quaternion1 = new Quaternion(vector3f, p_213673_2_, true);
 	      Vector3f vector3f1 = new Vector3f(vec3d);
-	      vector3f1.transform(quaternion1);
+	      vector3f1.func_214905_a(quaternion1);
 	      return vector3f1;
 	   }
 	
@@ -335,7 +338,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof ShootableItem && player.isShiftKeyDown())
+	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof ShootableItem && player.isSneaking())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
