@@ -167,26 +167,32 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
+	      if (GuardConfig.GuardSurrender == true) {
 	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
-				}
-				
+				}		
 			});	      
+	      }
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+	      if (GuardConfig.GuardSurrender == true) {
 	      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.goalOwner).getHealth() >= 15 && super.shouldExecute();
 				}
-				
 			});
+	      }
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
+	      if (GuardConfig.GuardSurrender == false) 
+	      {
+	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
+	      }
 	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class)).setCallsForHelp());
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
 	      if (GuardConfig.AttackAllMobs == true)
