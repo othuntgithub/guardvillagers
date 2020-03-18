@@ -11,12 +11,12 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 import tallestegg.guardvillagers.models.GuardModel;
 
 
-public class GuardRenderer extends MobRenderer<GuardEntity, GuardModel<GuardEntity>>
+public class GuardRenderer extends MobRenderer<GuardEntity, GuardModel>
 {
 
     public GuardRenderer(EntityRendererManager manager) 
     {
-        super(manager, new GuardModel<GuardEntity>(), 0.5f);
+        super(manager, new GuardModel(), 0.5f);
         this.addLayer(new HeldItemLayer<>(this));
     }
 
