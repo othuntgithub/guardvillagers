@@ -335,7 +335,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof ShootableItem && player.isShiftKeyDown())
+	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof CrossbowItem && player.isShiftKeyDown())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
