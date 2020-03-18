@@ -4,8 +4,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShootableItem;
 import net.minecraft.item.SwordItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,17 +19,18 @@ public class VillagerToGuard
 	  public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
 	    {
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem || itemstack.getItem() instanceof ShootableItem && e.getPlayer().isShiftKeyDown()) 
+	     if (itemstack.getItem() instanceof SwordItem || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isShiftKeyDown()) 
 	     {
 	       Entity target = e.getTarget();
 	       if (target instanceof VillagerEntity)
 	       {
 	         VillagerEntity villager = (VillagerEntity) e.getTarget();
-	       if (villager.isChild() == false)
+	         if (villager.isChild() == false) {
 	         this.VillagerConvert(villager, e);
 	         if (!e.getPlayer().abilities.isCreativeMode)
 	         itemstack.shrink(1);
 	       } 
+	   }
 	} 
   }
 
