@@ -69,7 +69,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
-	//gets called when the entity is holding a crossbow, if it doesnt, it attacks melee, if it does, it attacks with the crossbow
+	/* this method sets the entities 
+	   combat task, if the entity has a
+       crossbow, it will use the crossbow attack
+       goal, if it uses any other item it will use the
+       melee attack goal */
 	public void setCombatTask() {
         if (this.world != null && !this.world.isRemote) {
             this.goalSelector.removeGoal(this.aiAttackOnCollide);
@@ -167,7 +171,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
 	      if (GuardConfig.GuardSurrender == true) {
-	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  6.0F, 1.0D, 1.2D) {
+	      this.goalSelector.addGoal(5, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
