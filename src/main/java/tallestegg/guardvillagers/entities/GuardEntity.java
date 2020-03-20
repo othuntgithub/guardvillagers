@@ -14,6 +14,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.*;
+import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
@@ -50,6 +51,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
+		((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
 		this.enablePersistence();
 		this.setCombatTask();
 	}
@@ -171,7 +173,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
-	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
+	      this.goalSelector.addGoal(3, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
+	          return false;
+	       }));
 	      if (GuardConfig.GuardSurrender == true) {
 	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D) {
 				@Override
@@ -374,7 +378,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
-	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(20.0D);
+	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(30.0D);
 	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(5.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
