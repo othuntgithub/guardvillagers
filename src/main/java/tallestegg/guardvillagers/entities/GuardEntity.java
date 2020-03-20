@@ -50,8 +50,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
-		this.enablePersistence();
 		this.setCombatTask();
+		this.enablePersistence();
 	}
 
 	@Override
@@ -69,14 +69,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
+	//gets called when the entity is holding a crossbow, if it doesnt, it attacks melee, if it does, it attacks with the crossbow
 	public void setCombatTask() {
         if (this.world != null && !this.world.isRemote) {
             this.goalSelector.removeGoal(this.aiAttackOnCollide);
             this.goalSelector.removeGoal(this.aiCrossBowAttack);
 
-
             ItemStack itemstack2 = this.getHeldItem(ProjectileHelper.getHandWith(this, Items.CROSSBOW));
-            if (itemstack2.getItem() instanceof net.minecraft.item.CrossbowItem) {
+            if (itemstack2.getItem() instanceof CrossbowItem) {
                 this.targetSelector.addGoal(4, this.aiCrossBowAttack);
             } else {
             	 this.targetSelector.addGoal(4, this.aiAttackOnCollide);
@@ -162,13 +162,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
-	      this.goalSelector.addGoal(2, new MoveTowardsTargetGoal(this, 0.9D, 32.0F));
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
 	      if (GuardConfig.GuardSurrender == true) {
-	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D) {
+	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  6.0F, 1.0D, 1.2D) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
@@ -208,7 +207,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	@Override
 	public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) 
 	{
-		Hand hand = ProjectileHelper.getHandWith(this, Items.CROSSBOW);
+		 Hand hand = ProjectileHelper.getHandWith(this, Items.CROSSBOW);
 	      ItemStack itemstack = this.getHeldItem(hand);
 	      if (this.isHolding(Items.CROSSBOW)) {
 	         CrossbowItem.fireProjectiles(this.world, this, hand, itemstack, 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
@@ -226,14 +225,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  {
 		this.setCombatTask();
 	  }
-	  
-	  
-	  
-	  
-	  
     }
-    @Override
-    public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
+   
+   
+	@Override
+	public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
 	{
 	      Entity entity = (Entity)projectile;
 	      double d0 = target.posX - this.posX;
@@ -245,7 +241,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.playSound(SoundEvents.ITEM_CROSSBOW_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
 	}
 	
-	 private Vector3f func_213673_a(Vec3d p_213673_1_, float p_213673_2_) {
+	private Vector3f func_213673_a(Vec3d p_213673_1_, float p_213673_2_) {
 	      Vec3d vec3d = p_213673_1_.normalize();
 	      Vec3d vec3d1 = vec3d.crossProduct(new Vec3d(0.0D, 1.0D, 0.0D));
 	      if (vec3d1.lengthSquared() <= 1.0E-7D) {
@@ -338,7 +334,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof ShootableItem && player.isSneaking())
+	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof CrossbowItem && player.isSneaking())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
