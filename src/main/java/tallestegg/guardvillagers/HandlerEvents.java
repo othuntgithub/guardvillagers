@@ -4,7 +4,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.EvokerEntity;
@@ -18,6 +17,7 @@ import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
+import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -49,7 +49,7 @@ public class HandlerEvents
 		   {
 			 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 		     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-		     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
+		     ((GroundPathNavigator)illager.getNavigator()).setBreakDoors(true);
 		     illager.goalSelector.addGoal(3, new AvoidEntityGoal<>(illager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //be real here you'd probably be scared too if you saw a polar bear running at you
 		     if (GuardConfig.RaidAnimals == true)
 		     if (illager.isRaidActive()) 
@@ -97,7 +97,7 @@ public class HandlerEvents
 	if(event.getEntity() instanceof WitchEntity) 
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
-		 witch.goalSelector.addGoal(4, new OpenDoorGoal(witch, true));
+		((GroundPathNavigator)witch.getNavigator()).setBreakDoors(true);
 		 if (GuardConfig.WitchesVillager == true)
 		  if (witch.isRaidActive()) 
 		  {
