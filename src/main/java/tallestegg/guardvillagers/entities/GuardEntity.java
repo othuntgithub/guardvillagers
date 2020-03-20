@@ -69,6 +69,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
+
+	/* this method sets the entities 
+	   combat task, if the entity has a
+       crossbow, it will use the crossbow attack
+       goal, if it uses any other item it will use the
+       melee attack goal */
 	public void setCombatTask() {
         if (this.world != null && !this.world.isRemote) {
             this.goalSelector.removeGoal(this.aiAttackOnCollide);
@@ -368,7 +374,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
-	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(50.0D);
+	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(5.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
