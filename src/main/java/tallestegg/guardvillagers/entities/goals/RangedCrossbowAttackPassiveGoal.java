@@ -70,8 +70,14 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		            --this.field_220752_e;
 		         }
 		         
-		         this.field_220748_a.getMoveHelper().strafe(-10.0F, 0); //makes the entity that has this goal backup when dangers coming near.
-		         this.field_220748_a.faceEntity(livingentity, 30.0F, 30.0F);
+		         double d1 = livingentity.getDistanceSq(field_220748_a);
+		         
+		         
+		         //makes the entity that has this goal backup if the attack target is 10 blocks infront of them.
+		         if (d1 <= 10) {
+		          this.field_220748_a.getMoveHelper().strafe(-10.0F, 0); 
+		          this.field_220748_a.faceEntity(livingentity, 30.0F, 30.0F);
+		         }
 
 		         double d0 = this.field_220748_a.getDistanceSq(livingentity);
 		         boolean flag2 = (d0 > (double)this.field_220751_d || this.field_220752_e < 5) && this.field_220753_f == 0;
