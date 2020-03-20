@@ -151,19 +151,29 @@ public class GuardModel extends EntityModel<GuardEntity> implements IHasArm, IHa
 	          }
         	   else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
 	           {
-            	 this.ArmR.rotateAngleY = -0.6F + this.Head.rotateAngleY;
-	             this.ArmL.rotateAngleY = 0.3F + this.Head.rotateAngleY;
-	             this.ArmR.rotateAngleX = -1.5F + this.Head.rotateAngleX; 
-	             this.ArmL.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+        		     this.ArmR.rotateAngleY = -5.6F;
+		             this.ArmL.rotateAngleY = -0.3F;
+		             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+		             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
 	           }
         }
         if (entityIn.isCharging()) {
-           this.ArmR.rotateAngleY = -100.0F;
-           this.ArmR.rotateAngleX = -0.97079635F;
-           this.ArmL.rotateAngleX = -0.97079635F;
-           this.ArmL.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
-        }
-    }
+           if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+           {
+            this.ArmR.rotateAngleY = -100.0F;
+            this.ArmR.rotateAngleX = -0.97079635F;
+            this.ArmL.rotateAngleX = -0.97079635F;
+            this.ArmL.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
+           }
+           if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+           {
+            this.ArmR.rotateAngleY = -100.0F;
+            this.ArmR.rotateAngleX = -0.97079635F;
+            this.ArmL.rotateAngleX = -0.97079635F;
+            this.ArmR.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
+           }
+         }
+       }
     
     private RendererModel getArm(HandSide p_191216_1_) 
     {
@@ -177,9 +187,11 @@ public class GuardModel extends EntityModel<GuardEntity> implements IHasArm, IHa
 	}
 
 	@Override
-	public void postRenderArm(float scale, HandSide side) 
-	{
-		 this.getArm(side).postRender(0.0870F);
-		
-	}
+	   public void postRenderArm(float scale, HandSide side) {
+	      float f = side == HandSide.RIGHT ? 2.0F : -1.0F;
+	      RendererModel renderermodel = this.getArm(side);
+	      renderermodel.rotationPointX += f;
+	      renderermodel.postRender(scale);
+	      renderermodel.rotationPointX -= f;
+	   }
 }
