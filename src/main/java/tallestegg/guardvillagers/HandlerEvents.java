@@ -2,6 +2,7 @@ package tallestegg.guardvillagers;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
@@ -17,6 +18,7 @@ import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -54,13 +56,20 @@ public class HandlerEvents
 	   {
 		 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 	     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-	     illager.goalSelector.addGoal(10, new OpenDoorGoal(illager, true));
+	     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
+	     illager.goalSelector.addGoal(3, new AvoidEntityGoal<>(illager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //be real here you'd probably be scared too if you saw a polar bear running at you
 	     if (GuardConfig.RaidAnimals == true)
 	     if (illager.isRaidActive()) 
 	     {
 	    	illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, AnimalEntity.class, false));   
 	     }
-	}
+	   }
+	   
+	   if(event.getEntity() instanceof AbstractVillagerEntity) 
+	   {
+		 AbstractVillagerEntity villager = (AbstractVillagerEntity)event.getEntity();
+	     villager.goalSelector.addGoal(3, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //no really its common sense if you saw a polar bear you'd probably run too
+	   }
 	
 	
 	if(event.getEntity() instanceof IronGolemEntity) 
