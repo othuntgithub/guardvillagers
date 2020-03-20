@@ -11,7 +11,6 @@ import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.monster.PhantomEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
@@ -36,6 +35,7 @@ public class HandlerEvents
 	    {
 	       MonsterEntity monster = (MonsterEntity)event.getEntity();
 	       monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GuardEntity.class, false));
+	       monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AbstractVillagerEntity.class, false));
 	    }
 	    
 		if (GuardConfig.AttackAllMobs == true)
@@ -44,33 +44,26 @@ public class HandlerEvents
 	    	GhastEntity ghast = (GhastEntity)event.getEntity();
 	    	ghast.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(ghast, GuardEntity.class, true));   
 		}
-		
-		if (GuardConfig.AttackAllMobs == true)
-		    if(event.getEntity() instanceof PhantomEntity) 
-			{
-		    	PhantomEntity phantom = (PhantomEntity)event.getEntity();
-		    	phantom.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(phantom, GuardEntity.class, true));   
-			}
 	    
-	   if(event.getEntity() instanceof AbstractIllagerEntity) 
-	   {
-		 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
-	     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-	     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
-	     illager.goalSelector.addGoal(3, new AvoidEntityGoal<>(illager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //be real here you'd probably be scared too if you saw a polar bear running at you
-	     if (GuardConfig.RaidAnimals == true)
-	     if (illager.isRaidActive()) 
-	     {
-	    	illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, AnimalEntity.class, false));   
-	     }
-	   }
-	   
-	   if(event.getEntity() instanceof AbstractVillagerEntity) 
-	   {
-		 AbstractVillagerEntity villager = (AbstractVillagerEntity)event.getEntity();
-	     villager.goalSelector.addGoal(3, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //no really its common sense if you saw a polar bear you'd probably run too
-	   }
-	
+		  if(event.getEntity() instanceof AbstractIllagerEntity) 
+		   {
+			 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
+		     illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
+		     illager.goalSelector.addGoal(1, new OpenDoorGoal(illager, true));
+		     illager.goalSelector.addGoal(3, new AvoidEntityGoal<>(illager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //be real here you'd probably be scared too if you saw a polar bear running at you
+		     if (GuardConfig.RaidAnimals == true)
+		     if (illager.isRaidActive()) 
+		     {
+		    	illager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illager, AnimalEntity.class, false));   
+		     }
+		   }
+		   
+		   if(event.getEntity() instanceof AbstractVillagerEntity) 
+		   {
+			 AbstractVillagerEntity villager = (AbstractVillagerEntity)event.getEntity();
+		     villager.goalSelector.addGoal(3, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //no really its common sense if you saw a polar bear you'd probably run too
+		   }
+		   
 	
 	if(event.getEntity() instanceof IronGolemEntity) 
 	{
@@ -78,11 +71,6 @@ public class HandlerEvents
 	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
 	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
 	   golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, WitchEntity.class, false));  
-	   if (GuardConfig.AttackAllMobs == true) 
-	   {
-		 golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, MonsterEntity.class, false));  
-	   }
-		   
 	}
 	
 	if(event.getEntity() instanceof VexEntity) 
@@ -103,17 +91,17 @@ public class HandlerEvents
 	    if (GuardConfig.RaidAnimals == true)
 	     if (ravager.isRaidActive())
           {
-	        ravager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
+	       ravager.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
 	      }
 	}
 	if(event.getEntity() instanceof WitchEntity) 
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
-	    witch.goalSelector.addGoal(8, new OpenDoorGoal(witch, true));
-		 if (GuardConfig.WitchesVillager == true) {
-	       witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
+		 witch.goalSelector.addGoal(4, new OpenDoorGoal(witch, true));
+		 if (GuardConfig.WitchesVillager == true)
 		  if (witch.isRaidActive()) 
 		  {
+            witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
 	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
 	        witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
 		  }
@@ -133,7 +121,6 @@ public class HandlerEvents
 		      illusioner.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(illusioner, AnimalEntity.class, false));   
 		    }
 		}   
-	   }
 	}
       World world = event.getWorld();
       if (GuardConfig.IllusionerRaids == true)
