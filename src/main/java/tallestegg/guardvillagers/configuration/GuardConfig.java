@@ -25,6 +25,7 @@ public class GuardConfig
 	public static boolean IllusionerRaids;
 	public static boolean AttackAllMobs;
 	public static boolean GuardSurrender;
+	public static boolean GuardHealthRegen;
 	
 	public static void bakeConfig() {
 		GuardModel = COMMON.GuardModel.get();
@@ -33,6 +34,7 @@ public class GuardConfig
 		IllusionerRaids = COMMON.IllusionerRaids.get();
 		AttackAllMobs = COMMON.AttackAllMobs.get();
 		GuardSurrender = COMMON.GuardSurrender.get();
+		GuardHealthRegen = COMMON.GuardHealthRegen.get();
 	}
 
 	@SubscribeEvent
@@ -51,6 +53,7 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
 		public final ForgeConfigSpec.BooleanValue AttackAllMobs;
 		public final ForgeConfigSpec.BooleanValue GuardSurrender;
+		public final ForgeConfigSpec.BooleanValue GuardHealthRegen;
 
 		public CommonConfig(ForgeConfigSpec.Builder builder) 
 		{
@@ -78,8 +81,12 @@ public class GuardConfig
 					.define("Guards Attack All Mobs?", false);
 			GuardSurrender = builder
 					.comment("This option makes guards run from ravagers when low on health")
-					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
+					.translation(GuardVillagers.MODID + ".config.GuardSurrender")
 					.define("Make Guards Run From Ravagers When Low On Health?", true);
+			GuardHealthRegen = builder
+					.comment("This makes the guard villagers have a slow natural health regeneration.")
+					.translation(GuardVillagers.MODID + ".config.GuardHealthRegen")
+					.define("Have Natural Health Regen For The Guards? ", false);
 		}
 	}
 }
