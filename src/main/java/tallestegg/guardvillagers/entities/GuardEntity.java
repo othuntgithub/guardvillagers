@@ -156,10 +156,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	
 	public void livingTick() 
 	{
+		if (this.ticksExisted % 100 == 0 && GuardConfig.GuardHealthRegen == true) 
+		{
+	      this.heal(2.0F);	
+		}
 	    this.updateArmSwingProgress();
 	    super.livingTick();
-	   
 	}
+	
+
 	
 	@Override
 	protected void registerData() 
