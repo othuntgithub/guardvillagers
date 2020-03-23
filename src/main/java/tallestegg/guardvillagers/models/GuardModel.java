@@ -131,6 +131,10 @@ public class GuardModel extends EntityModel<GuardEntity> implements IHasArm, IHa
            this.LegR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * 0.5F;
            this.LegR.rotateAngleY = 0.0F;
            this.LegR.rotateAngleZ = 0.0F;
+           this.ArmR.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09F) * 0.01F;
+           this.ArmL.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09F) * 0.05F;
+           this.ArmR.rotateAngleX += MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
+           this.ArmL.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
          if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
          {
            this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
