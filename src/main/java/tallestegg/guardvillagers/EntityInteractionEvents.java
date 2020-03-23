@@ -19,7 +19,7 @@ public class EntityInteractionEvents
 	 public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
 	 {
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isSneaking()) 
+	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking() || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isSneaking()) 
 	     {
 	       Entity target = e.getTarget();
 	       if (target instanceof VillagerEntity)
@@ -31,7 +31,7 @@ public class EntityInteractionEvents
 		          if (!e.getPlayer().abilities.isCreativeMode)
 		          itemstack.shrink(1);
 		         }
-	       } 
+	           } 
 	       }
            if (itemstack.getItem() == Items.IRON_INGOT) 
 	       {
