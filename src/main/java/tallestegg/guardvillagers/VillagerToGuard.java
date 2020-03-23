@@ -19,7 +19,7 @@ public class VillagerToGuard
 	  public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
 	    {
 	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isShiftKeyDown()) 
+	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isShiftKeyDown() || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isShiftKeyDown()) 
 	     {
 	       Entity target = e.getTarget();
 	       if (target instanceof VillagerEntity)
