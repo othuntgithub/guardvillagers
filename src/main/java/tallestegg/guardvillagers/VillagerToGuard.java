@@ -2,6 +2,7 @@ package tallestegg.guardvillagers;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.CrossbowItem;
@@ -37,19 +38,22 @@ public class VillagerToGuard
 	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
 	{
 		  if (entity instanceof VillagerEntity);
-		    ItemStack itemstack = e.getItemStack();
-		    GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
-		    VillagerEntity villager = (VillagerEntity)entity;
-		    guard.copyLocationAndAnglesFrom(villager);
-		    guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
-		    int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.getPosition());
-		    guard.setGuardVariant(i);
-		    if (villager.hasCustomName()) 
-		    {
-		      guard.setCustomName(villager.getCustomName());
-		      guard.setCustomNameVisible(villager.isCustomNameVisible());
-		    }
-		    villager.world.addEntity(guard);
-	        villager.remove();	 
+		  ItemStack itemstack = e.getItemStack();
+		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
+		  VillagerEntity villager = (VillagerEntity)entity;
+		  guard.copyLocationAndAnglesFrom(villager);
+		  guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
+		  int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.getPosition());
+		  guard.setGuardVariant(i);
+		  if (villager.hasCustomName()) 
+		  {
+		    guard.setCustomName(villager.getCustomName());
+		    guard.setCustomNameVisible(villager.isCustomNameVisible());
+		  }
+		   villager.world.addEntity(guard);
+           villager.func_213742_a(MemoryModuleType.HOME);
+           villager.func_213742_a(MemoryModuleType.JOB_SITE);
+           villager.func_213742_a(MemoryModuleType.MEETING_POINT);
+	       villager.remove();	 
 	} 
 }
