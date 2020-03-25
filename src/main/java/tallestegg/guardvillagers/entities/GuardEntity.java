@@ -34,6 +34,7 @@ import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -244,7 +245,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      {
 	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      }
-	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class)).setCallsForHelp());
+	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
 	      if (GuardConfig.AttackAllMobs == true)
 	      {
@@ -386,7 +387,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public boolean processInteract(PlayerEntity player, Hand hand)
 	{
 	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem || heldStack.getItem() instanceof CrossbowItem && player.isSneaking())
+	        if (heldStack.getItem() instanceof SwordItem && player.isSneaking() || heldStack.getItem() instanceof CrossbowItem && player.isSneaking())
 	        {
 	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 	            if (!player.abilities.isCreativeMode)
