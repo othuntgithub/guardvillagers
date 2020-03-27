@@ -36,7 +36,7 @@ public class GuardModel extends EntityModel<GuardEntity> implements IHasArm, IHa
         this.LegL.setRotationPoint(-1.9F, 12.0F, 0.0F);
         this.LegL.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
         this.Nose = new RendererModel(this, 54, 0);
-        this.Nose.setRotationPoint(0.0F, -4.0F, -4.0F);
+        this.Nose.setRotationPoint(0.0F, -3.0F, -4.0F);
         this.Nose.addBox(-1.0F, 0.0F, -2.0F, 2, 4, 2, 0.0F);
         this.ArmL = new RendererModel(this, 32, 75);
         this.ArmL.mirror = true;
