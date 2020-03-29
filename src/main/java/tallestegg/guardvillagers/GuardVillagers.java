@@ -43,7 +43,7 @@ public class GuardVillagers
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new HandlerEvents());
         MinecraftForge.EVENT_BUS.register(new GuardEntityType());
-        MinecraftForge.EVENT_BUS.register(new VillagerToGuard());
+        MinecraftForge.EVENT_BUS.register(new EntityInteractionEvents());
         
         GuardSpawner.inject();
     }
