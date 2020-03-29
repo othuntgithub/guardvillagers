@@ -2,6 +2,7 @@ package tallestegg.guardvillagers;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -59,6 +60,9 @@ public class EntityInteractionEvents
 		    guard.setCustomNameVisible(villager.isCustomNameVisible());
 		  }
 		   villager.world.addEntity(guard);
+           villager.func_213742_a(MemoryModuleType.HOME);
+           villager.func_213742_a(MemoryModuleType.JOB_SITE);
+           villager.func_213742_a(MemoryModuleType.MEETING_POINT);
 	       villager.remove();	 
 	} 
 }
