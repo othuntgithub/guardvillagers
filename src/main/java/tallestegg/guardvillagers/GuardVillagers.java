@@ -29,8 +29,6 @@ import tallestegg.guardvillagers.renderer.GuardRenderer2;
 public class GuardVillagers
 {  
 	public static final String MODID = "guardvillagers";
-	
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public GuardVillagers() 
     {

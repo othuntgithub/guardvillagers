@@ -1,15 +1,18 @@
 package tallestegg.guardvillagers;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
-import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
@@ -31,20 +34,12 @@ public class HandlerEvents
 	public void onLivingSpawned(EntityJoinWorldEvent event) 
 	{
 		if (GuardConfig.AttackAllMobs == true)
-	    if(event.getEntity() instanceof MonsterEntity) 
+	    if(event.getEntity() instanceof IMob) 
 	    {
-	       MonsterEntity monster = (MonsterEntity)event.getEntity();
-	       monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GuardEntity.class, false));
-	       monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AbstractVillagerEntity.class, false));
+	       MobEntity mob = (MobEntity)event.getEntity();
+	       mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, GuardEntity.class, false));
 	    }
-	    
-		if (GuardConfig.AttackAllMobs == true)
-	    if(event.getEntity() instanceof GhastEntity) 
-		{
-	    	GhastEntity ghast = (GhastEntity)event.getEntity();
-	    	ghast.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(ghast, GuardEntity.class, true));   
-		}
-	    
+		
 		  if(event.getEntity() instanceof AbstractIllagerEntity) 
 		   {
 			 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
@@ -61,7 +56,15 @@ public class HandlerEvents
 		   if(event.getEntity() instanceof AbstractVillagerEntity) 
 		   {
 			 AbstractVillagerEntity villager = (AbstractVillagerEntity)event.getEntity();
-		     villager.goalSelector.addGoal(3, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //no really its common sense if you saw a polar bear you'd probably run too
+			 villager.goalSelector.addGoal(3, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //no really its common sense if you saw a polar bear you'd probably run too
+		   }
+		  
+		   //TODO make clerics heal nearby guards and golem
+		   if(event.getEntity() instanceof VillagerEntity) 
+		   {
+			 VillagerEntity villager = (VillagerEntity)event.getEntity();
+		     if (villager.getVillagerData().getProfession() == VillagerProfession.CLERIC) {
+		     }
 		   }
 		   
 	
