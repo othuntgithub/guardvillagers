@@ -22,7 +22,8 @@ public class GuardHeldItemLayerRender<T extends LivingEntity> extends LayerRende
 	      super(p_i50917_1_);
 	   }
 
-	   public void render(T entityIn, float p_212842_2_, float p_212842_3_, float p_212842_4_, float p_212842_5_, float p_212842_6_, float p_212842_7_, float p_212842_8_) {
+	   @SuppressWarnings("deprecation")
+	public void render(T entityIn, float p_212842_2_, float p_212842_3_, float p_212842_4_, float p_212842_5_, float p_212842_6_, float p_212842_7_, float p_212842_8_) {
 	      ItemStack itemstack = entityIn.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
 	      if (!itemstack.isEmpty()) {
 	         Item item = itemstack.getItem();

@@ -26,6 +26,9 @@ public class GuardConfig
 	public static boolean AttackAllMobs;
 	public static boolean GuardSurrender;
 	public static boolean GuardHealthRegen;
+	public static boolean VillagersRunFromPolarBears;
+	public static boolean IllagersRunFromPolarBears;
+	public static boolean GuardsRunFromPolarBears;
 	
 	public static void bakeConfig() {
 		GuardModel = COMMON.GuardModel.get();
@@ -35,6 +38,8 @@ public class GuardConfig
 		AttackAllMobs = COMMON.AttackAllMobs.get();
 		GuardSurrender = COMMON.GuardSurrender.get();
 		GuardHealthRegen = COMMON.GuardHealthRegen.get();
+		VillagersRunFromPolarBears = COMMON.VillagersRunFromPolarBears.get();
+		IllagersRunFromPolarBears = COMMON.IllagersRunFromPolarBears.get();
 	}
 
 	@SubscribeEvent
@@ -54,6 +59,9 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue AttackAllMobs;
 		public final ForgeConfigSpec.BooleanValue GuardSurrender;
 		public final ForgeConfigSpec.BooleanValue GuardHealthRegen;
+		public final ForgeConfigSpec.BooleanValue VillagersRunFromPolarBears;
+		public final ForgeConfigSpec.BooleanValue IllagersRunFromPolarBears;
+		public final ForgeConfigSpec.BooleanValue GuardsRunFromPolarBears;
 
 		public CommonConfig(ForgeConfigSpec.Builder builder) 
 		{
@@ -72,21 +80,33 @@ public class GuardConfig
 					.translation(GuardVillagers.MODID + ".config.WitchesVillager")
 					.define("Witches Attack Villagers?", true);
 			IllusionerRaids = builder
-					.comment("Illusioners in Raids?")
+					.comment("This will make Illusioners get involved in raids")
 					.translation(GuardVillagers.MODID + ".config.IllusionerRaids")
-					.define("Illusioners in Raids?", true);
+					.define("Have Illusioners in Raids?", true);
 			AttackAllMobs = builder
-					.comment("Guards Attack All Mobs?")
+					.comment("Guards will attack all hostiles with this option")
 					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
 					.define("Guards Attack All Mobs?", false);
 			GuardSurrender = builder
 					.comment("This option makes guards run from ravagers when low on health")
 					.translation(GuardVillagers.MODID + ".config.GuardSurrender")
-					.define("Make Guards Run From Ravagers When Low On Health?", true);
+					.define("Have Guards be run from ravagers when on low health?", true);
 			GuardHealthRegen = builder
 					.comment("This makes the guard villagers have a slow natural health regeneration.")
 					.translation(GuardVillagers.MODID + ".config.GuardHealthRegen")
-					.define("Have Natural Health Regen For The Guards? ", false);
+					.define("Make Guards regenerate health?", false);
+			VillagersRunFromPolarBears = builder
+					.comment("This makes villagers run from polar bears, as anyone with common sense would.")
+					.translation(GuardVillagers.MODID + ".config.VillagersRunFromPolarBears")
+					.define("Have Villagers have some common sense?", true);
+			IllagersRunFromPolarBears = builder
+					.comment("This makes Illagers run from polar bears, as anyone with common sense would.")
+					.translation(GuardVillagers.MODID + ".config.IllagersRunFromPolarBears")
+					.define("Have Illagers have some common sense?", true);
+			GuardsRunFromPolarBears = builder
+					.comment("This makes Guards run from polar bears, as anyone with common sense would.")
+					.translation(GuardVillagers.MODID + ".config.IllagersRunFromPolarBears")
+					.define("Have Guards have some common sense?", true);
 		}
 	}
 }

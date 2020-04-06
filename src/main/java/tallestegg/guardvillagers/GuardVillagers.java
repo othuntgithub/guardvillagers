@@ -1,8 +1,5 @@
 package tallestegg.guardvillagers;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -55,7 +52,7 @@ public class GuardVillagers
     {
     	if (GuardConfig.GuardModel == false)
     	RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer::new);
-    	else
+    	else 
         RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer2::new);
     }
 

@@ -38,15 +38,17 @@ public class EntityInteractionEvents
 	       {
         	 Entity target = e.getTarget();
 	    	 if (target instanceof IronGolemEntity) {
-	    		IronGolemEntity golem = (IronGolemEntity) e.getTarget();
-	    		golem.heal(25.0F);
+	    		IronGolemEntity golem = (IronGolemEntity)e.getTarget();
+	    		if (golem.getHealth() >= 100) {
+	    		  golem.heal(25.0F);
+	    		}
 	    	 }
 	     } 
       }
   
 	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
 	{
-		  if (entity instanceof VillagerEntity);
+		  if (entity instanceof VillagerEntity) {
 		  ItemStack itemstack = e.getItemStack();
 		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
 		  VillagerEntity villager = (VillagerEntity)entity;
@@ -64,5 +66,6 @@ public class EntityInteractionEvents
            villager.func_213742_a(MemoryModuleType.JOB_SITE);
            villager.func_213742_a(MemoryModuleType.MEETING_POINT);
 	       villager.remove();	 
+		  }
 	} 
 }
