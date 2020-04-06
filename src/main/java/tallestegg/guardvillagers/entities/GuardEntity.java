@@ -36,6 +36,7 @@ import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -73,17 +74,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 1.0D, true) 
     {
-        /**
-         * Reset the task's internal state. Called when this task is interrupted by another one
-         */
         public void resetTask() {
             super.resetTask();
             GuardEntity.this.setAggroed(false);
         }
 
-        /**
-         * Execute a one shot task or start executing a continuous task
-         */
         public void startExecuting() {
             super.startExecuting();
             GuardEntity.this.setAggroed(true);
@@ -95,8 +90,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		super(type, world);
 		((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
-		this.enablePersistence();
 		this.setCombatTask();
+		this.enablePersistence();
 	}
 
 	@Override
@@ -114,26 +109,21 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
 	}
 	
-
 	/* this method sets the entities 
 	   combat task, if the entity has a
        crossbow, it will use the crossbow attack
        goal, if it uses any other item it will use the
        melee attack goal */
 	public void setCombatTask() {
-        if (this.world != null && !this.world.isRemote) {
             this.goalSelector.removeGoal(this.aiAttackOnCollide);
             this.goalSelector.removeGoal(this.aiCrossBowAttack);
 
-
-            ItemStack itemstack2 = this.getHeldItem(ProjectileHelper.getHandWith(this, Items.CROSSBOW));
-            if (itemstack2.getItem() instanceof net.minecraft.item.CrossbowItem) {
-                this.targetSelector.addGoal(4, this.aiCrossBowAttack);
+            ItemStack itemstack = this.getHeldItem(ProjectileHelper.getHandWith(this, Items.CROSSBOW));
+            if (itemstack.getItem() instanceof CrossbowItem) {
+                this.targetSelector.addGoal(2, this.aiCrossBowAttack);
             } else {
-            	 this.targetSelector.addGoal(4, this.aiAttackOnCollide);
+            	 this.targetSelector.addGoal(2, this.aiAttackOnCollide);
             }
-
-        }
     }
 	
 	protected SoundEvent getAmbientSound() 
@@ -168,8 +158,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		}
 	    this.updateArmSwingProgress();
 	    super.livingTick();
-	   
 	}
+	
+
 	
 	@Override
 	protected void registerData() 
@@ -200,7 +191,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	     {
 	       this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));
 	     }
-	  this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
+	   this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
 	}
 	
 	public int getGuardVariant()
@@ -220,21 +211,21 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
-	      this.goalSelector.addGoal(3, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
+	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
 	          return false;
 	       }));
-	      if (GuardConfig.GuardSurrender == true) {
-	      this.goalSelector.addGoal(8, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 0.5D, 0.5D) {
-				@Override
-				public boolean shouldExecute() {
-					return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
-				}		
-			});	      
-	      }
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      if (GuardConfig.GuardSurrender == true) {
-	      this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
+		      this.goalSelector.addGoal(1, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
+					@Override
+					public boolean shouldExecute() {
+						return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
+					}		
+				});	      
+		      }
+	      if (GuardConfig.GuardSurrender == true) {
+	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
 					return ((GuardEntity)this.goalOwner).getHealth() >= 15 && super.shouldExecute();
@@ -242,15 +233,18 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			});
 	      }
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
+	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
+	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
+	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
 	      if (GuardConfig.GuardSurrender == false) 
 	      {
-	        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
+	        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      }
 	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
-	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
+	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
+	      if (GuardConfig.GuardsRunFromPolarBears == true) {
+	         this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, PolarBearEntity.class,  12.0F, 1.0D, 1.2D));
+	      }
 	      if (GuardConfig.AttackAllMobs == true)
 	      {
 	    	  this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, false, false, (mob) ->
@@ -258,16 +252,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  			return mob instanceof IMob;
 	  		}));
 	      }
-	      //your quark compat
 	      if (ModList.get().isLoaded("quark")) {
-	    	 this.goalSelector.addGoal(2, new TemptGoal(this, 0.6, Ingredient.fromItems(Items.EMERALD_BLOCK), false));
+		    this.goalSelector.addGoal(2, new TemptGoal(this, 0.6, Ingredient.fromItems(Items.EMERALD_BLOCK), false));
 	      }
 	 }
 	
 	@Override
 	public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) 
 	{
-		Hand hand = ProjectileHelper.getHandWith(this, Items.CROSSBOW);
+		 Hand hand = ProjectileHelper.getHandWith(this, Items.CROSSBOW);
 	      ItemStack itemstack = this.getHeldItem(hand);
 	      if (this.isHolding(Items.CROSSBOW)) {
 	         CrossbowItem.fireProjectiles(this.world, this, hand, itemstack, 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
@@ -288,7 +281,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
    
    
-	@Override
+   @Override
 	public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
 	{
 		  Entity entity = (Entity)projectile;
@@ -401,7 +394,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	                heldStack.shrink(1);
 	            }
 			    return true;
-	        }
+	}
+	
 	public static String getNameByType(int id) 
 	{
 		switch(id) 
