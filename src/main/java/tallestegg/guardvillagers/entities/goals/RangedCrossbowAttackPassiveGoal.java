@@ -57,6 +57,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 
 	   public void tick() {
 		      LivingEntity livingentity = this.field_220748_a.getAttackTarget();
+		      this.field_220748_a.setAggroed(true);
 		      if (livingentity != null) {
 		         boolean flag = this.field_220748_a.getEntitySenses().canSee(livingentity);
 		         boolean flag1 = this.field_220752_e > 0;
@@ -89,7 +90,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 
 		         this.field_220748_a.getLookController().setLookPositionWithEntity(livingentity, 30.0F, 30.0F);
 		         if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED) {
-		            if (!flag2) {
+		            if (flag) {
 		               this.field_220748_a.setActiveHand(ProjectileHelper.getHandWith(this.field_220748_a, Items.CROSSBOW));
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING;
 		               ((ICrossbowUser)this.field_220748_a).setCharging(true);

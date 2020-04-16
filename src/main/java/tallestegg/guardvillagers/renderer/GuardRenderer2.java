@@ -9,7 +9,7 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class GuardRenderer2 extends MobRenderer<GuardEntity, VillagerModel<GuardEntity>>
 {
-	 private static final ResourceLocation GUARD_TEXTURES = new ResourceLocation("guardvillagers:textures/entity/guard/oldmodel.png");
+	 private static final ResourceLocation GUARD_TEXTURES = new ResourceLocation("textures/entity/villager/villager.png");
 	 
 	 public GuardRenderer2 (EntityRendererManager manager) 
 		{

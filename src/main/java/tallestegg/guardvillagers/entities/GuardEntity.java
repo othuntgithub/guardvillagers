@@ -43,13 +43,15 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.item.ShootableItem;
-import net.minecraft.item.SwordItem;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
@@ -72,24 +74,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 { 
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
-    private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 1.0D, true) 
-    {
-        public void resetTask() {
-            super.resetTask();
-            GuardEntity.this.setAggroed(false);
-        }
-
-        public void startExecuting() {
-            super.startExecuting();
-            GuardEntity.this.setAggroed(true);
-        }
-    };
+    private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 1.0D, true);
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
 	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
-		((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
+		if (GuardConfig.GuardsOpenDoors) {
+		  ((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
+		}
 		this.setCombatTask();
 		this.enablePersistence();
 	}
@@ -114,16 +107,20 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
        crossbow, it will use the crossbow attack
        goal, if it uses any other item it will use the
        melee attack goal */
-	public void setCombatTask() {
-            this.goalSelector.removeGoal(this.aiAttackOnCollide);
-            this.goalSelector.removeGoal(this.aiCrossBowAttack);
+	public void setCombatTask() 
+	{
+      this.targetSelector.removeGoal(this.aiAttackOnCollide);
+      this.targetSelector.removeGoal(this.aiCrossBowAttack);
 
-            ItemStack itemstack = this.getHeldItem(ProjectileHelper.getHandWith(this, Items.CROSSBOW));
-            if (itemstack.getItem() instanceof CrossbowItem) {
-                this.targetSelector.addGoal(2, this.aiCrossBowAttack);
-            } else {
-            	 this.targetSelector.addGoal(2, this.aiAttackOnCollide);
-            }
+      ItemStack itemstack = this.getHeldItem(ProjectileHelper.getHandWith(this, Items.CROSSBOW));
+      if (itemstack.getItem() instanceof CrossbowItem) 
+      {
+       this.targetSelector.addGoal(3, this.aiCrossBowAttack);
+      }
+      else 
+      {
+        this.targetSelector.addGoal(3, this.aiAttackOnCollide);
+      }
     }
 	
 	protected SoundEvent getAmbientSound() 
@@ -157,6 +154,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.heal(2.0F);	
 		}
 	    this.updateArmSwingProgress();
+	    if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getHealth() <= 15) 
+	    {
+	    	this.setActiveHand(Hand.OFF_HAND);
+		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
+	    }
 	    super.livingTick();
 	}
 	
@@ -186,6 +188,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		if (i == 0) 
 		{
 	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
+	      this.setItemStackToSlot(EquipmentSlotType.OFFHAND, new ItemStack(Items.SHIELD));
 	    } 
 		 else 
 	     {
@@ -208,7 +211,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
-	      this.goalSelector.addGoal(2, new MoveTowardsVillageGoal(this, 0.6D));
+	      this.goalSelector.addGoal(4, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
@@ -216,19 +219,19 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	       }));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
-	      if (GuardConfig.GuardSurrender == true) {
-		      this.goalSelector.addGoal(1, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
+	      if (GuardConfig.GuardSurrender) {
+		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 					@Override
 					public boolean shouldExecute() {
-						return ((GuardEntity)this.entity).getHealth() <= 15 && super.shouldExecute();
+						return ((GuardEntity)this.entity).getHealth() <= 13 && super.shouldExecute();
 					}		
 				});	      
 		      }
-	      if (GuardConfig.GuardSurrender == true) {
+	      if (GuardConfig.GuardSurrender) {
 	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
-					return ((GuardEntity)this.goalOwner).getHealth() >= 15 && super.shouldExecute();
+					return ((GuardEntity)this.goalOwner).getHealth() >= 13 && super.shouldExecute();
 				}
 			});
 	      }
@@ -236,16 +239,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
 	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
-	      if (GuardConfig.GuardSurrender == false) 
+	      if (!GuardConfig.GuardSurrender) 
 	      {
 	        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      }
 	      this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
-	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
-	      if (GuardConfig.GuardsRunFromPolarBears == true) {
+	      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, VexEntity.class, true));
+	      if (GuardConfig.GuardsRunFromPolarBears) 
+	      {
 	         this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, PolarBearEntity.class,  12.0F, 1.0D, 1.2D));
 	      }
-	      if (GuardConfig.AttackAllMobs == true)
+	      if (GuardConfig.AttackAllMobs)
 	      {
 	    	  this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, false, false, (mob) ->
 	  		{
@@ -384,17 +388,42 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		      }
 
 		   }
-	public boolean processInteract(PlayerEntity player, Hand hand)
-	{
-	        ItemStack heldStack = player.getHeldItem(hand);
-	        if (heldStack.getItem() instanceof SwordItem && player.isSneaking() || heldStack.getItem() instanceof CrossbowItem && player.isSneaking())
-	        {
-	            this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
-	            if (!player.abilities.isCreativeMode)
-	                heldStack.shrink(1);
-	            }
-			    return true;
-	        }
+	   
+	   public boolean processInteract(PlayerEntity player, Hand hand)
+		{
+		  ItemStack heldStack = player.getHeldItem(hand);
+		  if (!(heldStack.getItem() instanceof CrossbowItem) && player.isSneaking() || heldStack.getItem() instanceof CrossbowItem && player.isSneaking())
+		  {
+		    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
+		    if (!player.abilities.isCreativeMode)
+		    heldStack.shrink(1);
+		  }
+		  
+		  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
+		  {
+		    if (!player.abilities.isCreativeMode) 
+		    {
+		      heldStack.shrink(1);
+		    }
+
+		    this.heal((float)heldStack.getItem().getFood().getHealing());
+		    this.playHealEffect(true);
+		    return true;
+		  }
+		   return true;
+		}
+	   
+	   protected void playHealEffect(boolean play) {
+		      IParticleData iparticledata = ParticleTypes.HAPPY_VILLAGER;
+		      for(int i = 0; i < 7; ++i) {
+		         double d0 = this.rand.nextGaussian() * 0.02D;
+		         double d1 = this.rand.nextGaussian() * 0.02D;
+		         double d2 = this.rand.nextGaussian() * 0.02D;
+		         this.world.addParticle(iparticledata, this.posX + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), this.posY + 0.5D + (double)(this.rand.nextFloat() * this.getHeight()), this.posZ + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), d0, d1, d2);
+		      }
+
+		   }
+	   
 	public static String getNameByType(int id) 
 	{
 		switch(id) 
@@ -421,7 +450,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	protected void registerAttributes() 
 	{
 	      super.registerAttributes();
-	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(30.0D);
+	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(25.0D);
 	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(5.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);

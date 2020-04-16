@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import tallestegg.guardvillagers.GuardVillagers;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -25,7 +27,8 @@ public class GuardRenderer extends MobRenderer<GuardEntity, GuardModel>
     @Nullable
     @Override
     protected ResourceLocation getEntityTexture(GuardEntity entity) 
-    {
+    
+    { 
     	return new ResourceLocation(GuardVillagers.MODID, "textures/entity/guard/guard_" + entity.getGuardVariant() + ".png");	
     }
 }

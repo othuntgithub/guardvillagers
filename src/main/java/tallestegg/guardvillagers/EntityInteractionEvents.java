@@ -5,6 +5,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -17,39 +18,39 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 public class EntityInteractionEvents 
 {
 	 @SubscribeEvent
-	 public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
+	 public void onEntityInteract(PlayerInteractEvent.EntityInteract event) 
 	 {
-	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isSneaking() || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isSneaking()) 
+	     ItemStack itemstack = event.getItemStack();
+	     if (itemstack.getItem() instanceof SwordItem && event.getPlayer().isSneaking() || itemstack.getItem() instanceof CrossbowItem && event.getPlayer().isSneaking()) 
 	     {
-	       Entity target = e.getTarget();
+	       Entity target = event.getTarget();
 	       if (target instanceof VillagerEntity)
 	       {
-	    	   VillagerEntity villager = (VillagerEntity) e.getTarget();
-		         if (villager.isChild() == false) 
+	    	   VillagerEntity villager = (VillagerEntity) event.getTarget();
+		         if (!villager.isChild()) 
 		         {
-		          this.VillagerConvert(villager, e);
-		          if (!e.getPlayer().abilities.isCreativeMode)
+		          this.VillagerConvert(villager, event.getPlayer());
+		          if (!event.getPlayer().abilities.isCreativeMode)
 		          itemstack.shrink(1);
 		         }
 	           } 
 	       }
            if (itemstack.getItem() == Items.IRON_INGOT) 
 	       {
-        	 Entity target = e.getTarget();
+        	 Entity target = event.getTarget();
 	    	 if (target instanceof IronGolemEntity) {
-	    		IronGolemEntity golem = (IronGolemEntity)e.getTarget();
-	    		if (golem.getHealth() >= 100) {
+	    		IronGolemEntity golem = (IronGolemEntity)event.getTarget();
+	    		if (golem.getHealth() < golem.getMaxHealth()) {
 	    		  golem.heal(25.0F);
 	    		}
 	    	 }
 	     } 
       }
   
-	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
+	private void VillagerConvert(LivingEntity entity, PlayerEntity player) 
 	{
 		  if (entity instanceof VillagerEntity) {
-		  ItemStack itemstack = e.getItemStack();
+		  ItemStack itemstack = player.getHeldItemMainhand();
 		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
 		  VillagerEntity villager = (VillagerEntity)entity;
 		  guard.copyLocationAndAnglesFrom(villager);

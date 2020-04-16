@@ -50,10 +50,13 @@ public class GuardVillagers
 
     private void doClientStuff(final FMLClientSetupEvent event) 
     {
-    	if (GuardConfig.GuardModel == false)
-    	RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer::new);
-    	else 
-        RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer2::new);
+    	if (!GuardConfig.GuardModel) 
+    	{
+    	  RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer::new);
+    	} else 
+    	{
+          RenderingRegistry.registerEntityRenderingHandler(GuardEntity.class, GuardRenderer2::new);
+    	}
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

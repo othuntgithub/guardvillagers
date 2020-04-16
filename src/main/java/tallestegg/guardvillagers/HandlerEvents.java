@@ -20,7 +20,6 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.pathfinding.GroundPathNavigator;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,7 +31,7 @@ public class HandlerEvents
 	@SubscribeEvent
 	public void onLivingSpawned(EntityJoinWorldEvent event) 
 	{
-		if (GuardConfig.AttackAllMobs == true)
+		if (GuardConfig.AttackAllMobs)
 	    if(event.getEntity() instanceof IMob) 
 	    {
 	       MobEntity mob = (MobEntity)event.getEntity();
@@ -43,21 +42,26 @@ public class HandlerEvents
 		   {
 			 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 		     illager.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-		     ((GroundPathNavigator)illager.getNavigator()).setBreakDoors(true);
-		     if (GuardConfig.IllagersRunFromPolarBears == true) {
+		     if (GuardConfig.IllagersOpenDoors) 
+		     {
+		       ((GroundPathNavigator)illager.getNavigator()).setBreakDoors(true);
+		     }
+		     if (GuardConfig.IllagersRunFromPolarBears) {
 		      illager.goalSelector.addGoal(2, new AvoidEntityGoal<>(illager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); 
 		     }  //common sense.
-		     if (GuardConfig.RaidAnimals == true)
-		     if (illager.isRaidActive()) 
-		     {
+		     if (GuardConfig.RaidAnimals) {
+		      if (illager.isRaidActive()) 
+		      {
 		    	illager.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(illager, AnimalEntity.class, false));   
+		      }
 		     }
 		   }
 		   
 		   if(event.getEntity() instanceof AbstractVillagerEntity) 
 		   {
 			 AbstractVillagerEntity villager = (AbstractVillagerEntity)event.getEntity();
-			 if (GuardConfig.VillagersRunFromPolarBears == true) {
+			 if (GuardConfig.VillagersRunFromPolarBears) 
+			 {
 			   villager.goalSelector.addGoal(2, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //common sense.
 			 } 
 		   }
@@ -78,13 +82,12 @@ public class HandlerEvents
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
 	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
 	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
-	   golem.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(golem, WitchEntity.class, false));  
 	}
 	
 	if(event.getEntity() instanceof VexEntity) 
 	{
 	   VexEntity vex = (VexEntity)event.getEntity();
-	   vex.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
+	   vex.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
 	}
 	
 	if(event.getEntity() instanceof ZombieEntity) 
@@ -96,7 +99,7 @@ public class HandlerEvents
 	{
 		RavagerEntity ravager = (RavagerEntity)event.getEntity();
 	    ravager.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(ravager, GuardEntity.class, false));  
-	    if (GuardConfig.RaidAnimals == true) {
+	    if (GuardConfig.RaidAnimals) {
 	     if (ravager.isRaidActive())
           {
 	       ravager.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));   
@@ -106,18 +109,23 @@ public class HandlerEvents
 	if(event.getEntity() instanceof WitchEntity) 
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
-		((GroundPathNavigator)witch.getNavigator()).setBreakDoors(true);
-		 if (GuardConfig.WitchesVillager == true)
+		if (GuardConfig.IllagersOpenDoors) 
+		{
+		   ((GroundPathNavigator)witch.getNavigator()).setBreakDoors(true);
+		}
+		 if (GuardConfig.WitchesVillager)
 		  if (witch.isRaidActive()) {
 		  {
             witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
-	        witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
 	        witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
 		  }
+	        witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
         }
 		 
-	    if (GuardConfig.RaidAnimals == true) {
-	    if (witch.isRaidActive()) {
+	    if (GuardConfig.RaidAnimals) 
+	    {
+	     if (witch.isRaidActive()) 
+	     {
 	      {
 	        witch.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(witch, AnimalEntity.class, false));   
 	      }
@@ -128,17 +136,19 @@ public class HandlerEvents
 		{
 	    	IllusionerEntity illusioner = (IllusionerEntity)event.getEntity();
 	    	illusioner.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(illusioner, GuardEntity.class, false));  
-		    if (GuardConfig.RaidAnimals == true) {
-		    if (illusioner.isRaidActive()) {
+		    if (GuardConfig.RaidAnimals) 
 		    {
+		    if (illusioner.isRaidActive()) 
+		    {
+		     {
 		      illusioner.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(illusioner, AnimalEntity.class, false));   
-		    }
+		     }
 		    }
 		   }
 		}   
 	}
       World world = event.getWorld();
-      if (GuardConfig.IllusionerRaids == true) {
+      if (GuardConfig.IllusionerRaids) {
 	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
 	   {
          AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
@@ -148,9 +158,8 @@ public class HandlerEvents
             for (int i = 0; i < 1; i++) 
           {
             IllusionerEntity illusioner = EntityType.ILLUSIONER.create(world);
-            illager.getRaid().func_221317_a(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(), false);
+            illager.getRaid().func_221317_a(5, illusioner, illager.getPosition(), false);
             illusioner.setLeader(false);
-            illusioner.setWave(5);
           } 
             illager.remove();
           }
