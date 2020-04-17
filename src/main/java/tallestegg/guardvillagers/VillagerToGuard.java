@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -17,28 +18,29 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 public class VillagerToGuard 
 {
 	@SubscribeEvent
-	  public void onEntityInteract(PlayerInteractEvent.EntityInteract e) 
+	  public void onEntityInteract(PlayerInteractEvent.EntityInteract event) 
 	    {
-	     ItemStack itemstack = e.getItemStack();
-	     if (itemstack.getItem() instanceof SwordItem && e.getPlayer().isShiftKeyDown() || itemstack.getItem() instanceof CrossbowItem && e.getPlayer().isShiftKeyDown()) 
+	     ItemStack itemstack = event.getItemStack();
+	     if (itemstack.getItem() instanceof SwordItem && event.getPlayer().isShiftKeyDown() || itemstack.getItem() instanceof CrossbowItem && event.getPlayer().isShiftKeyDown()) 
 	     {
-	       Entity target = e.getTarget();
+	       Entity target = event.getTarget();
 	       if (target instanceof VillagerEntity)
 	       {
-	         VillagerEntity villager = (VillagerEntity) e.getTarget();
-	         if (villager.isChild() == false) {
-	         this.VillagerConvert(villager, e);
-	         if (!e.getPlayer().abilities.isCreativeMode)
+	         VillagerEntity villager = (VillagerEntity)event.getTarget();
+	         if (!villager.isChild()) {
+	         this.VillagerConvert(villager, event.getPlayer());
+	         if (!event.getPlayer().abilities.isCreativeMode)
 	         itemstack.shrink(1);
 	       } 
 	   }
 	} 
   }
 
-	private void VillagerConvert(LivingEntity entity, PlayerInteractEvent.EntityInteract e) 
+	private void VillagerConvert(LivingEntity entity, PlayerEntity player) 
 	{
-		  if (entity instanceof VillagerEntity) {
-		  ItemStack itemstack = e.getItemStack();
+		if (entity instanceof VillagerEntity) 
+	    {
+		  ItemStack itemstack = player.getActiveItemStack();
 		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
 		  VillagerEntity villager = (VillagerEntity)entity;
 		  guard.copyLocationAndAnglesFrom(villager);
