@@ -1,8 +1,5 @@
 package tallestegg.guardvillagers;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -52,10 +49,13 @@ public class GuardVillagers
 
     private void doClientStuff(final FMLClientSetupEvent event) 
     {
-    	if (GuardConfig.GuardModel == false)
-    	RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer::new);
-    	else
-        RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer2::new);
+    	if (!GuardConfig.GuardModel) 
+    	{
+    	  RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer::new);
+    	} else 
+    	{
+          RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer2::new);
+    	}
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
