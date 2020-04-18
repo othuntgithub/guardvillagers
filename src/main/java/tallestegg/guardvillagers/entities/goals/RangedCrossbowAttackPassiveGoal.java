@@ -88,7 +88,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 
 		         this.field_220748_a.getLookController().setLookPositionWithEntity(livingentity, 30.0F, 30.0F);
 		         if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED) {
-		            if (!flag2) {
+		            if (flag) {
 		               this.field_220748_a.setActiveHand(ProjectileHelper.getHandWith(this.field_220748_a, Items.CROSSBOW));
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING;
 		               ((ICrossbowUser)this.field_220748_a).setCharging(true);
