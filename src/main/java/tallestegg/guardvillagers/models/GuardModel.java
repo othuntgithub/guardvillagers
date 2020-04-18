@@ -7,7 +7,9 @@ import net.minecraft.client.renderer.entity.model.IHasArm;
 import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.item.Items;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -25,6 +27,7 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
     public ModelRenderer Nose;
     public ModelRenderer HelmetDetail;
     public ModelRenderer headLayer2;
+    public float floatthing;
 
     public GuardModel() {
         this.textureWidth = 128;
@@ -100,6 +103,7 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
     
 	public void setRotationAngles(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) 
 	{
+		ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
 		float f = MathHelper.sin(this.swingProgress * (float) Math.PI);
         float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float) Math.PI);
         this.Head.rotateAngleY = netHeadYaw * ((float)Math.PI / 180F);
@@ -119,8 +123,6 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
             this.LegR.rotateAngleY = (-(float)Math.PI / 10F);
             this.LegR.rotateAngleZ = -0.07853982F;
         } 
-         else 
-         {
            this.ArmR.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.5F;
            this.ArmR.rotateAngleY = 0.0F;
            this.ArmR.rotateAngleZ = 0.0F;
@@ -140,46 +142,69 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
          if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
          {
            this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
+           this.ArmR.rotateAngleZ -= f * 1.0 - f1 * 1.0F;
          }
           else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
           {
            this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
+           this.ArmL.rotateAngleZ -= f * 1.0 - f1 * 1.0F;
           }
-        }
-        if (entityIn.isHolding(Items.CROSSBOW)) 
+        if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack)) 
         {
         	 if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
 	          {
-        		 this.ArmR.rotateAngleY = 0.3F;
-	             this.ArmL.rotateAngleY = -0.6F;
+        		 this.ArmR.rotateAngleY = 0.1F;
+	             this.ArmL.rotateAngleY = -0.8F;
 	             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
 	             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
 	          }
         	   else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
 	           {
-        		     this.ArmR.rotateAngleY = -5.6F;
-		             this.ArmL.rotateAngleY = -0.3F;
-		             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
-		             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
+          		 this.ArmR.rotateAngleY = 0.8F;
+	             this.ArmL.rotateAngleY = 0.1F;
+  	             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+  	             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
 	           }
         }
-        if (entityIn.isCharging()) {
+        if (entityIn.isCharging() && itemstack.getItem() instanceof CrossbowItem) {
            if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
            {
-            this.ArmR.rotateAngleY = -100.0F;
-            this.ArmR.rotateAngleX = -0.97079635F;
-            this.ArmL.rotateAngleX = -0.97079635F;
-            this.ArmL.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
+             this.ArmR.rotateAngleY = -100.0F;
+             this.ArmR.rotateAngleX = -0.97079635F;
+             this.ArmL.rotateAngleX = -0.97079635F;
+             float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
+             this.ArmL.rotateAngleY = MathHelper.lerp(f2 / 25.0F, 0.4F, -0.85F);
+             this.ArmL.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.ArmL.rotateAngleX, (-(float)Math.PI / 2F));
            }
            if (entityIn.getPrimaryHand() == HandSide.LEFT) 
            {
-            this.ArmR.rotateAngleY = -100.0F;
-            this.ArmR.rotateAngleX = -0.97079635F;
-            this.ArmL.rotateAngleX = -0.97079635F;
-            this.ArmR.rotateAngleY =  MathHelper.cos(ageInTicks * 0.2F); //what shows the reloading animation
+        	   this.ArmL.rotateAngleY = 100.0F;
+               this.ArmL.rotateAngleX = -0.97079635F;
+               this.ArmR.rotateAngleX = -0.97079635F;
+               float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
+               this.ArmR.rotateAngleY = MathHelper.lerp(f2 / 25.0F, 0.4F, 0.85F);
+               this.ArmR.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.ArmR.rotateAngleX, (-(float)Math.PI / 2F));
            }
-         }
+          }
+        if (itemstack.getItem() instanceof ShieldItem)
+        {
+            if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+            {
+              this.ArmL.rotateAngleX = this.ArmL.rotateAngleX * 0.5F - 0.9424779F;
+              this.ArmL.rotateAngleY = ((float)Math.PI / 15F);
+            }
+            if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+            {
+            	this.ArmR.rotateAngleX = this.ArmR.rotateAngleX * 0.5F - 0.9424779F;
+                this.ArmR.rotateAngleY = (-(float)Math.PI / 15F);
+            }
+        }
        }
+    
+    public void setLivingAnimations(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float partialTick) {
+        this.floatthing = (float)entityIn.getItemInUseMaxCount();
+        super.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTick);
+     }
     
       public ModelRenderer getModelHead() 
       {
