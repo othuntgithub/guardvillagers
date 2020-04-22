@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.IMob;
@@ -26,6 +25,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
+import tallestegg.guardvillagers.entities.goals.HealGolemGoal;
 
 public class HandlerEvents 
 {
@@ -66,10 +66,7 @@ public class HandlerEvents
 			   if(event.getEntity() instanceof VillagerEntity) 
 			   {
 				 VillagerEntity villager = (VillagerEntity)event.getEntity();
-			     if (villager.getVillagerData().getProfession() == VillagerProfession.CLERIC) 
-			     {
-			   
-			     }
+				 villager.goalSelector.addGoal(1, new HealGolemGoal(villager));
 			   }
 			   
 		
@@ -84,7 +81,7 @@ public class HandlerEvents
 		if(event.getEntity() instanceof VexEntity) 
 		{
 		   VexEntity vex = (VexEntity)event.getEntity();
-		   vex.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
+		   vex.targetSelector.addGoal(10, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
 		}
 		
 		if(event.getEntity() instanceof ZombieEntity) 
@@ -150,9 +147,7 @@ public class HandlerEvents
 	            IllusionerEntity illusioner = EntityType.ILLUSIONER.create(world);
 	            illager.getRaid().joinRaid(illager.getRaid().getWaves(Difficulty.HARD), illusioner, illager.getPosition(), false);
 	            illusioner.setLeader(false);
-	            illusioner.setWave(5);
 	          } 
-	            illager.remove();
 	          }
 	      }
 	    }

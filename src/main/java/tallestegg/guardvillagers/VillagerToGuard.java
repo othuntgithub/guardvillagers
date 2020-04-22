@@ -40,7 +40,7 @@ public class VillagerToGuard
 	{
 		if (entity instanceof VillagerEntity) 
 	    {
-		  ItemStack itemstack = player.getActiveItemStack();
+		  ItemStack itemstack = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
 		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
 		  VillagerEntity villager = (VillagerEntity)entity;
 		  guard.copyLocationAndAnglesFrom(villager);

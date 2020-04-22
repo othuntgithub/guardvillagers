@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -39,10 +40,10 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
         this.Nose = new ModelRenderer(this, 54, 0);
         this.Nose.setRotationPoint(0.0F, -3.0F, -4.0F);
         this.Nose.addBox(-1.0F, 0.0F, -2.0F, 2, 4, 2, 0.0F);
-        this.ArmL = new ModelRenderer(this, 32, 75);
-        this.ArmL.mirror = true;
-        this.ArmL.setRotationPoint(-5.0F, 2.0F, 0.0F);
-        this.ArmL.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
+        this.ArmR = new ModelRenderer(this, 32, 75);
+        this.ArmR.mirror = true;
+        this.ArmR.setRotationPoint(-5.0F, 2.0F, 0.0F);
+        this.ArmR.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
         this.LegR = new ModelRenderer(this, 16, 28);
         this.LegR.setRotationPoint(1.9F, 12.0F, 0.0F);
         this.LegR.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
@@ -57,9 +58,9 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
         this.headLayer2 = new ModelRenderer(this, 0, 0);
         this.headLayer2.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.headLayer2.addBox(-4.5F, -11.0F, -4.5F, 9, 11, 9, 0.0F);
-        this.ArmR = new ModelRenderer(this, 33, 48);
-        this.ArmR.setRotationPoint(5.0F, 2.0F, 0.0F);
-        this.ArmR.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
+        this.ArmL = new ModelRenderer(this, 33, 48);
+        this.ArmL.setRotationPoint(5.0F, 2.0F, 0.0F);
+        this.ArmL.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
         this.Head = new ModelRenderer(this, 49, 99);
         this.Head.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.Head.addBox(-4.0F, -10.0F, -4.0F, 8, 10, 8, 0.0F);
@@ -83,8 +84,8 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
         this.Head.addChild(this.headLayer2);
         this.Torso.addChild(this.ArmR);
         this.Torso.addChild(this.Head);
-        this.ArmL.addChild(this.ArmLShoulderPad);
-        this.ArmR.addChild(this.ArmRShoulderPad);
+        this.ArmL.addChild(this.ArmRShoulderPad);
+        this.ArmR.addChild(this.ArmLShoulderPad);
     }
 
 	public Iterable<ModelRenderer> getParts()
@@ -139,54 +140,60 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
            this.ArmL.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09F) * 0.05F;
            this.ArmR.rotateAngleX += MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
            this.ArmL.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
+           if (entityIn.isKicking())
+           {
+               this.LegL.rotateAngleX = -1.0F - 0.8F * MathHelper.sin(ageInTicks * 0.5F) * 0.01F;
+           }
          if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
          {
            this.ArmR.rotateAngleX -= f * 2.2F - f1 * 0.4F;
            this.ArmR.rotateAngleZ -= f * 1.0 - f1 * 1.0F;
          }
-          else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+          if (entityIn.getPrimaryHand() == HandSide.LEFT) 
           {
            this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
            this.ArmL.rotateAngleZ -= f * 1.0 - f1 * 1.0F;
           }
-        if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack)) 
-        {
-        	 if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
-	          {
-        		 this.ArmR.rotateAngleY = 0.1F;
-	             this.ArmL.rotateAngleY = -0.8F;
-	             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
-	             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
-	          }
-        	   else if (entityIn.getPrimaryHand() == HandSide.LEFT) 
-	           {
-          		 this.ArmR.rotateAngleY = 0.8F;
-	             this.ArmL.rotateAngleY = 0.1F;
-  	             this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
-  	             this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
-	           }
+        if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack)) {
+          if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+     	  {
+            this.ArmR.rotateAngleY = -0.3F;
+            this.ArmL.rotateAngleY = 0.6F;
+            this.ArmR.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+            this.ArmL.rotateAngleX = -1.5F + this.Head.rotateAngleX;
+     	   }
+            if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+     	    {
+               this.ArmR.rotateAngleY = -0.6F;
+               this.ArmL.rotateAngleY = 0.3F;
+               this.ArmR.rotateAngleX = -1.5F + this.Head.rotateAngleX;
+               this.ArmL.rotateAngleX = (-(float)Math.PI / 2F) + this.Head.rotateAngleX + 0.1F;
+
+     	   }
         }
         if (entityIn.isCharging() && itemstack.getItem() instanceof CrossbowItem) {
-           if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
-           {
-             this.ArmR.rotateAngleY = -100.0F;
-             this.ArmR.rotateAngleX = -0.97079635F;
-             this.ArmL.rotateAngleX = -0.97079635F;
-             float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
-             this.ArmL.rotateAngleY = MathHelper.lerp(f2 / 25.0F, 0.4F, -0.85F);
-             this.ArmL.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.ArmL.rotateAngleX, (-(float)Math.PI / 2F));
-           }
-           if (entityIn.getPrimaryHand() == HandSide.LEFT) 
-           {
-        	   this.ArmL.rotateAngleY = 100.0F;
-               this.ArmL.rotateAngleX = -0.97079635F;
-               this.ArmR.rotateAngleX = -0.97079635F;
-               float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
-               this.ArmR.rotateAngleY = MathHelper.lerp(f2 / 25.0F, 0.4F, 0.85F);
-               this.ArmR.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.ArmR.rotateAngleX, (-(float)Math.PI / 2F));
-           }
+            if (entityIn.isCharging()) {
+                if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
+                {
+              	  this.ArmR.rotateAngleY = -0.8F;
+                    this.ArmR.rotateAngleX = -0.97079635F;
+                    this.ArmL.rotateAngleX = -0.97079635F;
+                    float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
+                    this.ArmL.rotateAngleY = MathHelper.lerp(f2 / 25.0F, 0.4F, 0.85F);
+                    this.ArmL.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.ArmL.rotateAngleX, (-(float)Math.PI / 2F));
+                }
+                if (entityIn.getPrimaryHand() == HandSide.LEFT) 
+                {
+                    this.ArmL.rotateAngleY = 0.8F;
+                    this.ArmR.rotateAngleX = -0.97079635F;
+                    this.ArmL.rotateAngleX = -0.97079635F;
+                    float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
+                    this.ArmR.rotateAngleY = MathHelper.lerp(f2 / 25.0F, -0.4F, -0.85F);
+                    this.ArmR.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.ArmR.rotateAngleX, (-(float)Math.PI / 2F));
+                }
+            }
           }
-        if (itemstack.getItem() instanceof ShieldItem)
+        if (itemstack.getItem() instanceof ShieldItem && entityIn.getActiveHand() == Hand.OFF_HAND)
         {
             if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
             {
@@ -212,7 +219,7 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
 	  }
 	
 	 public void translateHand(HandSide p_225599_1_, MatrixStack p_225599_2_) {
-		  float f = p_225599_1_ == HandSide.RIGHT ? 2.0F : -1.0F;
+		  float f = p_225599_1_ == HandSide.RIGHT ? 0.0F : 0.0F;
 	      ModelRenderer modelrenderer = this.getArmForSide(p_225599_1_);
 	      modelrenderer.rotationPointX += f;
 	      modelrenderer.translateRotate(p_225599_2_);

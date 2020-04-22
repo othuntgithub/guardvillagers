@@ -74,8 +74,21 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 { 
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
-    private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 1.0D, true);
+	private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
+    private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 1.2D, true) {
+    	@Override
+        public void resetTask() {
+           super.resetTask();
+           GuardEntity.this.setAggroed(false);
+        }
+
+        @Override
+        public void startExecuting() {
+           super.startExecuting();
+           GuardEntity.this.setAggroed(true);
+        }
+     };
 	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
@@ -97,6 +110,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	    spawnDataIn = new GuardEntity.GuardData(type);
 	  }
        this.setCombatTask();
+       if (this.world.rand.nextFloat() < 0.5F) {
+         this.setItemStackToSlot(EquipmentSlotType.OFFHAND, new ItemStack(Items.SHIELD));
+	   } 
 	   this.setGuardVariant(type);
 	   this.setEquipmentBasedOnDifficulty(difficultyIn);
 	   return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
@@ -154,12 +170,32 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.heal(2.0F);	
 		}
 	    this.updateArmSwingProgress();
-	    if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getHealth() <= 15) 
+		this.raiseShield();
+	    super.livingTick();
+	}
+	
+	public void raiseShield()
+	{
+		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 2.0D
+	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof RavagerEntity) 
 	    {
 	    	this.setActiveHand(Hand.OFF_HAND);
-		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
+		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
 	    }
-	    super.livingTick();
+		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive())
+		{
+			this.resetActiveHand();
+		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
+		}
+	}
+	
+	public void kick()
+	{
+		LivingEntity attacker = this.getAttackTarget();
+		this.setKicking(true);
+		this.attackEntityAsMob(attacker);
+		double distance = this.getDistance(attacker);
+		attacker.knockBack(attacker, 1.5F, distance, distance);
 	}
 	
 
@@ -170,6 +206,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		super.registerData();
 		this.dataManager.register(GUARD_VARIANT, 0);
 		this.dataManager.register(DATA_CHARGING_STATE, false);
+		this.dataManager.register(KICKING, false);
 	}
 
     public boolean isCharging() 
@@ -181,6 +218,16 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     {
 	   this.dataManager.set(DATA_CHARGING_STATE, p_213671_1_);
     }
+    
+    public boolean isKicking() 
+    {
+	  return this.dataManager.get(KICKING);
+    }
+
+    public void setKicking(boolean p_213671_1_) 
+    {
+	   this.dataManager.set(KICKING, p_213671_1_);
+    }
 	   
 	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
 	{
@@ -188,7 +235,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		if (i == 0) 
 		{
 	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-	      this.setItemStackToSlot(EquipmentSlotType.OFFHAND, new ItemStack(Items.SHIELD));
 	    } 
 		 else 
 	     {
@@ -211,7 +257,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
-	      this.goalSelector.addGoal(4, new MoveTowardsVillageGoal(this, 0.6D));
+	      this.goalSelector.addGoal(1, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
@@ -223,7 +269,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 					@Override
 					public boolean shouldExecute() {
-						return ((GuardEntity)this.entity).getHealth() <= 13 && super.shouldExecute();
+						return ((GuardEntity)this.entity).getHealth() <= 13 && !(entity.getHeldItemOffhand().getItem() instanceof ShieldItem) && super.shouldExecute();
 					}		
 				});	      
 		      }
@@ -393,14 +439,21 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   public boolean processInteract(PlayerEntity player, Hand hand)
 		{
 		  ItemStack heldStack = player.getHeldItem(hand);
-		  if (!(heldStack.getItem() instanceof CrossbowItem) && !(heldStack.getItem().isFood() && player.isShiftKeyDown() || heldStack.getItem() instanceof CrossbowItem && player.isShiftKeyDown()))
+		  if (!(heldStack.getItem() instanceof ShieldItem) && !(heldStack.getItem().isFood()) || heldStack.getItem() instanceof CrossbowItem && player.isShiftKeyDown())
 		  {
 		    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 		    if (!player.abilities.isCreativeMode)
 		    heldStack.shrink(1);
 		  }
 		  
-		  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
+		  if (heldStack.getItem() instanceof ShieldItem && player.isShiftKeyDown())
+		  {
+		    this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
+		    if (!player.abilities.isCreativeMode)
+		    heldStack.shrink(1);
+		  }
+		  
+		  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth() && !(this.getAttackTarget() instanceof PlayerEntity)) 
 		  {
 		    if (!player.abilities.isCreativeMode) 
 		    {
@@ -409,7 +462,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
 		    this.heal((float)heldStack.getItem().getFood().getHealing());
 		    this.playHealEffect(true);
-		    return true;
 		  }
 		   return true;
 		}
@@ -452,7 +504,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 	      super.registerAttributes();
 	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(25.0D);
-	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(5.0D);
+	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
 	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0D);
