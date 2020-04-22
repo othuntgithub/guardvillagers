@@ -154,7 +154,7 @@ public class GuardModel extends SegmentedModel<GuardEntity> implements IHasArm, 
            this.ArmL.rotateAngleX -= f * 2.2F - f1 * 0.4F;
            this.ArmL.rotateAngleZ -= f * 1.0 - f1 * 1.0F;
           }
-        if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack)) {
+        if (itemstack.getItem() instanceof CrossbowItem && entityIn.isAggressive()) {
           if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
      	  {
             this.ArmR.rotateAngleY = -0.3F;

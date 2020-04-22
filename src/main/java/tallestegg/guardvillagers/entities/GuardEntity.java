@@ -189,13 +189,13 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		}
 	}
 	
-	public void kick()
+	public void kick(float f1)
 	{
 		LivingEntity attacker = this.getAttackTarget();
 		this.setKicking(true);
 		this.attackEntityAsMob(attacker);
 		double distance = this.getDistance(attacker);
-		attacker.knockBack(attacker, 1.5F, distance, distance);
+		attacker.knockBack(attacker, f1, distance, distance);
 	}
 	
 
@@ -507,7 +507,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
-	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0D);
+	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
 	}
 	
 	public static class GuardData implements ILivingEntityData 
