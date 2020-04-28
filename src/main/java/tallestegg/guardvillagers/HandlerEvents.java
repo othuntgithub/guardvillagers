@@ -1,20 +1,21 @@
 package tallestegg.guardvillagers;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
+import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
@@ -22,20 +23,24 @@ import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
+import tallestegg.guardvillagers.entities.goals.HealGolemGoal;
 
 public class HandlerEvents 
 {
 	@SubscribeEvent
 	public void onLivingSpawned(EntityJoinWorldEvent event) 
 	{
-		if (GuardConfig.AttackAllMobs)
-	    if(event.getEntity() instanceof IMob) 
-	    {
+		if (GuardConfig.AttackAllMobs) 
+		{
+	     if(event.getEntity() instanceof IMob) 
+	     {
 	       MobEntity mob = (MobEntity)event.getEntity();
 	       mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, GuardEntity.class, false));
+	     } 
 	    }
 		
 		  if(event.getEntity() instanceof AbstractIllagerEntity) 
@@ -66,14 +71,10 @@ public class HandlerEvents
 			 } 
 		   }
 		  
-		   //TODO make clerics heal nearby guards and golem
 		   if(event.getEntity() instanceof VillagerEntity) 
 		   {
 			 VillagerEntity villager = (VillagerEntity)event.getEntity();
-		     if (villager.getVillagerData().getProfession() == VillagerProfession.CLERIC) 
-		     {
-		   
-		     }
+			 villager.goalSelector.addGoal(1, new HealGolemGoal(villager));
 		   }
 		   
 	
@@ -87,13 +88,13 @@ public class HandlerEvents
 	if(event.getEntity() instanceof VexEntity) 
 	{
 	   VexEntity vex = (VexEntity)event.getEntity();
-	   vex.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
+	   vex.targetSelector.addGoal(10, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
 	}
 	
 	if(event.getEntity() instanceof ZombieEntity) 
 	{
 		ZombieEntity zombie = (ZombieEntity)event.getEntity();
-	    zombie.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(zombie, GuardEntity.class, false));   
+	    zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, GuardEntity.class, false));   
 	}
 	if(event.getEntity() instanceof RavagerEntity) 
 	{
@@ -114,13 +115,8 @@ public class HandlerEvents
 		   ((GroundPathNavigator)witch.getNavigator()).setBreakDoors(true);
 		}
 		 if (GuardConfig.WitchesVillager)
-		  if (witch.isRaidActive()) {
-		  {
-            witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, false));   
-	        witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, IronGolemEntity.class, false));   
-		  }
-	        witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
-        }
+	       witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, true));   
+		   witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
 		 
 	    if (GuardConfig.RaidAnimals) 
 	    {
@@ -147,7 +143,7 @@ public class HandlerEvents
 		   }
 		}   
 	}
-      World world = event.getWorld();
+      /* World world = event.getWorld();
       if (GuardConfig.IllusionerRaids) {
 	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
 	   {
@@ -164,8 +160,23 @@ public class HandlerEvents
             illager.remove();
           }
       }
-    }
+    } */
   }	
+  
+   @SubscribeEvent	
+   public void witherTransform(LivingSpawnEvent.SpecialSpawn event) {
+		if (event.getEntity() instanceof AbstractIllagerEntity) {
+			Entity entity = event.getEntity();
+			World world = entity.world;
+				if (event.getSpawnReason() == SpawnReason.EVENT) {
+					event.setCanceled(true);
+					entity.remove();
+					WitherSkeletonEntity k = EntityType.WITHER_SKELETON.create(world);
+					k.copyLocationAndAnglesFrom(entity);
+					world.addEntity(k);
+				}
+		}
+	}
 }
 
 

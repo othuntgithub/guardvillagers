@@ -11,6 +11,7 @@ import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import tallestegg.guardvillagers.entities.GuardEntity;
 public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedAttackMob & ICrossbowUser> extends Goal {
 	   private final T field_220748_a;
 	   private RangedCrossbowAttackPassiveGoal.CrossbowState field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
@@ -47,6 +48,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	      this.field_220748_a.setAggroed(false);
 	      this.field_220748_a.setAttackTarget((LivingEntity)null);
 	      this.field_220752_e = 0;
+	      ((GuardEntity)this.field_220748_a).setKicking(false); 
 	      if (this.field_220748_a.isHandActive()) {
 	         this.field_220748_a.resetActiveHand();
 	         ((ICrossbowUser)this.field_220748_a).setCharging(false);
@@ -57,8 +59,8 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 
 	   public void tick() {
 		      LivingEntity livingentity = this.field_220748_a.getAttackTarget();
-		      this.field_220748_a.setAggroed(true);
 		      if (livingentity != null) {
+		    	 this.field_220748_a.setAggroed(true);
 		         boolean flag = this.field_220748_a.getEntitySenses().canSee(livingentity);
 		         boolean flag1 = this.field_220752_e > 0;
 		         if (flag != flag1) {
@@ -78,6 +80,16 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		         {
 		           this.field_220748_a.getMoveHelper().strafe(-10.0F, 0); //Personal Space!
 		           this.field_220748_a.faceEntity(livingentity, 30.0F, 30.0F);
+		         }
+		         
+		         if (d1 <= 2.0D)
+		         {
+		        	 ((GuardEntity)this.field_220748_a).kick((float) d1); 	 
+		         }
+
+		         if (d1 > 2.0D)
+		         {
+		        	 ((GuardEntity)this.field_220748_a).setKicking(false); 
 		         }
 
 		         double d0 = this.field_220748_a.getDistanceSq(livingentity);
