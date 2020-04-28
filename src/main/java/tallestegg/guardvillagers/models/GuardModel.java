@@ -2,8 +2,6 @@ package tallestegg.guardvillagers.models;
 
 
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.IHasArm;
-import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -16,7 +14,7 @@ import tallestegg.guardvillagers.entities.GuardEntity;
  * VillagerGuard - HadeZ
  * Created using Tabula 7.1.0
  */
-public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHasHead  {
+public class GuardModel extends BipedModel<GuardEntity> {
     public RendererModel Torso;
     public RendererModel LegR;
     public RendererModel LegL;
@@ -102,6 +100,7 @@ public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHas
     
     public void setRotationAngles(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor)
     {
+    	super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
     	ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
 		float f = MathHelper.sin(this.swingProgress * (float) Math.PI);
         float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float) Math.PI);
@@ -214,11 +213,6 @@ public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHas
         this.floatthing = (float)entityIn.getItemInUseMaxCount();
         super.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTick);
      }
-    
-    private RendererModel getArm(HandSide p_191216_1_) 
-    {
-      return p_191216_1_ == HandSide.LEFT ? this.ArmL: this.ArmR;
-    }
 
 	@Override
 	public RendererModel func_205072_a() 
@@ -227,11 +221,8 @@ public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHas
 	}
 
 	@Override
-	   public void postRenderArm(float scale, HandSide side) {
-		float f = side == HandSide.RIGHT ? 0.0F : 0.0F;
-	      RendererModel renderermodel = this.getArm(side);
-	      renderermodel.rotationPointX += f;
-	      renderermodel.postRender(scale);
-	      renderermodel.rotationPointX -= f;
-	   }
+	public void postRenderArm(float scale, HandSide side) 
+	{
+	 this.getArmForSide(side).postRender(scale);
+	}
 }

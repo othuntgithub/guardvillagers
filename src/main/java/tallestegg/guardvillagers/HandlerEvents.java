@@ -82,13 +82,7 @@ public class HandlerEvents
 	{
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
 	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
-	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
-	}
-	
-	if(event.getEntity() instanceof VexEntity) 
-	{
-	   VexEntity vex = (VexEntity)event.getEntity();
-	   vex.targetSelector.addGoal(10, new NearestAttackableTargetGoal<>(vex, GuardEntity.class, false));   
+	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(30.0D);
 	}
 	
 	if(event.getEntity() instanceof ZombieEntity) 
