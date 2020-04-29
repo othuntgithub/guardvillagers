@@ -13,7 +13,6 @@ import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
-import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.monster.ZombieEntity;
@@ -137,6 +136,7 @@ public class HandlerEvents
 		   }
 		}   
 	}
+	   //TODO find a better way to implement adding more mobs into raids.
       /* World world = event.getWorld();
       if (GuardConfig.IllusionerRaids) {
 	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
@@ -156,21 +156,6 @@ public class HandlerEvents
       }
     } */
   }	
-  
-   @SubscribeEvent	
-   public void witherTransform(LivingSpawnEvent.SpecialSpawn event) {
-		if (event.getEntity() instanceof AbstractIllagerEntity) {
-			Entity entity = event.getEntity();
-			World world = entity.world;
-				if (event.getSpawnReason() == SpawnReason.EVENT) {
-					event.setCanceled(true);
-					entity.remove();
-					WitherSkeletonEntity k = EntityType.WITHER_SKELETON.create(world);
-					k.copyLocationAndAnglesFrom(entity);
-					world.addEntity(k);
-				}
-		}
-	}
 }
 
 
