@@ -12,6 +12,7 @@ import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import tallestegg.guardvillagers.entities.GuardEntity;
+
 public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedAttackMob & ICrossbowUser> extends Goal {
 	   private final T field_220748_a;
 	   private RangedCrossbowAttackPassiveGoal.CrossbowState field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
@@ -52,15 +53,13 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	      if (this.field_220748_a.isHandActive()) {
 	         this.field_220748_a.resetActiveHand();
 	         ((ICrossbowUser)this.field_220748_a).setCharging(false);
-	         CrossbowItem.setCharged(this.field_220748_a.getActiveItemStack(), false);
 	      }
-
 	   }
 
 	   public void tick() {
 		      LivingEntity livingentity = this.field_220748_a.getAttackTarget();
 		      if (livingentity != null) {
-			      this.field_220748_a.setAggroed(true);
+			     this.field_220748_a.setAggroed(true);
 		         boolean flag = this.field_220748_a.getEntitySenses().canSee(livingentity);
 		         boolean flag1 = this.field_220752_e > 0;
 		         if (flag != flag1) {
@@ -126,7 +125,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK;
 		            }
 		         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK && flag) {
-		            ((IRangedAttackMob)this.field_220748_a).attackEntityWithRangedAttack(livingentity, 1.0F);
+		             ((IRangedAttackMob)this.field_220748_a).attackEntityWithRangedAttack(livingentity, 1.0F);
 		            ItemStack itemstack1 = this.field_220748_a.getHeldItem(ProjectileHelper.getHandWith(this.field_220748_a, Items.CROSSBOW));
 		            CrossbowItem.setCharged(itemstack1, false);
 		            this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;

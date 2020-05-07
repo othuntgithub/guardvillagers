@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.CrossbowItem;
@@ -27,7 +28,7 @@ public class VillagerToGuard
 	       if (target instanceof VillagerEntity)
 	       {
 	         VillagerEntity villager = (VillagerEntity)event.getTarget();
-	         if (!villager.isChild()) {
+	         if (!villager.isChild() && villager.getVillagerData().getProfession() == VillagerProfession.NONE || villager.getVillagerData().getProfession() == VillagerProfession.NITWIT) {
 	         this.VillagerConvert(villager, event.getPlayer());
 	         if (!event.getPlayer().abilities.isCreativeMode)
 	         itemstack.shrink(1);
@@ -38,8 +39,6 @@ public class VillagerToGuard
 
 	private void VillagerConvert(LivingEntity entity, PlayerEntity player) 
 	{
-		if (entity instanceof VillagerEntity) 
-	    {
 		  ItemStack itemstack = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
 		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
 		  VillagerEntity villager = (VillagerEntity)entity;
@@ -47,6 +46,7 @@ public class VillagerToGuard
 		  guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
 		  int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.getPosition());
 		  guard.setGuardVariant(i);
+		  guard.enablePersistence();
 		  if (villager.hasCustomName()) 
 		  {
 		    guard.setCustomName(villager.getCustomName());
@@ -57,6 +57,5 @@ public class VillagerToGuard
            villager.func_213742_a(MemoryModuleType.JOB_SITE);
            villager.func_213742_a(MemoryModuleType.MEETING_POINT);
 	       villager.remove();	 
-	   }
 	} 
 }
