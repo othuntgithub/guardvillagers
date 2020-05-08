@@ -61,6 +61,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
@@ -86,7 +87,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
-    private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 0.5D, true) {
+    private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 0.9D, true) {
     	@Override
         public void resetTask() {
            super.resetTask();
@@ -497,6 +498,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		    }
 
 		    this.heal((float)heldStack.getItem().getFood().getHealing());
+		    //this.addPotionEffect((EffectInstance) heldStack.getItem().getFood().getEffects());
 		    this.playHealEffect(true);
 		   }
 		    return true;
