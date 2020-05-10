@@ -12,6 +12,7 @@ import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import tallestegg.guardvillagers.entities.GuardEntity;
+
 public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedAttackMob & ICrossbowUser> extends Goal {
 	   private final T field_220748_a;
 	   private RangedCrossbowAttackPassiveGoal.CrossbowState field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
@@ -44,17 +45,15 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	   }
 
 	   public void resetTask() {
-	      super.resetTask();
-	      this.field_220748_a.setAggroed(false);
-	      this.field_220748_a.setAttackTarget((LivingEntity)null);
-	      this.field_220752_e = 0;
-	      ((GuardEntity)this.field_220748_a).setKicking(false); 
-	      if (this.field_220748_a.isHandActive()) {
-	         this.field_220748_a.resetActiveHand();
-	         ((ICrossbowUser)this.field_220748_a).setCharging(false);
-	         CrossbowItem.setCharged(this.field_220748_a.getActiveItemStack(), false);
-	      }
-
+		   super.resetTask();
+		   this.field_220748_a.setAggroed(false);
+		   this.field_220748_a.setAttackTarget((LivingEntity) null);
+		   this.field_220752_e = 0;
+		   ((GuardEntity) this.field_220748_a).setKicking(false);
+		   if (this.field_220748_a.isHandActive()) {
+			   this.field_220748_a.resetActiveHand();
+			   ((ICrossbowUser) this.field_220748_a).setCharging(false);
+		   }
 	   }
 
 	   public void tick() {

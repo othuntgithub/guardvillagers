@@ -20,19 +20,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.entity.ai.goal.MoveThroughVillageGoal;
-import net.minecraft.entity.ai.goal.MoveTowardsVillageGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.RandomWalkingGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.entity.ai.goal.TemptGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.CreeperEntity;
@@ -74,6 +62,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import net.minecraftforge.fml.ModList;
 import tallestegg.guardvillagers.configuration.GuardConfig;
+import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 
 public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob
@@ -94,7 +83,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
            super.startExecuting();
            GuardEntity.this.setAggroed(true);
         }
-     };
+
+		@Override
+		protected double getAttackReachSqr(LivingEntity attackTarget) {
+			return super.getAttackReachSqr(attackTarget) * 3.55D;
+		}
+	};
 	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
@@ -183,10 +177,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public void raiseShield()
 	{
 		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 2.0D
-	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof RavagerEntity 
-	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity 
-	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D)
-	    {
+				|| this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof RavagerEntity
+				|| this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof RavagerEntity && this.getHeldItemMainhand().getItem() instanceof CrossbowItem && this.getAttackTarget().getDistance(this) <= 2.0D
+				|| this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity
+				|| this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem))
+		{
 	    	this.setActiveHand(Hand.OFF_HAND);
 		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
 	    }
@@ -199,11 +194,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	
 	public void kick(float f1)
 	{
-		LivingEntity attacker = this.getAttackTarget();
 		this.setKicking(true);
-		this.attackEntityAsMob(attacker);
-		double distance = this.getDistance(attacker);
-		attacker.knockBack(attacker, f1, distance, distance);
+		if (this.isKicking())
+		{
+			LivingEntity attacker = this.getAttackTarget();
+			this.attackEntityAsMob(attacker);
+			double distance = this.getDistance(attacker);
+			attacker.knockBack(attacker, f1, distance, distance);
+		}
 	}
 
 	@Override
@@ -264,9 +262,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 	      this.goalSelector.addGoal(10, new LookRandomlyGoal(this));
 	      this.goalSelector.addGoal(1, new MoveTowardsVillageGoal(this, 0.6D));
+		  this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
-	      this.goalSelector.addGoal(2, new GuardEntity.HelpVillagerGoal(this));
+	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
 	          return false;
 	       }));
@@ -276,16 +275,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 					@Override
 					public boolean shouldExecute() {
-						return ((GuardEntity)this.entity).getHealth() <= 13 && !(entity.getHeldItemOffhand().getItem() instanceof ShieldItem) && super.shouldExecute();
-						}		
+						return ((GuardEntity)this.entity).getHealth() < 13 && !(entity.getHeldItemOffhand().getItem() instanceof ShieldItem) && super.shouldExecute();						}
 				   });	      
 		         }
 	      if (GuardConfig.GuardSurrender) {
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
 				@Override
 				public boolean shouldExecute() {
-					return ((GuardEntity)this.goalOwner).getHealth() >= 13 && super.shouldExecute();
-				}
+					return ((GuardEntity)this.goalOwner).getHealth() > 13 && super.shouldExecute();				}
 			});
 	      }
 	      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
@@ -303,7 +300,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      }
 	      if (GuardConfig.AttackAllMobs)
 	      {
-	    	  this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, false, false, (mob) ->
+	    	  this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) ->
 	  		{
 	  			return mob instanceof IMob;
 	  		}));
@@ -430,14 +427,23 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			}
 	}
 
-	   public void updateRidden() {
-		      super.updateRidden();
-		      if (this.getRidingEntity() instanceof CreatureEntity) {
-		         CreatureEntity creatureentity = (CreatureEntity)this.getRidingEntity();
-		         this.renderYawOffset = creatureentity.renderYawOffset;
-		      }
+	public void updateRidden() {
+		super.updateRidden();
+		if (this.getRidingEntity() instanceof CreatureEntity) {
+			CreatureEntity creatureentity = (CreatureEntity)this.getRidingEntity();
+			this.renderYawOffset = creatureentity.renderYawOffset;
+		}
+	}
 
-		   }
+		@Override
+		protected void constructKnockBackVector(LivingEntity entityIn)
+		{
+			if (this.isKicking())
+			{
+				this.setKicking(false);
+			}
+			super.constructKnockBackVector(this);
+		}
 	   
 	   public boolean processInteract(PlayerEntity player, Hand hand)
 		{
@@ -571,41 +577,4 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		      super.startExecuting();
 		   }
 		}
-	
-	public static class HelpVillagerGoal extends DefendVillageGuardGoal 
-	{
-		public HelpVillagerGoal(GuardEntity guardIn) {
-			super(guardIn);
-		}
-		
-		   public boolean shouldExecute() {
-			      List<MobEntity> list = this.guard.world.getEntitiesWithinAABB(MobEntity.class, this.guard.getBoundingBox().grow((double)100.0D));
-
-			         for(LivingEntity entity : list) {
-			        	 if (((MobEntity) entity).getAttackTarget() instanceof VillagerEntity) {
-			               this.villageAggressorTarget = entity;
-			        	 }
-			      }
-			         
-			         
-
-			      if (this.villageAggressorTarget == null) {
-			         return false;
-			      } else {
-			         return !(this.villageAggressorTarget instanceof PlayerEntity) || !this.villageAggressorTarget.isSpectator() && !((PlayerEntity)this.villageAggressorTarget).isCreative();
-			      }
-			   }
-
-		   @Override
-		   protected double getTargetDistance() 
-		   {
-			  return 100;
-		   }
-		   
-		   @Override
-		   public void startExecuting() {
-			   this.guard.getNavigator().tryMoveToEntityLiving(villageAggressorTarget, guard.getAIMoveSpeed());
-			   this.guard.setAttackTarget(this.villageAggressorTarget);
-			   }
-			}
 }

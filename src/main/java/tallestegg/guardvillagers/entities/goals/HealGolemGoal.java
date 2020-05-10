@@ -11,6 +11,8 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.Hand;
+import net.minecraft.util.SoundEvents;
 
 public class HealGolemGoal extends Goal 
 {
@@ -26,7 +28,9 @@ public class HealGolemGoal extends Goal
 	@Override
 	public boolean shouldExecute() 
 	{
-		if (((VillagerEntity)this.healer).getVillagerData().getProfession() != VillagerProfession.WEAPONSMITH)
+		if (((VillagerEntity)this.healer).getVillagerData().getProfession() != VillagerProfession.WEAPONSMITH &&
+		(((VillagerEntity)this.healer).getVillagerData().getProfession() != VillagerProfession.TOOLSMITH) &&
+		(((VillagerEntity)this.healer).getVillagerData().getProfession() != VillagerProfession.ARMORER) || this.healer.isSleeping())
 		{
 		  return false;
 		}
@@ -36,8 +40,7 @@ public class HealGolemGoal extends Goal
 	            if (!golem.isInvisible()) {
 	               this.golem = golem;
 	               if (golem.getHealth() < golem.getMaxHealth()) {
-	            	 healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));
-	                 this.healGolem();
+					   healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));	                 this.healGolem();
 	               }
 	               return true;
 	            }
@@ -49,8 +52,7 @@ public class HealGolemGoal extends Goal
 	@Override
 	public void resetTask()
 	{
-	  if (golem == null);
-	  if (golem.getHealth() >= golem.getMaxHealth());
+	  healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, ItemStack.EMPTY);
 	  super.resetTask();
 	}
 	
@@ -68,6 +70,7 @@ public class HealGolemGoal extends Goal
 		healer.getNavigator().tryMoveToEntityLiving(golem, 0.5);
 		if (healer.getDistance(golem) <= 2.0D)
 		{
+			healer.swingArm(Hand.MAIN_HAND);
 			golem.heal(15.0F);
 		}
 	}
