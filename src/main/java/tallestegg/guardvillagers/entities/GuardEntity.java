@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.Quaternion;
 import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
@@ -38,6 +39,7 @@ import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
 import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.monster.HuskEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
@@ -61,7 +63,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
-import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
@@ -79,6 +80,7 @@ import net.minecraftforge.fml.ModList;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
+import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
 
 public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob
 { 
@@ -190,6 +192,27 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	    super.livingTick();
 	}
 	
+	protected void blockUsingShield(LivingEntity entityIn) 
+	{
+	    super.blockUsingShield(entityIn);
+		if (entityIn.getHeldItemMainhand().canDisableShield(this.activeItemStack, this, entityIn)) {
+		  this.disableShield(true);
+		}
+	}
+	
+    public void disableShield(boolean p_190777_1_) 
+    {
+		float f = 0.25F + (float)EnchantmentHelper.getEfficiencyModifier(this) * 0.05F;
+		if (p_190777_1_) {
+		  f += 0.75F;
+		}
+
+	    if (this.rand.nextFloat() < f) {
+		this.resetActiveHand();
+		this.world.setEntityState(this, (byte)30);
+	   }
+    }
+	
 	public void raiseShield()
 	{
 		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 2.0D
@@ -211,9 +234,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public void kick(float f1)
 	{
 		this.setKicking(true);
+		LivingEntity attacker = this.getAttackTarget();
 		if (this.isKicking()) 
 		{
-		   LivingEntity attacker = this.getAttackTarget();
+		   this.jump();
 		   this.attackEntityAsMob(attacker);
 		   double distance = this.getDistance(attacker);
 		   attacker.knockBack(attacker, f1, distance, distance);
@@ -260,7 +284,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	     {
 	       this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));
 	     }
-	   this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 50.0F;
+	   this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 100.0F;
+	   this.inventoryHandsDropChances[EquipmentSlotType.OFFHAND.getIndex()] = 100.0F;
 	}
 	
 	public int getGuardVariant()
@@ -277,8 +302,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
+	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(1, new MoveTowardsVillageGoal(this, 0.6D));
-	      this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
+	      if (GuardConfig.GuardsOpenDoors) {
+	         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
+	      }
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
@@ -286,7 +314,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	          return false;
 	       }));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
-	      this.goalSelector.addGoal(9, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
+	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      if (GuardConfig.GuardSurrender) {
 		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
@@ -468,42 +496,42 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		    	  this.setKicking(false);
 		      }
 		      super.constructKnockBackVector(this);
-		   }
+	    }
 	   
 	   public boolean processInteract(PlayerEntity player, Hand hand)
 		{
 		  ItemStack heldStack = player.getHeldItem(hand);
-		  if (!this.isAggressive()) {
-		  if (!(heldStack.getItem() instanceof ShieldItem) && !(heldStack.getItem().isFood()) && player.isShiftKeyDown() && heldStack.getItem() != Items.AIR)
-		  {
-			this.entityDropItem(this.getHeldItemMainhand());
-		    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
-		    if (!player.abilities.isCreativeMode)
-		    heldStack.shrink(1);
-		  }
-		  
-		  if (heldStack.getItem() instanceof ShieldItem && player.isShiftKeyDown())
-		  {
-			this.entityDropItem(this.getHeldItemOffhand());
-		    this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
-		    if (!player.abilities.isCreativeMode)
-		    heldStack.shrink(1);
-		  }
-		  
-		  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
-		  {
-		    if (!player.abilities.isCreativeMode) 
-		    {
-		      heldStack.shrink(1);
-		    }
-
-		    this.heal((float)heldStack.getItem().getFood().getHealing());
-		    //this.addPotionEffect((EffectInstance) heldStack.getItem().getFood().getEffects());
-		    this.playHealEffect(true);
-		   }
-		    return true;
+		  if (this.getAttackTarget() instanceof PlayerEntity) {
+			  return false;
 		  } else {
-		    return super.processInteract(player, hand);
+			  if (!(heldStack.getItem() instanceof ShieldItem) && !(heldStack.getItem().isFood()) && player.isShiftKeyDown() && heldStack.getItem() != Items.AIR)
+			  {
+				this.entityDropItem(this.getHeldItemMainhand());
+			    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
+			    if (!player.abilities.isCreativeMode)
+			    heldStack.shrink(1);
+			  }
+			  
+			  if (heldStack.getItem() instanceof ShieldItem && player.isShiftKeyDown())
+			  {
+				this.entityDropItem(this.getHeldItemOffhand());
+			    this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
+			    if (!player.abilities.isCreativeMode)
+			    heldStack.shrink(1);
+			  }
+			  
+			  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
+			  {
+			    if (!player.abilities.isCreativeMode) 
+			    {
+			      heldStack.shrink(1);
+			    }
+
+			    this.heal((float)heldStack.getItem().getFood().getHealing());
+			    //this.addPotionEffect((EffectInstance) heldStack.getItem().getFood().getEffects());
+			    this.playHealEffect(true);
+			   }
+			    return true;
 		  }
 		}
 	   
@@ -560,8 +588,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			this.variantData = type;
 		}
 	}
-
-	
 	
    public static class DefendVillageGuardGoal extends TargetGoal {
 		   protected final GuardEntity guard;
@@ -602,4 +628,20 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		      super.startExecuting();
 		   }
 	}
+   /*
+     What the fuck did you just fucking say about me, 
+     you little bitch? I’ll have you know I graduated top of my class in the Navy Seals, 
+     and I’ve been involved in secret raids on Al-Quaeda, and I have over 300 confirmed kills. 
+     I am trained in gorilla warfare and I’m the top sniper in the entire US armed forces. 
+     You are nothing to me but just another target. 
+     I will wipe you out with precision the likes of which has never been seen before on this Earth, mark my words.
+      You think you can get away with saying shit to me over the Internet? Think again, fucker. 
+      As we speak I am contacting my network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot.
+       The storm that wipes out the pathetic little thing you call your life. 
+       You’re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways,
+        and that’s just with my bare hands. Not only am I extensively trained in unarmed combat, 
+        but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your ass off the face of the continent, you little shit. 
+        If only you could have known what unholy retribution your little “clever” comment was about to bring down upon you, maybe you would have held your tongue. 
+        You didn’t, and now you’re paying the price, you goddamn idiot. I will shit all over you and you will drown in it. You’re fucking dead, kiddo.
+    */
 }

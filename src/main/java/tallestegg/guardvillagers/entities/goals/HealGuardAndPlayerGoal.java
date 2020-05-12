@@ -66,7 +66,7 @@ public class HealGuardAndPlayerGoal extends Goal {
 	      List<PlayerEntity> list2 = this.healer.world.getEntitiesWithinAABB(PlayerEntity.class, this.healer.getBoundingBox().grow(10.0D));
 	      if (!list2.isEmpty()) {
 		         for(PlayerEntity player : list2) {
-		            if (player.isAlive() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
+		            if (player.isAlive() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && !player.abilities.isCreativeMode) {
 		               this.mob = player;
 		               return true;
 		            }

@@ -14,7 +14,7 @@ import net.minecraft.item.Items;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedAttackMob & ICrossbowUser> extends Goal {
-	   private final T field_220748_a;
+	   private final T entity;
 	   private RangedCrossbowAttackPassiveGoal.CrossbowState field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
 	   private final double field_220750_c;
 	   private final float field_220751_d;
@@ -22,7 +22,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	   private int field_220753_f;
 
 	   public RangedCrossbowAttackPassiveGoal(T p_i50322_1_, double p_i50322_2_, float p_i50322_4_) {
-	      this.field_220748_a = p_i50322_1_;
+	      this.entity = p_i50322_1_;
 	      this.field_220750_c = p_i50322_2_;
 	      this.field_220751_d = p_i50322_4_ * p_i50322_4_;
 	      this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
@@ -33,34 +33,34 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	   }
 
 	   private boolean func_220745_g() {
-	      return this.field_220748_a.isHolding(Items.CROSSBOW);
+	      return this.entity.isHolding(Items.CROSSBOW);
 	   }
 
 	   public boolean shouldContinueExecuting() {
-	      return this.func_220746_h() && (this.shouldExecute() || !this.field_220748_a.getNavigator().noPath()) && this.func_220745_g();
+	      return this.func_220746_h() && (this.shouldExecute() || !this.entity.getNavigator().noPath()) && this.func_220745_g();
 	   }
 
 	   private boolean func_220746_h() {
-	      return this.field_220748_a.getAttackTarget() != null && this.field_220748_a.getAttackTarget().isAlive();
+	      return this.entity.getAttackTarget() != null && this.entity.getAttackTarget().isAlive();
 	   }
 
 	   public void resetTask() {
 	      super.resetTask();
-	      this.field_220748_a.setAggroed(false);
-	      this.field_220748_a.setAttackTarget((LivingEntity)null);
-	      ((GuardEntity)this.field_220748_a).setKicking(false); 
+	      this.entity.setAggroed(false);
+	      this.entity.setAttackTarget((LivingEntity)null);
+	      ((GuardEntity)this.entity).setKicking(false); 
 	      this.field_220752_e = 0;
-	      if (this.field_220748_a.isHandActive()) {
-	         this.field_220748_a.resetActiveHand();
-	         ((ICrossbowUser)this.field_220748_a).setCharging(false);
+	      if (this.entity.isHandActive()) {
+	         this.entity.resetActiveHand();
+	         ((ICrossbowUser)this.entity).setCharging(false);
 	      }
 	   }
 
 	   public void tick() {
-		      LivingEntity livingentity = this.field_220748_a.getAttackTarget();
+		      LivingEntity livingentity = this.entity.getAttackTarget();
 		      if (livingentity != null) {
-			     this.field_220748_a.setAggroed(true);
-		         boolean flag = this.field_220748_a.getEntitySenses().canSee(livingentity);
+			     this.entity.setAggroed(true);
+		         boolean flag = this.entity.getEntitySenses().canSee(livingentity);
 		         boolean flag1 = this.field_220752_e > 0;
 		         if (flag != flag1) {
 		            this.field_220752_e = 0;
@@ -72,52 +72,51 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		            --this.field_220752_e;
 		         }
 		         
-		         double d1 = livingentity.getDistance(field_220748_a);	         
+		         double d1 = livingentity.getDistance(entity);	         
 		         //makes the entity that has this goal backup if the attack target is 10 blocks infront of them.
 		         if (d1 <= 9.0D) 
 		         {
-		          this.field_220748_a.getMoveHelper().strafe(-10.0F, 0); 
-		          this.field_220748_a.faceEntity(livingentity, 30.0F, 30.0F);
+		          this.entity.getMoveHelper().strafe(-10.0F, 0); 
+		          this.entity.faceEntity(livingentity, 30.0F, 30.0F);
 		         }
 		         
 		         if (d1 <= 2.0D)
 		         {
-		        	 ((GuardEntity)this.field_220748_a).kick((float) d1); 	 
+		        	 ((GuardEntity)this.entity).kick((float) d1); 	 
 		         }
 		         
-		         if (d1 > 2.0D)
+		         if (d1 >= 2.0D)
 		         {
-		        	 ((GuardEntity)this.field_220748_a).setKicking(false); 
+		        	 ((GuardEntity)this.entity).setKicking(false); 	 
 		         }
 
-		         double d0 = this.field_220748_a.getDistanceSq(livingentity);
+		         double d0 = this.entity.getDistanceSq(livingentity);
 		         boolean flag2 = (d0 > (double)this.field_220751_d || this.field_220752_e < 5) && this.field_220753_f == 0;
 		         if (flag2) {
-		        	 this.field_220748_a.getNavigator().tryMoveToEntityLiving(livingentity, this.func_220747_j() ? this.field_220750_c : this.field_220750_c * 0.5D);
+		        	 this.entity.getNavigator().tryMoveToEntityLiving(livingentity, this.func_220747_j() ? this.field_220750_c : this.field_220750_c * 0.5D);
 		         } else {
-		            this.field_220748_a.getNavigator().clearPath();
+		            this.entity.getNavigator().clearPath();
 		         }
-
-		         this.field_220748_a.getLookController().setLookPositionWithEntity(livingentity, 30.0F, 30.0F);
+		         this.entity.getLookController().setLookPositionWithEntity(livingentity, 30.0F, 30.0F);
 		         if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED) {
-		            if (flag) {
-		               this.field_220748_a.setActiveHand(ProjectileHelper.getHandWith(this.field_220748_a, Items.CROSSBOW));
+		          if (flag) {
+		               this.entity.setActiveHand(ProjectileHelper.getHandWith(this.entity, Items.CROSSBOW));
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING;
-		               ((ICrossbowUser)this.field_220748_a).setCharging(true);
+		               ((ICrossbowUser)this.entity).setCharging(true);
 		            }
 		         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGING) 
 		         {
-		            if (!this.field_220748_a.isHandActive()) {
+		            if (!this.entity.isHandActive()) {
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
 		            }
 
-		            int i = this.field_220748_a.getItemInUseMaxCount();
-		            ItemStack itemstack = this.field_220748_a.getActiveItemStack();
+		            int i = this.entity.getItemInUseMaxCount();
+		            ItemStack itemstack = this.entity.getActiveItemStack();
 		            if (i >= CrossbowItem.getChargeTime(itemstack)) {
-		               this.field_220748_a.stopActiveHand();
+		               this.entity.stopActiveHand();
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGED;
-		               this.field_220753_f = 20 + this.field_220748_a.getRNG().nextInt(20);
-		               ((ICrossbowUser)this.field_220748_a).setCharging(false);
+		               this.field_220753_f = 20 + this.entity.getRNG().nextInt(20);
+		               ((ICrossbowUser)this.entity).setCharging(false);
 		            }
 		         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.CHARGED) {
 		            --this.field_220753_f;
@@ -125,8 +124,8 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK;
 		            }
 		         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK && flag) {
-		             ((IRangedAttackMob)this.field_220748_a).attackEntityWithRangedAttack(livingentity, 1.0F);
-		            ItemStack itemstack1 = this.field_220748_a.getHeldItem(ProjectileHelper.getHandWith(this.field_220748_a, Items.CROSSBOW));
+		            ((IRangedAttackMob)this.entity).attackEntityWithRangedAttack(livingentity, 1.0F);
+		            ItemStack itemstack1 = this.entity.getHeldItem(ProjectileHelper.getHandWith(this.entity, Items.CROSSBOW));
 		            CrossbowItem.setCharged(itemstack1, false);
 		            this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED;
 		         }
