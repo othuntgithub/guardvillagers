@@ -1,23 +1,25 @@
 package tallestegg.guardvillagers;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.*;
+import net.minecraft.entity.monster.AbstractIllagerEntity;
+import net.minecraft.entity.monster.EvokerEntity;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.monster.IllusionerEntity;
+import net.minecraft.entity.monster.RavagerEntity;
+import net.minecraft.entity.monster.WitchEntity;
+import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.pathfinding.GroundPathNavigator;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -57,7 +59,7 @@ public class HandlerEvents {
 		}
 		if (event.getEntity() instanceof AbstractVillagerEntity)
 		{
-			AbstractVillagerEntity villager = (AbstractVillagerEntity) event.getEntity();
+			AbstractVillagerEntity villager = (AbstractVillagerEntity)event.getEntity();
 			if (GuardConfig.VillagersRunFromPolarBears)
 			{
 				villager.goalSelector.addGoal(2, new AvoidEntityGoal<>(villager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); //common sense.
@@ -89,25 +91,26 @@ public class HandlerEvents {
 				if (ravager.isRaidActive())
 				{
 					ravager.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(ravager, AnimalEntity.class, false));
-					if (event.getEntity() instanceof WitchEntity)
+					}
+				}
+			}
+		
+		if (event.getEntity() instanceof WitchEntity)
+		{
+			WitchEntity witch = (WitchEntity) event.getEntity();
+			if (GuardConfig.IllagersOpenDoors)
+			{
+				((GroundPathNavigator) witch.getNavigator()).setBreakDoors(true);
+			}
+			if (GuardConfig.WitchesVillager) {
+				witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, true));
+				witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));
+			}
+			if (GuardConfig.RaidAnimals)
+			{
+				if (witch.isRaidActive()) {
 					{
-						WitchEntity witch = (WitchEntity) event.getEntity();
-						if (GuardConfig.IllagersOpenDoors)
-						{
-							((GroundPathNavigator) witch.getNavigator()).setBreakDoors(true);
-						}
-						if (GuardConfig.WitchesVillager) {
-							witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, true));
-							witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));
-						}
-						if (GuardConfig.RaidAnimals)
-						{
-							if (witch.isRaidActive()) {
-								{
-									witch.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(witch, AnimalEntity.class, false));
-								}
-							}
-						}
+						witch.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(witch, AnimalEntity.class, false));
 					}
 				}
 			}
@@ -117,6 +120,7 @@ public class HandlerEvents {
 			CatEntity cat = (CatEntity) event.getEntity();
 			cat.goalSelector.addGoal(1, new AvoidEntityGoal<>(cat, AbstractIllagerEntity.class, 12.0F, 1.0D, 1.2D));
 		}
+		
 		if (event.getEntity() instanceof IllusionerEntity)
 		{
 			IllusionerEntity illusioner = (IllusionerEntity) event.getEntity();
@@ -128,19 +132,6 @@ public class HandlerEvents {
 					{
 						illusioner.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(illusioner, AnimalEntity.class, false));
 					}
-				}
-			}
-		}
-		if (GuardConfig.IllusionerRaids)
-		{
-			if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity))
-			{
-				AbstractIllagerEntity illager = (AbstractIllagerEntity) event.getEntity();
-				if (illager.isRaidActive() && !illager.isLeader() && event.getWorld().rand.nextInt(10) == 0)
-				{
-					IllusionerEntity illusioner = EntityType.ILLUSIONER.create(event.getWorld());
-					illager.getRaid().joinRaid(5, illusioner, false);
-					illusioner.setLeader(false);
 				}
 			}
 		}

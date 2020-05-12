@@ -2,9 +2,6 @@ package tallestegg.guardvillagers.renderer;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.BipedRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;

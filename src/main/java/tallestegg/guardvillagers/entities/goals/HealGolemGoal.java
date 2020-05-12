@@ -39,8 +39,8 @@ public class HealGolemGoal extends Goal
 	         for(IronGolemEntity golem : list) {
 	            if (!golem.isInvisible()) {
 	               this.golem = golem;
-	               if (golem.getHealth() < golem.getMaxHealth()) {
-					   healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));	                 this.healGolem();
+	               if (golem.getHealth() < golem.getMaxHealth()) {		                   
+					   this.healGolem();
 	               }
 	               return true;
 	            }
@@ -72,6 +72,7 @@ public class HealGolemGoal extends Goal
 		{
 			healer.swingArm(Hand.MAIN_HAND);
 			golem.heal(15.0F);
+			healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));	 
 		}
 	}
 

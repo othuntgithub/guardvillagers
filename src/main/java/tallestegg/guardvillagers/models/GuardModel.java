@@ -5,8 +5,6 @@ import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.UseAction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -129,7 +127,7 @@ public class GuardModel extends BipedModel<GuardEntity> {
         
         if (entityIn.isKicking())
         {
-            this.bipedLeftLeg.rotateAngleX = -1.0F - 0.8F * MathHelper.sin(ageInTicks * 0.5F) * 0.01F;
+            this.bipedLeftLeg.rotateAngleX = 8.0F - -1.0F * MathHelper.sin(ageInTicks * 0.5F) * 0.01F;
         }
     }
     
