@@ -10,7 +10,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class WalkRunWhileReloading extends RandomWalkingGoal
 {
-
 	public WalkRunWhileReloading(CreatureEntity p_i1648_1_, double p_i1648_2_) {
 		super(p_i1648_1_, p_i1648_2_);
 	}
@@ -27,5 +26,4 @@ public class WalkRunWhileReloading extends RandomWalkingGoal
 	{
 	  return RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.creature, 16, 7, this.creature.getAttackTarget().getPositionVec());
 	}
-
 }
