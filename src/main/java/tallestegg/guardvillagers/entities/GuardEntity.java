@@ -114,16 +114,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
 	{
 		super(type, world);
+		this.enablePersistence();
 		if (GuardConfig.GuardsOpenDoors) {
 		  ((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
 		}
 		this.setCombatTask();
-		this.enablePersistence();
 	}
 
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
+	  this.enablePersistence();
 	  int type = GuardEntity.getRandomTypeForBiome(world, this.getPosition());
 	  if (spawnDataIn instanceof GuardEntity.GuardData) 
 	  {
