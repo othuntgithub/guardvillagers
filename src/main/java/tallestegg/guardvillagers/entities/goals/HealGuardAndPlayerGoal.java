@@ -58,6 +58,7 @@ public class HealGuardAndPlayerGoal extends Goal {
 	         for(GuardEntity mob : list) {
 	            if (mob.isAlive()) {
 	               this.mob = mob;
+	               ///((GuardEntity)this.mob).getNavigator().tryMoveToEntityLiving(healer, 0.3);
 	               return true;
 	            }
 	         }

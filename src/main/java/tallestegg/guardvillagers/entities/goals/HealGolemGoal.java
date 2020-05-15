@@ -68,6 +68,7 @@ public class HealGolemGoal extends Goal
 	public void healGolem()
 	{
 		healer.getNavigator().tryMoveToEntityLiving(golem, 0.5);
+		golem.getNavigator().tryMoveToEntityLiving(healer, 0.5);
 		if (healer.getDistance(golem) <= 2.0D)
 		{
        	    healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));

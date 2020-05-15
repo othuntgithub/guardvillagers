@@ -1,10 +1,9 @@
 package tallestegg.guardvillagers.entities.goals;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.RandomWalkingGoal;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.util.math.Vec3d;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
@@ -17,13 +16,13 @@ public class WalkRunWhileReloading extends RandomWalkingGoal
 	@Override
 	public boolean shouldExecute()
 	{
-		return ((GuardEntity) creature).isCharging();
+		return ((GuardEntity)creature).isCharging() && creature.getAttackTarget() != null && creature.getHeldItemMainhand().getItem() instanceof CrossbowItem ||  
+		creature.getHeldItemMainhand().getItem() instanceof CrossbowItem && creature.getHealth() <= 10.0 && creature.getAttackTarget() != null;
 	}
 	
 	@Override
-	@Nullable
 	protected Vec3d getPosition() 
 	{
-	  return RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.creature, 16, 7, this.creature.getAttackTarget().getPositionVec());
+	   return RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.creature, 16, 7, this.creature.getAttackTarget().getPositionVec());
 	}
 }

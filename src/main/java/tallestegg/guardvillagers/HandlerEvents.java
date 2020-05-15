@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
@@ -79,8 +80,12 @@ public class HandlerEvents
 	if(event.getEntity() instanceof IronGolemEntity) 
 	{
 	   IronGolemEntity golem = (IronGolemEntity)event.getEntity();
-	   golem.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(100.0D);
-	   golem.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(30.0D);
+	   HurtByTargetGoal tolerateFriendlyFire = new HurtByTargetGoal(golem, GuardEntity.class).setCallsForHelp();
+		 golem.targetSelector.goals.stream().map(it -> it.inner).filter(it -> it instanceof HurtByTargetGoal)
+         .findFirst().ifPresent(angerGoal -> {
+		    golem.targetSelector.removeGoal(angerGoal);  
+		    golem.targetSelector.addGoal(2, tolerateFriendlyFire);  
+      });
 	}
 	
 	if(event.getEntity() instanceof ZombieEntity) 
