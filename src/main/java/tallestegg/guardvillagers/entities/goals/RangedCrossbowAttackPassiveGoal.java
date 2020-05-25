@@ -82,6 +82,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		         
 		         if (d1 <= 2.0D)
 		         {
+
 		        	 ((GuardEntity)this.entity).kick((float) d1); 	 
 		         }
 		         

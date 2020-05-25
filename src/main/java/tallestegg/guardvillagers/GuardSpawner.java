@@ -47,7 +47,7 @@ public final class GuardSpawner extends JigsawPatternRegistry {
     }
 
     private JigsawPattern map(final JigsawPattern pattern) {
-        if (pattern.func_214947_b().equals(new ResourceLocation("village/common/iron_golem"))) {
+        if (pattern.getName().equals(new ResourceLocation("village/common/iron_golem"))) {
             final List<JigsawPiece> jigsawPieces = ObfuscationReflectionHelper.getPrivateValue(JigsawPattern.class, pattern, "field_214953_e");
             jigsawPieces.set(0, new SingleJigsawPiece("guardvillagers:village/common/iron_golem", ImmutableList.of(new Processor()), JigsawPattern.PlacementBehaviour.RIGID));
         }

@@ -77,11 +77,7 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
     @Override
 	public ResourceLocation getEntityTexture(GuardEntity entity) 
     { 
-    	if (!(entity.getHeldItemMainhand().getItem() instanceof ShootableItem)) {
     	return new ResourceLocation(GuardVillagers.MODID, "textures/entity/guard/guard_" + entity.getGuardVariant() + ".png");	
-    	} else {
-    		return new ResourceLocation(GuardVillagers.MODID, "textures/entity/guard/archer_" + entity.getGuardVariant() + ".png");	
-    	}
     }
 }
 

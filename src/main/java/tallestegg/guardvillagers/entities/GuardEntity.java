@@ -47,7 +47,6 @@ import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArrowItem;
@@ -80,7 +79,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import net.minecraftforge.fml.ModList;
 import tallestegg.guardvillagers.configuration.GuardConfig;
-import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
@@ -90,7 +88,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
-	private int kickTicks;
+	public int kickTicks;
+	public int arrowsFired;
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
     private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 0.9D, true) {
     	@Override
@@ -119,6 +118,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  ((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
 		}
 		this.setCombatTask();
+		this.arrowsFired = 0;
 	}
 
 	@Override
@@ -181,6 +181,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		super.readAdditional(compound);
 		this.setGuardVariant(compound.getInt("Type"));
+		this.kickTicks = compound.getInt("KickTicks");
 		this.setCombatTask();
 	}
 	
@@ -191,6 +192,16 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		{
 	      this.heal(2.0F);	
 		}
+        if (this.kickTicks > 0) {
+            ++this.kickTicks;
+            LivingEntity attacker = this.getAttackTarget();
+            if (this.kickTicks <= 10) 
+            {
+        	  this.attackEntityAsMob(attacker);
+        	  double distance = this.getDistance(attacker);
+        	  attacker.knockBack(attacker, (float) distance, distance, distance);
+            }
+        }
 	    this.updateArmSwingProgress();
 		this.raiseShield();
 	    super.livingTick();
@@ -237,13 +248,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public void kick(float f1)
 	{
 		this.setKicking(true);
-		LivingEntity attacker = this.getAttackTarget();
-		if (this.isKicking()) 
-		{
-		   this.attackEntityAsMob(attacker);
-		   double distance = this.getDistance(attacker);
-		   attacker.knockBack(attacker, f1, distance, distance);
-		}
+		this.kickTicks = 9;
 	}
 	
 	@Override
@@ -343,7 +348,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      {
 	        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
 	      }
-	      this.targetSelector.addGoal(3, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
+	      this.targetSelector.addGoal(2, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
 	      if (GuardConfig.GuardsRunFromPolarBears) 
 	      {
 	         this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, PolarBearEntity.class,  12.0F, 1.0D, 1.2D));
@@ -368,6 +373,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      if (this.isHolding(Items.CROSSBOW)) {
 	         CrossbowItem.fireProjectiles(this.world, this, hand, itemstack, 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
 	      }
+	      ++this.arrowsFired;
 	      this.idleTime = 0;
 	}
 
@@ -435,6 +441,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		super.writeAdditional(compound);
 		compound.putInt("Type", this.getGuardVariant());
+		compound.putInt("KickTicks", this.kickTicks);
+	}
+	
+	public int getKickTicks()
+	{
+		return this.kickTicks;
 	}
 	
 	/**
@@ -503,7 +515,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   public boolean processInteract(PlayerEntity player, Hand hand)
 		{
 		  ItemStack heldStack = player.getHeldItem(hand);
-			  if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isShiftKeyDown() && heldStack.getItem() != Items.AIR)
+			  if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching() && heldStack.getItem() != Items.AIR)
 			  {
 				this.entityDropItem(this.getHeldItemMainhand());
 			    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
@@ -511,7 +523,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			    heldStack.shrink(1);
 			  }
 			  
-			  if (heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem && player.isShiftKeyDown())
+			  if (heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
 			  {
 				this.entityDropItem(this.getHeldItemOffhand());
 			    this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());

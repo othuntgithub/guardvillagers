@@ -6,70 +6,69 @@ import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShootableItem;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHasHead  {
-    public ModelRenderer bipedRightLegDagger;
-    public ModelRenderer bipedLeftArmShoulderPad;
-    public ModelRenderer bipedRightArmShoulderPad;
+    public ModelRenderer Head;
+    public ModelRenderer quiver;
+    public ModelRenderer ArmLShoulderPad;
+    public ModelRenderer ArmRShoulderPad;
     public ModelRenderer Nose;
-    public ModelRenderer HelmetDetail;
+    public ModelRenderer headLayer2;
     public float floatthing;
+	public float floatthing2;
 
     public GuardModel(float f) {
     	super(f);
         this.textureWidth = 128;
         this.textureHeight = 128;
+        this.quiver = new ModelRenderer(this, 100, 0);
+        this.quiver.setRotationPoint(0.5F, 3.0F, 2.1F);
+        this.quiver.addBox(-2.5F, -2.0F, 0.0F, 5, 10, 5, 0.0F);
+        this.setRotateAngle(quiver, 0.0F, 0.0F, 0.2617993877991494F);
+        this.bipedHeadwear = new ModelRenderer(this, 0, 0);
+        this.bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
+        this.bipedHeadwear.addBox(-4.5F, -11.0F, -4.5F, 9, 11, 9, 0.0F);
         this.bipedLeftLeg = new ModelRenderer(this, 16, 48);
         this.bipedLeftLeg.mirror = true;
         this.bipedLeftLeg.setRotationPoint(-1.9F, 12.0F, 0.0F);
         this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
-        this.Nose = new ModelRenderer(this, 54, 0);
-        this.Nose.setRotationPoint(0.0F, -3.0F, -4.0F);
-        this.Nose.addBox(-1.0F, 0.0F, -2.0F, 2, 4, 2, 0.0F);
+        this.ArmLShoulderPad = new ModelRenderer(this, 72, 33);
+        this.ArmLShoulderPad.setRotationPoint(0.5F, -3.5F, 0.0F);
+        this.ArmLShoulderPad.addBox(-5.0F, 0.0F, -3.0F, 5, 3, 6, 0.0F);
+        this.setRotateAngle(ArmLShoulderPad, 0.0F, 0.0F, -0.3490658503988659F);
+        this.bipedRightLeg = new ModelRenderer(this, 16, 28);
+        this.bipedRightLeg.setRotationPoint(1.9F, 12.0F, 0.0F);
+        this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
         this.bipedRightArm = new ModelRenderer(this, 32, 75);
         this.bipedRightArm.mirror = true;
         this.bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
         this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
-        this.bipedRightLeg = new ModelRenderer(this, 16, 28);
-        this.bipedRightLeg.setRotationPoint(1.9F, 12.0F, 0.0F);
-        this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
-        this.setRotateAngle(bipedRightLeg, -0.045553093477052F, 0.0F, 0.0F);
-        this.bipedRightLegDagger = new ModelRenderer(this, 35, 71);
-        this.bipedRightLegDagger.setRotationPoint(0.5F, -4.0F, -2.5F);
-        this.bipedRightLegDagger.addBox(0.0F, 0.0F, -3.5F, 16, 0, 16, 0.0F);
-        this.setRotateAngle(bipedRightLegDagger, 0.0F, 0.0F, 1.2217304763960306F);
-        this.HelmetDetail = new ModelRenderer(this, -10, 100);
-        this.HelmetDetail.setRotationPoint(0.0F, -6.5F, 0.0F);
-        this.HelmetDetail.addBox(-9.0F, 0.0F, -9.0F, 18, 0, 18, 0.0F);
-        this.bipedHeadwear = new ModelRenderer(this, 0, 0);
-        this.bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.bipedHeadwear.addBox(-4.5F, -11.0F, -4.5F, 9, 11, 9, 0.0F);
-        this.bipedLeftArm = new ModelRenderer(this, 33, 48);
-        this.bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
-        this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
         this.bipedHead = new ModelRenderer(this, 49, 99);
         this.bipedHead.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.bipedHead.addBox(-4.0F, -10.0F, -4.0F, 8, 10, 8, 0.0F);
-        this.bipedLeftArmShoulderPad = new ModelRenderer(this, 72, 33);
-        this.bipedLeftArmShoulderPad.setRotationPoint(0.0F, -3.5F, 0.0F);
-        this.bipedLeftArmShoulderPad.addBox(-6.0F, 0.0F, -3.0F, 6, 4, 6, 0.0F);
-        this.setRotateAngle(bipedLeftArmShoulderPad, 0.0F, 0.0F, -0.3490658503988659F);
-        this.bipedRightArmShoulderPad = new ModelRenderer(this, 40, 20);
-        this.bipedRightArmShoulderPad.setRotationPoint(0.0F, -3.5F, 0.0F);
-        this.bipedRightArmShoulderPad.addBox(0.0F, 0.0F, -3.0F, 6, 4, 6, 0.0F);
-        this.setRotateAngle(bipedRightArmShoulderPad, 0.0F, 0.0F, 0.3490658503988659F);
+        this.ArmRShoulderPad = new ModelRenderer(this, 40, 20);
+        this.ArmRShoulderPad.setRotationPoint(-0.5F, -3.5F, 0.0F);
+        this.ArmRShoulderPad.addBox(0.0F, 0.0F, -3.0F, 5, 3, 6, 0.0F);
+        this.setRotateAngle(ArmRShoulderPad, 0.0F, 0.0F, 0.3490658503988659F);
+        this.bipedLeftArm = new ModelRenderer(this, 33, 48);
+        this.bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
+        this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, 0.0F);
+        this.Nose = new ModelRenderer(this, 54, 0);
+        this.Nose.setRotationPoint(0.0F, -3.0F, -4.0F);
+        this.Nose.addBox(-1.0F, 0.0F, -2.0F, 2, 4, 2, 0.0F);
         this.bipedBody = new ModelRenderer(this, 52, 50);
         this.bipedBody.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.bipedBody.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, 0.25F);
+        this.bipedBody.addChild(this.quiver);
+        this.bipedRightArm.addChild(this.ArmLShoulderPad);
+        this.bipedLeftArm.addChild(this.ArmRShoulderPad);
         this.bipedHead.addChild(this.Nose);
-        this.bipedRightLeg.addChild(this.bipedRightLegDagger);
-        this.bipedHead.addChild(this.HelmetDetail);
-        this.bipedLeftArm.addChild(this.bipedRightArmShoulderPad);
-        this.bipedRightArm.addChild(this.bipedLeftArmShoulderPad);
     }
+
 
 	public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) 
 	{
@@ -83,6 +82,12 @@ public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHas
 	{
 		super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netbipedHeadYaw, bipedHeadPitch);
 		ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
+		if (itemstack.getItem() instanceof ShootableItem)
+		{
+			this.quiver.showModel = true;
+		} else {
+			this.quiver.showModel = false;
+		}
 		if (itemstack.getItem() instanceof CrossbowItem && entityIn.isAggressive())
         {
             if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
@@ -126,12 +131,14 @@ public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHas
         
         if (entityIn.isKicking())
         {
-            this.bipedLeftLeg.rotateAngleX = -1.0F - 0.8F * MathHelper.sin(ageInTicks * 0.5F) * 0.01F;
+        	 float f2 = MathHelper.clamp(this.floatthing2,  0.0F, 25.0F);
+        	 this.bipedLeftLeg.rotateAngleX = MathHelper.lerp(f2 / 25.0F, -1.40F, 1.05F);
         }
     }
     
     public void setLivingAnimations(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float partialTick) {
         this.floatthing = (float)entityIn.getItemInUseMaxCount();
+        this.floatthing2 = (float)entityIn.getKickTicks();
         super.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTick);
      }
 }
