@@ -85,7 +85,13 @@ public class GuardModel extends BipedModel<GuardEntity>
 		boolean flag = itemstack.getItem() instanceof ShootableItem;
 		this.quiver.showModel = flag;
 		boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.HEAD).getItem() instanceof ArmorItem;
-		this.bipedHeadwear.showModel = flag2;
+		this.bipedHeadwear.showModel = !flag2;
+		boolean flag3 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
+		this.ArmLShoulderPad.showModel = !flag3;
+		this.ArmRShoulderPad.showModel = !flag3;
+		boolean flag4 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
+		this.bipedLeftLeg.showModel = !flag4;
+		this.bipedRightLeg.showModel = !flag4;
 		if (itemstack.getItem() instanceof CrossbowItem && entityIn.isAggressive())
         {
             if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
