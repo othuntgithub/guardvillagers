@@ -12,13 +12,13 @@ import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShootableItem;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import tallestegg.guardvillagers.GuardVillagers;
 import tallestegg.guardvillagers.entities.GuardEntity;
+import tallestegg.guardvillagers.models.GuardArmorModel;
 import tallestegg.guardvillagers.models.GuardModel;
 
 
@@ -30,7 +30,7 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
         super(manager, new GuardModel(0), 0.5f);
         this.addLayer(new HeldItemLayer<>(this));
         this.addLayer(new HeadLayer<>(this));
-        this.addLayer(new BipedArmorLayer<>(this, new GuardModel(0.5F), new GuardModel(0.5F)));
+        this.addLayer(new BipedArmorLayer(this, new GuardArmorModel(0.5F), new GuardArmorModel(0.5F)));
     }
     
     public void render(GuardEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {

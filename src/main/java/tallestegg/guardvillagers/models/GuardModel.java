@@ -1,9 +1,9 @@
 package tallestegg.guardvillagers.models;
 
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.IHasArm;
-import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShootableItem;
@@ -11,8 +11,8 @@ import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
-public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHasHead  {
-    public ModelRenderer Head;
+public class GuardModel extends BipedModel<GuardEntity> 
+{
     public ModelRenderer quiver;
     public ModelRenderer ArmLShoulderPad;
     public ModelRenderer ArmRShoulderPad;
@@ -82,12 +82,10 @@ public class GuardModel extends BipedModel<GuardEntity> implements IHasArm, IHas
 	{
 		super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netbipedHeadYaw, bipedHeadPitch);
 		ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
-		if (itemstack.getItem() instanceof ShootableItem)
-		{
-			this.quiver.showModel = true;
-		} else {
-			this.quiver.showModel = false;
-		}
+		boolean flag = itemstack.getItem() instanceof ShootableItem;
+		this.quiver.showModel = flag;
+		boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.HEAD).getItem() instanceof ArmorItem;
+		this.bipedHeadwear.showModel = flag2;
 		if (itemstack.getItem() instanceof CrossbowItem && entityIn.isAggressive())
         {
             if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
