@@ -17,7 +17,7 @@ public class WalkRunWhileReloading extends RandomWalkingGoal
 	@Override
 	public boolean shouldExecute()
 	{
-		return ((GuardEntity) creature).isCharging();
+		return ((GuardEntity) creature).isCharging() && creature.getAttackTarget() != null;
 	}
 
 	@Override
