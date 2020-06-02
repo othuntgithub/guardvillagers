@@ -17,7 +17,6 @@ public class GuardModel extends BipedModel<GuardEntity>
     public ModelRenderer ArmLShoulderPad;
     public ModelRenderer ArmRShoulderPad;
     public ModelRenderer Nose;
-    public ModelRenderer headLayer2;
     public float floatthing;
 	public float floatthing2;
 
@@ -32,17 +31,17 @@ public class GuardModel extends BipedModel<GuardEntity>
         this.bipedHeadwear = new ModelRenderer(this, 0, 0);
         this.bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.bipedHeadwear.addBox(-4.5F, -11.0F, -4.5F, 9, 11, 9, 0.0F);
-        this.bipedLeftLeg = new ModelRenderer(this, 16, 48);
-        this.bipedLeftLeg.mirror = true;
-        this.bipedLeftLeg.setRotationPoint(-1.9F, 12.0F, 0.0F);
-        this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
+        this.bipedRightLeg = new ModelRenderer(this, 16, 48);
+        this.bipedRightLeg.mirror = true;
+        this.bipedRightLeg.setRotationPoint(-1.9F, 12.0F, 0.0F);
+        this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
         this.ArmLShoulderPad = new ModelRenderer(this, 72, 33);
         this.ArmLShoulderPad.setRotationPoint(0.5F, -3.5F, 0.0F);
         this.ArmLShoulderPad.addBox(-5.0F, 0.0F, -3.0F, 5, 3, 6, 0.0F);
         this.setRotateAngle(ArmLShoulderPad, 0.0F, 0.0F, -0.3490658503988659F);
-        this.bipedRightLeg = new ModelRenderer(this, 16, 28);
-        this.bipedRightLeg.setRotationPoint(1.9F, 12.0F, 0.0F);
-        this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
+        this.bipedLeftLeg = new ModelRenderer(this, 16, 28);
+        this.bipedLeftLeg.setRotationPoint(1.9F, 12.0F, 0.0F);
+        this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, 0.0F);
         this.bipedRightArm = new ModelRenderer(this, 32, 75);
         this.bipedRightArm.mirror = true;
         this.bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
@@ -84,14 +83,9 @@ public class GuardModel extends BipedModel<GuardEntity>
 		ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
 		boolean flag = itemstack.getItem() instanceof ShootableItem;
 		this.quiver.showModel = flag;
-		boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.HEAD).getItem() instanceof ArmorItem;
-		this.bipedHeadwear.showModel = !flag2;
-		boolean flag3 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
-		this.ArmLShoulderPad.showModel = !flag3;
-		this.ArmRShoulderPad.showModel = !flag3;
-		boolean flag4 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
-		this.bipedLeftLeg.showModel = !flag4;
-		this.bipedRightLeg.showModel = !flag4;
+		boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
+		this.ArmLShoulderPad.showModel = !flag2;
+		this.ArmRShoulderPad.showModel = !flag2;
 		if (itemstack.getItem() instanceof CrossbowItem && entityIn.isAggressive())
         {
             if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
@@ -110,8 +104,8 @@ public class GuardModel extends BipedModel<GuardEntity>
        	    }
         }
         
+		float f3 = (float)CrossbowItem.getChargeTime(entityIn.getActiveItemStack());
         if (entityIn.isCharging() && itemstack.getItem() instanceof CrossbowItem) {
-        	float f3 = (float)CrossbowItem.getChargeTime(entityIn.getActiveItemStack());
             if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
             {
           	    this.bipedRightArm.rotateAngleY = -0.8F;
@@ -128,15 +122,15 @@ public class GuardModel extends BipedModel<GuardEntity>
                 this.bipedRightArm.rotateAngleX = -0.97079635F;
                 this.bipedLeftArm.rotateAngleX = -0.97079635F;
                 float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
-                this.bipedRightArm.rotateAngleY = MathHelper.lerp(f2 / 25.0F, -0.4F, -0.85F);
-                this.bipedRightArm.rotateAngleX = MathHelper.lerp(f2 / 25.0F, this.bipedRightArm.rotateAngleX, (-(float)Math.PI / 2F));
+                this.bipedRightArm.rotateAngleY = MathHelper.lerp(f2 / f3, -0.4F, -0.85F);
+                this.bipedRightArm.rotateAngleX = MathHelper.lerp(f2 / f3, this.bipedRightArm.rotateAngleX, (-(float)Math.PI / 2F));
             }
         }
         
         if (entityIn.isKicking())
         {
-        	 float f2 = MathHelper.clamp(this.floatthing2,  0.0F, 25.0F);
-        	 this.bipedLeftLeg.rotateAngleX = MathHelper.lerp(f2 / 25.0F, -1.40F, 1.05F);
+        	 float f4 = MathHelper.clamp(this.floatthing2,  0.0F, 25.0F);
+        	 this.bipedRightLeg.rotateAngleX = MathHelper.lerp(f4 / 25.0F, -1.40F, 1.05F);
         }
     }
     

@@ -35,6 +35,7 @@ import net.minecraft.entity.ai.goal.RandomWalkingGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.ai.goal.TemptGoal;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
@@ -49,6 +50,7 @@ import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.FireworkRocketItem;
@@ -114,6 +116,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		super(type, world);
 		this.enablePersistence();
+		this.canPickUpLoot();
 		if (GuardConfig.GuardsOpenDoors) {
 		  ((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
 		}
@@ -132,6 +135,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	    spawnDataIn = new GuardEntity.GuardData(type);
 	  }
        this.setCombatTask();
+       this.setCanPickUpLoot(true);
        if (this.world.rand.nextFloat() < 0.5F) {
          this.setItemStackToSlot(EquipmentSlotType.OFFHAND, new ItemStack(Items.SHIELD));
 	   } 
@@ -195,16 +199,16 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (this.kickTicks > 0) {
             ++this.kickTicks;
             LivingEntity attacker = this.getAttackTarget();
-            if (this.kickTicks <= 10) 
+            if (this.kickTicks <= 10 && attacker != null) 
             {
         	  this.attackEntityAsMob(attacker);
         	  double distance = this.getDistance(attacker);
         	  attacker.knockBack(attacker, (float) distance, distance, distance);
             }
         }
-	    this.updateArmSwingProgress();
-		this.raiseShield();
-	    super.livingTick();
+	     this.updateArmSwingProgress();
+		 this.raiseShield();
+	     super.livingTick();
 	}
 	
 	protected void blockUsingShield(LivingEntity entityIn) 
@@ -214,6 +218,31 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.disableShield(true);
 		}
 	}
+	
+    protected void updateEquipmentIfNeeded(ItemEntity itemEntity) 
+    {
+        ItemStack itemstack = itemEntity.getItem();
+        EquipmentSlotType equipmentslottype = getSlotForItemStack(itemstack);
+        ItemStack itemstack1 = this.getItemStackFromSlot(equipmentslottype);
+        if (this.canEquipItem(itemstack) && itemEntity.getItem().getItem() instanceof ArmorItem) {
+           if (!itemstack1.isEmpty()) {
+              this.entityDropItem(itemstack1);
+           }
+
+           this.setItemStackToSlot(equipmentslottype, itemstack);
+           switch(equipmentslottype.getSlotType()) {
+           case HAND:
+              this.inventoryHandsDropChances[equipmentslottype.getIndex()] = 2.0F;
+              break;
+           case ARMOR:
+              this.inventoryArmorDropChances[equipmentslottype.getIndex()] = 2.0F;
+           }
+
+           this.enablePersistence();
+           this.onItemPickup(itemEntity, itemstack.getCount());
+           itemEntity.remove();
+        }
+    }
 	
     public void disableShield(boolean p_190777_1_) 
     {

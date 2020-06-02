@@ -28,8 +28,6 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
     public GuardRenderer(EntityRendererManager manager) 
     {
         super(manager, new GuardModel(0), 0.5f);
-        this.addLayer(new HeldItemLayer<>(this));
-        this.addLayer(new HeadLayer<>(this));
         this.addLayer(new BipedArmorLayer(this, new GuardArmorModel(0.5F), new GuardArmorModel(1.0F)));
     }
     
