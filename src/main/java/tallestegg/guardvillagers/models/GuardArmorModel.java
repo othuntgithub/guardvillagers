@@ -22,7 +22,6 @@ public class GuardArmorModel extends BipedModel<LivingEntity>
 	public void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netbipedHeadYaw, float bipedHeadPitch) 
 	{
 		super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netbipedHeadYaw, bipedHeadPitch);
-        
         if (((GuardEntity) entityIn).isKicking() && (entityIn.getItemStackFromSlot(EquipmentSlotType.LEGS).getItem() instanceof ArmorItem))
         {
         	 float f4 = MathHelper.clamp(this.floatthing2,  0.0F, 25.0F);

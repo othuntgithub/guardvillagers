@@ -11,7 +11,7 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/guard-villagers" #optio
 credits="TallestEgg and HadeZ/SadNya69 for the models." #optional
 authors="TallestEgg, HadeZ/SadNya69 for the models." #optional
 description='''
-Need some help with pest control? These Guard Villagers are ready to help!
+Need some help with pest control? The Guards are ready to help!
 '''
 [[dependencies.guardvillagers]] #optional
     modId="forge" #mandatory

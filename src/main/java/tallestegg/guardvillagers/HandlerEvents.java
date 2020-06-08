@@ -1,15 +1,12 @@
 package tallestegg.guardvillagers;
 
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.EvokerEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
@@ -21,6 +18,7 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -148,21 +146,11 @@ public class HandlerEvents
 	    }
 	   }
 	}   
-    
-      if (GuardConfig.IllusionerRaids) {
-	   if (event.getEntity() instanceof AbstractIllagerEntity && !(event.getEntity() instanceof EvokerEntity)) 
-	   {
-         AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
-        
-         if (illager.isRaidActive() && !illager.isLeader() && event.getWorld().rand.nextInt(10) == 0) 
-         {
-            IllusionerEntity illusioner = EntityType.ILLUSIONER.create(event.getWorld());
-            illager.getRaid().joinRaid(5, illusioner, illager.getPosition(), false);
-            illusioner.setLeader(false);
-          } 
-        }
-      }
   }	
+	public void onEntitySpawn(LivingSpawnEvent event)
+	{
+		
+	}
 }
 
 
