@@ -82,6 +82,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import net.minecraftforge.fml.ModList;
 import tallestegg.guardvillagers.configuration.GuardConfig;
+import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
@@ -324,6 +325,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	     }
 	   this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 100.0F;
 	   this.inventoryHandsDropChances[EquipmentSlotType.OFFHAND.getIndex()] = 100.0F;
+	   super.setEquipmentBasedOnDifficulty(difficulty); //so guards can spawn with armor
 	}
 	
 	public int getGuardVariant()
@@ -342,10 +344,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.goalSelector.addGoal(1, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
-	      //this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //Unused
+	      this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //phalanx 
 	      if (GuardConfig.GuardsOpenDoors) {
-	         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
-	      }
+		         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
+		      }
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
@@ -362,6 +364,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 					public boolean shouldExecute() {
 						return ((GuardEntity)this.entity).getHealth() < 13 && !(entity.getHeldItemOffhand().getItem() instanceof ShieldItem) && super.shouldExecute();
 					}		
+					
+					@Override
+					public void startExecuting()
+					{
+						if (((GuardEntity)this.entity).getAttackTarget() == this.avoidTarget)
+						{
+						 ((GuardEntity)this.entity).setAttackTarget(null);
+						}
+					}
 				});	      
 		      }
 	      if (GuardConfig.GuardSurrender) {
@@ -583,8 +594,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			    //this.addPotionEffect((EffectInstance) heldStack.getItem().getFood().getEffects());
 			    this.playHealEffect(true);
 			   }
-			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-			     this.following = false; 
+			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && heldStack.isEmpty()) {
+				 if (!this.world.isRemote) {
+				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
+				 }
+			     this.following = !this.following; 
 			   }
 			   return true;
 		}
@@ -686,30 +700,43 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    public static class FollowHeroGoal extends Goal 
    {
    	public final GuardEntity guard;
-   	public PlayerEntity player;	
+   	public LivingEntity hero;	
+   	protected final EntityPredicate whateverthisis = (new EntityPredicate()).setDistance(64.0D);
    	
    	public FollowHeroGoal(GuardEntity mob)
    	{
    		guard = mob;
    		this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
    	}
-
+   	
+   	public void startExecuting()
+   	{
+   		super.startExecuting();
+   		guard.following = true;
+           if (guard.getAttackTarget() == hero) {
+           	   guard.setAttackTarget(null);
+              }
+   	}
+   	
    	@Override
+   	public boolean shouldContinueExecuting()
+   	{
+   		super.shouldContinueExecuting();
+   		return guard.following;
+   	}
+
+  	@Override
    	public boolean shouldExecute() 
    	{
    		 List<PlayerEntity> list = this.guard.world.getEntitiesWithinAABB(PlayerEntity.class, this.guard.getBoundingBox().grow(10.0D));
    	      if (!list.isEmpty()) {
    	         for(PlayerEntity player : list) {
    	            if (!player.isInvisible() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-   	               this.player = player;
-   	               guard.following = true;
+   	               this.hero = player;
    	               if (guard.following) {
    	                 guard.getNavigator().tryMoveToEntityLiving(player, 0.9D);
    	               }
-   	               if (guard.getAttackTarget() == player) {
-   	            	   guard.setAttackTarget(null);
-   	               }
-   	               return true;
+   	               return guard.following;
    	            }
    	         }
    	      }

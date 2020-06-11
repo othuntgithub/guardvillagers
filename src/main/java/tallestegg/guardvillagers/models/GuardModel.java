@@ -25,7 +25,7 @@ public class GuardModel extends BipedModel<GuardEntity>
         this.textureWidth = 128;
         this.textureHeight = 128;
         this.quiver = new ModelRenderer(this, 100, 0);
-        this.quiver.setRotationPoint(0.5F, 3.0F, 2.1F);
+        this.quiver.setRotationPoint(0.5F, 3.0F, 2.3F);
         this.quiver.addBox(-2.5F, -2.0F, 0.0F, 5, 10, 5, 0.0F);
         this.setRotateAngle(quiver, 0.0F, 0.0F, 0.2617993877991494F);
         this.bipedHeadwear = new ModelRenderer(this, 0, 0);

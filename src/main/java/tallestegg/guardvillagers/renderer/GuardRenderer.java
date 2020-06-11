@@ -8,8 +8,6 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.BipedRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
-import net.minecraft.client.renderer.entity.layers.HeadLayer;
-import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
@@ -25,7 +23,8 @@ import tallestegg.guardvillagers.models.GuardModel;
 public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
 {
 
-    public GuardRenderer(EntityRendererManager manager) 
+    @SuppressWarnings({ "unchecked", "rawtypes" }) //no warnings.
+	public GuardRenderer(EntityRendererManager manager) 
     {
         super(manager, new GuardModel(0), 0.5f);
         this.addLayer(new BipedArmorLayer(this, new GuardArmorModel(0.5F), new GuardArmorModel(1.0F)));
@@ -57,6 +56,7 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
         BipedModel.ArmPose bipedmodel$armpose = BipedModel.ArmPose.EMPTY;
         ItemStack itemstack = handIn == Hand.MAIN_HAND ? itemStackMain : itemStackOff;
         if (!itemstack.isEmpty()) {
+           bipedmodel$armpose = BipedModel.ArmPose.ITEM;
            if (entityIn.getItemInUseCount() > 0) {
               UseAction useaction = itemstack.getUseAction();
               if (useaction == UseAction.BLOCK) {
