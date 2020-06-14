@@ -31,6 +31,8 @@ public class GuardConfig
 	public static boolean GuardsRunFromPolarBears;
 	public static boolean IllagersOpenDoors;
 	public static boolean GuardsOpenDoors;
+	public static boolean GuardAlwaysShield;
+	public static boolean GuardFormation;
 	
 	public static void bakeConfig() {
 		GuardModel = COMMON.GuardModel.get();
@@ -44,6 +46,8 @@ public class GuardConfig
 		IllagersRunFromPolarBears = COMMON.IllagersRunFromPolarBears.get();
 		IllagersOpenDoors = COMMON.IllagersOpenDoors.get();
 		GuardsOpenDoors = COMMON.GuardsOpenDoors.get();
+		GuardAlwaysShield = COMMON.GuardRaiseShield.get();
+		GuardFormation = COMMON.GuardFormation.get();
 	}
 
 	@SubscribeEvent
@@ -68,6 +72,8 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue GuardsRunFromPolarBears;
 		public final ForgeConfigSpec.BooleanValue IllagersOpenDoors;
 		public final ForgeConfigSpec.BooleanValue GuardsOpenDoors;
+		public final ForgeConfigSpec.BooleanValue GuardRaiseShield;
+		public final ForgeConfigSpec.BooleanValue GuardFormation;
 
 		public CommonConfig(ForgeConfigSpec.Builder builder) 
 		{
@@ -88,7 +94,7 @@ public class GuardConfig
 			IllusionerRaids = builder
 					.comment("This will make Illusioners get involved in raids")
 					.translation(GuardVillagers.MODID + ".config.IllusionerRaids")
-					.define("Have Illusioners in Raids?", true);
+					.define("Have Illusioners in Raids?", false);
 			AttackAllMobs = builder
 					.comment("Guards will attack all hostiles with this option")
 					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")
@@ -121,6 +127,14 @@ public class GuardConfig
 					.comment("This lets Guards open doors.")
 					.translation(GuardVillagers.MODID + ".config.GuardsOpenDoors")
 					.define("Have Guards open doors?", true);
+			GuardRaiseShield = builder
+					.comment("This will make guards raise their shields all the time, on default they will only raise their shields under certain conditions")
+					.translation(GuardVillagers.MODID + ".config.GuardRaiseShield")
+					.define("Have Guards raise their shield all the time?", false);
+			GuardFormation = builder
+					.comment("This makes guards form a phalanx")
+					.translation(GuardVillagers.MODID + ".config.GuardFormation")
+					.define("Have guards form a phalanx?", true);
 		}
 	}
 }

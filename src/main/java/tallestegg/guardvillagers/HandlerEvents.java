@@ -18,7 +18,6 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
@@ -147,10 +146,6 @@ public class HandlerEvents
 	   }
 	}   
   }	
-	public void onEntitySpawn(LivingSpawnEvent event)
-	{
-		
-	}
 }
 
 

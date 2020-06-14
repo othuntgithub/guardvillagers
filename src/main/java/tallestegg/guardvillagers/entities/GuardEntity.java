@@ -84,6 +84,8 @@ import net.minecraftforge.fml.ModList;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
+import tallestegg.guardvillagers.entities.goals.HeroHurtByTargetGoal;
+import tallestegg.guardvillagers.entities.goals.HeroHurtTargetGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
 
@@ -95,6 +97,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public int kickTicks;
 	public int arrowsFired;
 	public boolean following;
+	public PlayerEntity hero;
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
     private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 0.9D, true) {
     	@Override
@@ -263,14 +266,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public void raiseShield()
 	{
 		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 4.0D
-	     //|| this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof RavagerEntity && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem)
+	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && GuardConfig.GuardAlwaysShield
 	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity 
-	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem))
+	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D 
+	     && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem))
 	    {
 	    	this.setActiveHand(Hand.OFF_HAND);
 		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
 	    }
-		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive())
+		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive() && !GuardConfig.GuardAlwaysShield)
 		{
 			this.resetActiveHand();
 		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
@@ -315,14 +319,16 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
 	{
 	  int i = this.rand.nextInt(2);
-		if (i == 0) 
+		switch(i) 
 		{
-	      this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-	    } 
-		 else 
-	     {
-	       this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));
-	     }
+		    case 0:
+			this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
+			break;
+			
+		    case 1:
+		    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));	
+		    break;
+		}//no more funky if statements
 	   this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 100.0F;
 	   this.inventoryHandsDropChances[EquipmentSlotType.OFFHAND.getIndex()] = 100.0F;
 	   super.setEquipmentBasedOnDifficulty(difficulty); //so guards can spawn with armor
@@ -344,20 +350,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.goalSelector.addGoal(1, new MoveTowardsVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
-	      this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //phalanx 
-	      if (GuardConfig.GuardsOpenDoors) {
-		         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
-		      }
-	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
-	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
-	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
-	          return false;
-	       }));
-	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
-	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
-	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
-	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
-	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
+	      this.goalSelector.addGoal(2, new HeroHurtTargetGoal(this));
+	      if (ModList.get().isLoaded("quark")) {
+		    this.goalSelector.addGoal(2, new TemptGoal(this, 0.6, Ingredient.fromItems(Items.EMERALD_BLOCK), false));
+	      }
 	      if (GuardConfig.GuardSurrender) {
 		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 					@Override
@@ -383,6 +380,22 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 				}
 			});
 	      }
+	      if (GuardConfig.GuardFormation) {
+		     this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //phalanx  
+	      }
+	      if (GuardConfig.GuardsOpenDoors) {
+		         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
+		  }
+	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
+	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
+	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
+	          return false;
+	       }));
+	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
+	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
+	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
+	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
+	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
@@ -402,9 +415,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  		{
 	  			return mob instanceof IMob;
 	  		}));
-	      }
-	      if (ModList.get().isLoaded("quark")) {
-		    this.goalSelector.addGoal(2, new TemptGoal(this, 0.6, Ingredient.fromItems(Items.EMERALD_BLOCK), false));
 	      }
 	 }
 	
@@ -573,6 +583,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 			    if (!player.abilities.isCreativeMode)
 			    heldStack.shrink(1);
+			    return true;
 		    }
 			  
 			  if (heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
@@ -581,26 +592,26 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			    this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
 			    if (!player.abilities.isCreativeMode)
 			    heldStack.shrink(1);
+			    return true;
 			  }
 			  
 			  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
 			  {
-			    if (!player.abilities.isCreativeMode) 
-			    {
-			      heldStack.shrink(1);
-			    }
-
-			    this.heal((float)heldStack.getItem().getFood().getHealing());
-			    //this.addPotionEffect((EffectInstance) heldStack.getItem().getFood().getEffects());
+			    this.heal(heldStack.getItem().getFood().getHealing());
 			    this.playHealEffect(true);
+			    if (!player.abilities.isCreativeMode)
+			    heldStack.shrink(1);
+			    return true; 
 			   }
 			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && heldStack.isEmpty()) {
 				 if (!this.world.isRemote) {
 				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
 				 }
 			     this.following = !this.following; 
+			     return true;
+			   } else {
+				   return super.processInteract(player, hand);
 			   }
-			   return true;
 		}
 	   
 	   protected void playHealEffect(boolean play) {
@@ -700,7 +711,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    public static class FollowHeroGoal extends Goal 
    {
    	public final GuardEntity guard;
-   	public LivingEntity hero;	
    	protected final EntityPredicate whateverthisis = (new EntityPredicate()).setDistance(64.0D);
    	
    	public FollowHeroGoal(GuardEntity mob)
@@ -713,9 +723,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    	{
    		super.startExecuting();
    		guard.following = true;
-           if (guard.getAttackTarget() == hero) {
-           	   guard.setAttackTarget(null);
-              }
    	}
    	
    	@Override
@@ -728,13 +735,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
   	@Override
    	public boolean shouldExecute() 
    	{
-   		 List<PlayerEntity> list = this.guard.world.getEntitiesWithinAABB(PlayerEntity.class, this.guard.getBoundingBox().grow(10.0D));
+   		 List<LivingEntity> list = this.guard.world.getEntitiesWithinAABB(PlayerEntity.class, this.guard.getBoundingBox().grow(10.0D));
    	      if (!list.isEmpty()) {
-   	         for(PlayerEntity player : list) {
+   	         for(LivingEntity mob : list) {
+   	        	PlayerEntity player = (PlayerEntity)mob;
    	            if (!player.isInvisible() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-   	               this.hero = player;
+   	               guard.hero = player; //this makes it so guards stan the player
    	               if (guard.following) {
-   	                 guard.getNavigator().tryMoveToEntityLiving(player, 0.9D);
+   	                 guard.getNavigator().tryMoveToEntityLiving(guard.hero, 0.9D);
    	               }
    	               return guard.following;
    	            }
@@ -742,5 +750,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    	      }
    		return false;
    	}
+  	
+  	@Override
+    public void resetTask() {
+        this.guard.getNavigator().clearPath();
+        guard.following = false;
+     }
    }
 }
