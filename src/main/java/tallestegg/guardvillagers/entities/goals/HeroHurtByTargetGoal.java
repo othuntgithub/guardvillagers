@@ -29,7 +29,7 @@ public class HeroHurtByTargetGoal extends TargetGoal
   		 } else {
   		 this.attacker = livingentity.getRevengeTarget();
   		 int i = livingentity.getRevengeTimer();
-  		 return i != this.timestamp && this.isSuitableTarget(this.attacker, EntityPredicate.DEFAULT);
+  		 return i != this.timestamp && this.isSuitableTarget(this.attacker, EntityPredicate.DEFAULT) && !(attacker instanceof GuardEntity);
   		}
   }
 

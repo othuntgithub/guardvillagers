@@ -26,7 +26,7 @@ public class HeroHurtTargetGoal extends TargetGoal {
 	         } else {
 	            this.attacker = livingentity.getLastAttackedEntity();
 	            int i = livingentity.getLastAttackedEntityTime();
-	            return i != this.timestamp && this.isSuitableTarget(this.attacker, EntityPredicate.DEFAULT);
+	            return i != this.timestamp && this.isSuitableTarget(this.attacker, EntityPredicate.DEFAULT) && !(attacker instanceof GuardEntity);
 	         }
 	   }
 

@@ -45,6 +45,7 @@ import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
+import net.minecraft.entity.monster.ZombieVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -58,6 +59,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.ShootableItem;
+import net.minecraft.item.UseAction;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
@@ -75,6 +77,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -176,9 +179,22 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  return SoundEvents.ENTITY_VILLAGER_AMBIENT;
 	}
 
+	@Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) 
 	{
-	  return SoundEvents.ENTITY_VILLAGER_HURT;
+		SoundEvent sound = this.getStuff();
+		return sound;
+	}
+	
+	//big brain hacks
+	public SoundEvent getStuff()
+	{
+		if (this.getHeldItemOffhand().getUseAction() == UseAction.BLOCK && this.isAggressive())
+		{
+			return SoundEvents.ITEM_SHIELD_BLOCK;
+		} else {
+			return SoundEvents.ENTITY_VILLAGER_HURT;
+		}
 	}
 
 	protected SoundEvent getDeathSound() 
@@ -195,6 +211,35 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.setCombatTask();
 	}
 	
+	public void onDeath(DamageSource cause) {
+		super.onDeath(cause);
+		if (cause.getTrueSource() instanceof ZombieEntity) {
+		    if ((this.world.getDifficulty() == Difficulty.NORMAL || this.world.getDifficulty() == Difficulty.HARD)) {
+		        if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
+		           return;
+		     }
+			 ZombieEntity zombie = (ZombieEntity)cause.getTrueSource();
+			 ZombieVillagerEntity zillager = EntityType.ZOMBIE_VILLAGER.create(world);
+			 zillager.onInitialSpawn(world, this.world.getDifficultyForLocation(getPosition()), SpawnReason.CONVERSION, (ILivingEntityData)null, (CompoundNBT)null);
+			 zillager.copyLocationAndAnglesFrom(this);
+	         if (this.hasCustomName()) {
+	           zillager.setCustomName(zillager.getCustomName());
+	           zillager.setCustomNameVisible(this.isCustomNameVisible());
+	         }
+
+	         if (this.isNoDespawnRequired()) {
+	           zillager.enablePersistence();
+	         }
+	         zillager.setItemStackToSlot(GuardEntity.getSlotForItemStack(getActiveItemStack()), this.getHeldItemMainhand().copy());
+	         zillager.setChild(false);
+	         zillager.setNoAI(this.isAIDisabled());
+	         zillager.setInvulnerable(this.isInvulnerable());
+			 zombie.world.addEntity(zillager);
+			 this.remove();
+			 zombie.world.playEvent((PlayerEntity)null, 1026, zombie.getPosition(), 0);
+		    }
+		}
+	}
 	
 	public void livingTick() 
 	{
