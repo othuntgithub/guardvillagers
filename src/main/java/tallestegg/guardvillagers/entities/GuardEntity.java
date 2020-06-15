@@ -231,7 +231,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	         if (this.isNoDespawnRequired()) {
 	           zillager.enablePersistence();
 	         }
-	         zillager.setItemStackToSlot(GuardEntity.getSlotForItemStack(getActiveItemStack()), this.getHeldItemMainhand().copy());
+	         zillager.setItemStackToSlot(EquipmentSlotType.MAINHAND, this.getHeldItemMainhand().copy());
+	         zillager.setItemStackToSlot(EquipmentSlotType.OFFHAND, this.getHeldItemOffhand().copy());
+	         zillager.setItemStackToSlot(EquipmentSlotType.HEAD, this.getItemStackFromSlot(EquipmentSlotType.HEAD).copy());
+	         zillager.setItemStackToSlot(EquipmentSlotType.CHEST, this.getItemStackFromSlot(EquipmentSlotType.CHEST).copy());
+	         zillager.setItemStackToSlot(EquipmentSlotType.LEGS, this.getItemStackFromSlot(EquipmentSlotType.LEGS).copy());
+	         zillager.setItemStackToSlot(EquipmentSlotType.FEET, this.getItemStackFromSlot(EquipmentSlotType.FEET).copy());
 	         zillager.setChild(false);
 	         zillager.setNoAI(this.isAIDisabled());
 	         zillager.setInvulnerable(this.isInvulnerable());
