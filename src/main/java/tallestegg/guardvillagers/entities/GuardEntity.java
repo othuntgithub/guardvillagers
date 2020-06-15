@@ -208,6 +208,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		super.readAdditional(compound);
 		this.setGuardVariant(compound.getInt("Type"));
 		this.kickTicks = compound.getInt("KickTicks");
+		this.following = compound.getBoolean("Following");
 		this.setCombatTask();
 	}
 	
@@ -241,6 +242,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		}
 	}
 	
+	@Override
 	public void livingTick() 
 	{
 		if (this.ticksExisted % 100 == 0 && GuardConfig.GuardHealthRegen == true) 
@@ -389,6 +391,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.dataManager.set(GUARD_VARIANT, typeId);
 	}
 	
+	@Override
 	protected void registerGoals() 
 	{
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
@@ -540,6 +543,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		super.writeAdditional(compound);
 		compound.putInt("Type", this.getGuardVariant());
 		compound.putInt("KickTicks", this.kickTicks);
+		compound.putBoolean("Following", this.following);
 	}
 	
 	public int getKickTicks()
@@ -547,9 +551,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		return this.kickTicks;
 	}
 	
+	@Override
     public boolean canAttack(EntityType<?> typeIn) 
     {
-	   if (this.following && typeIn == EntityType.PLAYER) {
+	   if (this.following && typeIn == EntityType.PLAYER || this.hero != null && typeIn == EntityType.PLAYER) {
 		   return false;
 		 } else {
 		  return super.canAttack(typeIn);
@@ -619,44 +624,47 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		      super.constructKnockBackVector(this);
 	    }
 	   
-	   public boolean processInteract(PlayerEntity player, Hand hand)
+	   @Override
+	   protected boolean processInteract(PlayerEntity player, Hand hand)
 		{
 		  ItemStack heldStack = player.getHeldItem(hand);
-		   if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching() && heldStack.getItem() != Items.AIR)
+		   if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching() && !heldStack.isEmpty())
 		   {
+			 if (this.getAttackTarget() != player && !this.world.isRemote) {
 			  this.entityDropItem(this.getHeldItemMainhand());
-			    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
-			    if (!player.abilities.isCreativeMode)
-			    heldStack.shrink(1);
-			    return true;
-		    }
+			  this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
+			  if (!player.abilities.isCreativeMode)
+			  heldStack.shrink(1);
+			  return true;
+			 }
+		   }
+			   
 			  
 			  if (heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
 			  {
-				this.entityDropItem(this.getHeldItemOffhand());
-			    this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
-			    if (!player.abilities.isCreativeMode)
-			    heldStack.shrink(1);
-			    return true;
+				if (this.getAttackTarget() != player && !this.world.isRemote) {  
+				 this.entityDropItem(this.getHeldItemOffhand());
+			     this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
+			     if (!player.abilities.isCreativeMode)
+			     heldStack.shrink(1);
+			     return true;
+			   }
 			  }
 			  
 			  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
 			  {
-			    this.heal(heldStack.getItem().getFood().getHealing());
-			    this.playHealEffect(true);
-			    if (!player.abilities.isCreativeMode)
-			    heldStack.shrink(1);
-			    return true; 
+			     this.heal(heldStack.getItem().getFood().getHealing());
+			     this.playHealEffect(true);
+			     if (!player.abilities.isCreativeMode)
+			     heldStack.shrink(1);
+			     return true;
 			   }
 			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && heldStack.isEmpty()) {
-				 if (!this.world.isRemote) {
-				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
-				 }
+				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);;
 			     this.following = !this.following; 
 			     return true;
-			   } else {
-				   return super.processInteract(player, hand);
 			   }
+			   return super.processInteract(player, hand);
 		}
 	   
 	   protected void playHealEffect(boolean play) {
@@ -793,13 +801,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    	            }
    	         }
    	      }
-   		return false;
+   	   return guard.following;
    	}
   	
   	@Override
     public void resetTask() {
         this.guard.getNavigator().clearPath();
         guard.following = false;
+        guard.hero = null;
      }
    }
 }
