@@ -12,6 +12,7 @@ import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedAttackMob & ICrossbowUser> extends Goal {
@@ -62,7 +63,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	   {
 		      List<GuardEntity> list = this.entity.world.getEntitiesWithinAABB(GuardEntity.class, this.entity.getBoundingBox().grow(10.0D));
 		         for(GuardEntity guard : list) {
-		        	 if (entity.canEntityBeSeen(guard) && entity != guard && !guard.isInvisible()) {
+		        	 if (entity.getEntitySenses().canSee(guard) && entity != guard && !guard.isInvisible() && GuardConfig.FriendlyFire) {
 		        	    return true;
 		        	 }
 		         }

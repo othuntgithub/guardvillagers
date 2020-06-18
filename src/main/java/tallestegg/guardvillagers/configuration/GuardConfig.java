@@ -33,6 +33,7 @@ public class GuardConfig
 	public static boolean GuardsOpenDoors;
 	public static boolean GuardAlwaysShield;
 	public static boolean GuardFormation;
+	public static boolean FriendlyFire;
 	
 	public static void bakeConfig() {
 		GuardModel = COMMON.GuardModel.get();
@@ -48,6 +49,7 @@ public class GuardConfig
 		GuardsOpenDoors = COMMON.GuardsOpenDoors.get();
 		GuardAlwaysShield = COMMON.GuardRaiseShield.get();
 		GuardFormation = COMMON.GuardFormation.get();
+		FriendlyFire = COMMON.FriendlyFire.get();
 	}
 
 	@SubscribeEvent
@@ -74,6 +76,7 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue GuardsOpenDoors;
 		public final ForgeConfigSpec.BooleanValue GuardRaiseShield;
 		public final ForgeConfigSpec.BooleanValue GuardFormation;
+		public final ForgeConfigSpec.BooleanValue FriendlyFire;
 
 		public CommonConfig(ForgeConfigSpec.Builder builder) 
 		{
@@ -135,6 +138,10 @@ public class GuardConfig
 					.comment("This makes guards form a phalanx")
 					.translation(GuardVillagers.MODID + ".config.GuardFormation")
 					.define("Have guards form a phalanx?", true);
+			FriendlyFire = builder
+					.comment("This will make guards attempt to avoid friendly fire.")
+					.translation(GuardVillagers.MODID + ".config.FriendlyFire")
+					.define("Have guards avoid friendly fire?", true);
 		}
 	}
 }
