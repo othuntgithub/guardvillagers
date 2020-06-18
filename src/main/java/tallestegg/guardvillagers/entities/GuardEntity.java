@@ -122,7 +122,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	{
 		super(type, world);
 		this.enablePersistence();
-		this.canPickUpLoot();
+		this.setCanPickUpLoot(true);
 		if (GuardConfig.GuardsOpenDoors) {
 		  ((GroundPathNavigator)this.getNavigator()).setBreakDoors(true);
 		}
@@ -247,11 +247,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (this.kickTicks > 0) {
             ++this.kickTicks;
             LivingEntity attacker = this.getAttackTarget();
-            if (this.kickTicks <= 10 && attacker != null) 
+            if (this.kickTicks == 10 && attacker != null) 
             {
         	  this.attackEntityAsMob(attacker);
-        	  double distance = this.getDistance(attacker);
-        	  attacker.knockBack(attacker, (float) distance, distance, distance);
+        	  attacker.knockBack(this, 2.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
             }
         }
 	     this.updateArmSwingProgress();
@@ -361,16 +360,16 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) 
 	{
 	  int i = this.rand.nextInt(2);
-		switch(i) 
-		{
-		    case 0:
-			this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
-			break;
+	  switch(i) 
+	  {
+	     case 0:
+		 this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_SWORD));
+		 break;
 			
-		    case 1:
-		    this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));	
-		    break;
-		}//no more funky if statements
+		 case 1:
+		 this.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.CROSSBOW));	
+		 break;
+	   }//no more funky if statements
 	   this.inventoryHandsDropChances[EquipmentSlotType.MAINHAND.getIndex()] = 100.0F;
 	   this.inventoryHandsDropChances[EquipmentSlotType.OFFHAND.getIndex()] = 100.0F;
 	   super.setEquipmentBasedOnDifficulty(difficulty); //so guards can spawn with armor
