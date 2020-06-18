@@ -34,7 +34,7 @@ public class HealGolemGoal extends Goal
 		{
 		  return false;
 		}
-		 List<IronGolemEntity> list = this.healer.world.getEntitiesWithinAABB(IronGolemEntity.class, this.healer.getBoundingBox().grow((double)10.0D));
+		 List<IronGolemEntity> list = this.healer.world.getEntitiesWithinAABB(IronGolemEntity.class, this.healer.getBoundingBox().grow(30.0D));
 	      if (!list.isEmpty()) {
 	         for(IronGolemEntity golem : list) {
 	            if (!golem.isInvisible()) {

@@ -52,10 +52,17 @@ public class VillagerToGuard
 		    guard.setCustomName(villager.getCustomName());
 		    guard.setCustomNameVisible(villager.isCustomNameVisible());
 		  }
-		   villager.world.addEntity(guard);
-           villager.func_213742_a(MemoryModuleType.HOME);
-           villager.func_213742_a(MemoryModuleType.JOB_SITE);
-           villager.func_213742_a(MemoryModuleType.MEETING_POINT);
-	       villager.remove();	 
+		  guard.setCanPickUpLoot(true);
+		  guard.setDropChance(EquipmentSlotType.HEAD, 100.0F);
+		  guard.setDropChance(EquipmentSlotType.CHEST, 100.0F);
+		  guard.setDropChance(EquipmentSlotType.FEET, 100.0F);
+		  guard.setDropChance(EquipmentSlotType.LEGS, 100.0F);
+		  guard.setDropChance(EquipmentSlotType.MAINHAND, 100.0F);
+		  guard.setDropChance(EquipmentSlotType.OFFHAND, 100.0F);
+		  villager.world.addEntity(guard);
+          villager.func_213742_a(MemoryModuleType.HOME);
+          villager.func_213742_a(MemoryModuleType.JOB_SITE);
+          villager.func_213742_a(MemoryModuleType.MEETING_POINT);
+	      villager.remove();	 
 	} 
 }

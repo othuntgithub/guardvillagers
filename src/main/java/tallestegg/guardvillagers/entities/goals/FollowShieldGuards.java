@@ -49,7 +49,6 @@ public class FollowShieldGuards extends Goal
 	      return RandomPositionGenerator.findRandomTargetBlockTowards(taskOwner, 1, 1, guardtofollow.getPositionVec());
 	   }
 	   
-	   
 	   public boolean shouldContinueExecuting() {
 		      return !this.taskOwner.getNavigator().noPath() && !this.taskOwner.isBeingRidden();
 	   }

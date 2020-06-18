@@ -1,6 +1,7 @@
 package tallestegg.guardvillagers.entities.goals;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.ICrossbowUser;
@@ -54,6 +55,18 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	         this.entity.resetActiveHand();
 	         ((ICrossbowUser)this.entity).setCharging(false);
 	      }
+	   }
+	   
+	   //maybe?
+	   public boolean checkFriendlyFire()
+	   {
+		      List<GuardEntity> list = this.entity.world.getEntitiesWithinAABB(GuardEntity.class, this.entity.getBoundingBox().grow(10.0D));
+		         for(GuardEntity guard : list) {
+		        	 if (entity.canEntityBeSeen(guard) && entity != guard && !guard.isInvisible()) {
+		        	    return true;
+		        	 }
+		         }
+		          return false;
 	   }
 
 	   public void tick() {
@@ -124,7 +137,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		            if (this.field_220753_f == 0) {
 		               this.field_220749_b = RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK;
 		            }
-		         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK && flag) {
+		         } else if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.READY_TO_ATTACK && flag && !checkFriendlyFire()) {
 		            ((IRangedAttackMob)this.entity).attackEntityWithRangedAttack(livingentity, 1.0F);
 		            ItemStack itemstack1 = this.entity.getHeldItem(ProjectileHelper.getHandWith(this.entity, Items.CROSSBOW));
 		            CrossbowItem.setCharged(itemstack1, false);

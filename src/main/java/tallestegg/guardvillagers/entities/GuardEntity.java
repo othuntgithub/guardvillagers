@@ -34,7 +34,6 @@ import net.minecraft.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.entity.ai.goal.RandomWalkingGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
@@ -60,7 +59,6 @@ import net.minecraft.item.Items;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.ShootableItem;
 import net.minecraft.item.UseAction;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -83,7 +81,6 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
-import net.minecraftforge.fml.ModList;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
@@ -182,13 +179,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	@Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) 
 	{
-		SoundEvent sound = this.getStuff();
-		return sound;
-	}
-	
-	//big brain hacks
-	public SoundEvent getStuff()
-	{
 		if (this.getHeldItemOffhand().getUseAction() == UseAction.BLOCK && this.isAggressive())
 		{
 			return SoundEvents.ITEM_SHIELD_BLOCK;
@@ -215,7 +205,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public void onDeath(DamageSource cause) {
 		super.onDeath(cause);
 		if (cause.getTrueSource() instanceof ZombieEntity) {
-		    if ((this.world.getDifficulty() == Difficulty.NORMAL || this.world.getDifficulty() == Difficulty.HARD)) {
+		    if (this.world.getDifficulty() == Difficulty.NORMAL || this.world.getDifficulty() == Difficulty.HARD) {
 		        if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
 		           return;
 		     }
@@ -405,9 +395,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtTargetGoal(this));
-	      if (ModList.get().isLoaded("quark")) {
+	      //removed this because it was worthless to add this in because there would be no reason for the player to make the guards
+	      //follow them if they can just use emerald block without getting hotv.
+	      /*if (ModList.get().isLoaded("quark")) {
 		    this.goalSelector.addGoal(2, new TemptGoal(this, 0.6, Ingredient.fromItems(Items.EMERALD_BLOCK), false));
-	      }
+	      }*/ 
 	      if (GuardConfig.GuardSurrender) {
 		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 					@Override
