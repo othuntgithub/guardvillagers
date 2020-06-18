@@ -56,6 +56,14 @@ public class HandlerEvents
 		      }
 		     }
 		   }
+		  
+		  if(event.getEntity() instanceof GuardEntity) 
+		   {
+			  GuardEntity guard = (GuardEntity)event.getEntity();
+			  //this is probably bad
+			  guard.setCanPickUpLoot(true);
+			  //this will be removed in the next update
+		   }
 		   
 		   if(event.getEntity() instanceof AbstractVillagerEntity) 
 		   {
