@@ -141,7 +141,7 @@ public class GuardConfig
 			FriendlyFire = builder
 					.comment("This will make guards attempt to avoid friendly fire.")
 					.translation(GuardVillagers.MODID + ".config.FriendlyFire")
-					.define("Have guards avoid friendly fire?", true);
+					.define("Have guards avoid friendly fire? This is experimental.", false);
 		}
 	}
 }
