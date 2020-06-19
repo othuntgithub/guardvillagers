@@ -624,7 +624,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   protected boolean processInteract(PlayerEntity player, Hand hand)
 		{
 		  ItemStack heldStack = player.getHeldItem(hand);
-		   if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching() && !heldStack.isEmpty())
+		   if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching())
 		   {
 			 if (this.getAttackTarget() != player && !this.world.isRemote) {
 			  this.entityDropItem(this.getHeldItemMainhand());
@@ -655,12 +655,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			     heldStack.shrink(1);
 			     return true;
 			   }
-			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && heldStack.isEmpty()) {
+			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
 				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);;
 			     this.following = !this.following; 
 			     return true;
 			   }
-			   return super.processInteract(player, hand);
+			   return true;
 		}
 	   
 	   protected void playHealEffect(boolean play) {

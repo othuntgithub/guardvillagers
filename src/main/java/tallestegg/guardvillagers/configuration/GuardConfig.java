@@ -45,7 +45,6 @@ public class GuardConfig
 		GuardHealthRegen = COMMON.GuardHealthRegen.get();
 		VillagersRunFromPolarBears = COMMON.VillagersRunFromPolarBears.get();
 		IllagersRunFromPolarBears = COMMON.IllagersRunFromPolarBears.get();
-		IllagersOpenDoors = COMMON.IllagersOpenDoors.get();
 		GuardsOpenDoors = COMMON.GuardsOpenDoors.get();
 		GuardAlwaysShield = COMMON.GuardRaiseShield.get();
 		GuardFormation = COMMON.GuardFormation.get();
@@ -72,7 +71,6 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue VillagersRunFromPolarBears;
 		public final ForgeConfigSpec.BooleanValue IllagersRunFromPolarBears;
 		public final ForgeConfigSpec.BooleanValue GuardsRunFromPolarBears;
-		public final ForgeConfigSpec.BooleanValue IllagersOpenDoors;
 		public final ForgeConfigSpec.BooleanValue GuardsOpenDoors;
 		public final ForgeConfigSpec.BooleanValue GuardRaiseShield;
 		public final ForgeConfigSpec.BooleanValue GuardFormation;
@@ -122,10 +120,6 @@ public class GuardConfig
 					.comment("This makes Guards run from polar bears, as anyone with common sense would.")
 					.translation(GuardVillagers.MODID + ".config.IllagersRunFromPolarBears")
 					.define("Have Guards have some common sense?", false);
-			IllagersOpenDoors = builder
-					.comment("This lets Illagers open doors.")
-					.translation(GuardVillagers.MODID + ".config.IllagersOpenDoors")
-					.define("Have Illagers open doors?", true);
 			GuardsOpenDoors = builder
 					.comment("This lets Guards open doors.")
 					.translation(GuardVillagers.MODID + ".config.GuardsOpenDoors")

@@ -42,10 +42,6 @@ public class HandlerEvents
 		   {
 			 AbstractIllagerEntity illager = (AbstractIllagerEntity)event.getEntity();
 		     illager.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(illager, GuardEntity.class, false));   
-		     if (GuardConfig.IllagersOpenDoors) 
-		     {
-		       ((GroundPathNavigator)illager.getNavigator()).setBreakDoors(true);
-		     }
 		     if (GuardConfig.IllagersRunFromPolarBears) {
 		      illager.goalSelector.addGoal(2, new AvoidEntityGoal<>(illager, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); 
 		     }  //common sense.
@@ -114,13 +110,13 @@ public class HandlerEvents
 	if(event.getEntity() instanceof WitchEntity) 
 	{
 		WitchEntity witch = (WitchEntity)event.getEntity();
-		if (GuardConfig.IllagersOpenDoors) 
-		{
-		   ((GroundPathNavigator)witch.getNavigator()).setBreakDoors(true);
-		}
-		 if (GuardConfig.WitchesVillager)
+		 if (GuardConfig.WitchesVillager) {
 	       witch.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(witch, AbstractVillagerEntity.class, true));   
 		   witch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(witch, GuardEntity.class, false));  
+		 }
+	     if (GuardConfig.IllagersRunFromPolarBears) {
+		      witch.goalSelector.addGoal(2, new AvoidEntityGoal<>(witch, PolarBearEntity.class, 6.0F, 1.0D, 1.2D)); 
+		     }  
 		 
 	    if (GuardConfig.RaidAnimals) 
 	    {
