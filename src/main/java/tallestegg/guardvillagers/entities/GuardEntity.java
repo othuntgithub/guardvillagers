@@ -97,6 +97,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public int kickTicks;
 	public int arrowsFired;
 	public boolean following;
+	public int coolDown;
 	public PlayerEntity hero;
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
     private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 0.9D, true) {
@@ -116,6 +117,20 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		protected double getAttackReachSqr(LivingEntity attackTarget) {
 			return super.getAttackReachSqr(attackTarget) * 3.55D;
 		}		
+		
+		@Override
+		protected void checkAndPerformAttack(LivingEntity enemy, double distToEnemySqr) 
+		{
+		  double d0 = this.getAttackReachSqr(enemy);
+	      if (distToEnemySqr <= d0 && this.attackTick <= 0) 
+	      {
+		         this.attackTick = 20;
+		         this.attacker.swingArm(Hand.MAIN_HAND);
+		         this.attacker.attackEntityAsMob(enemy);
+		         GuardEntity.this.resetActiveHand();
+		         GuardEntity.this.coolDown = 10; //cooldown stuff.
+		  }
+		}
      };
 	 
 	public GuardEntity(EntityType<? extends GuardEntity> type, World world)
@@ -199,6 +214,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.setGuardVariant(compound.getInt("Type"));
 		this.kickTicks = compound.getInt("KickTicks");
 		this.following = compound.getBoolean("Following");
+		this.coolDown = compound.getInt("Cooldown");
 		this.setCombatTask();
 	}
 	
@@ -231,7 +247,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	         zillager.setNoAI(this.isAIDisabled());
 	         zillager.setInvulnerable(this.isInvulnerable());
 			 zombie.world.addEntity(zillager);
-			 this.remove();
+			 this.remove(); //oppa gangnam style
 			 zombie.world.playEvent((PlayerEntity)null, 1026, zombie.getPosition(), 0);
 		    }
 		}
@@ -250,8 +266,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             if (this.kickTicks == 10 && attacker != null) 
             {
         	  this.attackEntityAsMob(attacker);
+        	  this.faceEntity(attacker, 30.0F, 30.0F);
         	  attacker.knockBack(this, 2.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
             }
+        }
+        if (this.coolDown > 0) {
+        	--this.coolDown;
         }
 	     this.updateArmSwingProgress();
 		 this.raiseShield();
@@ -297,16 +317,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		if (p_190777_1_) {
 		  f += 0.75F;
 		}
-
-	    if (this.rand.nextFloat() < f) {
+		this.coolDown = 100;
 		this.resetActiveHand();
 		this.world.setEntityState(this, (byte)30);
-	   }
     }
 	
 	public void raiseShield()
 	{
-		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 4.0D
+		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 4.0D && this.coolDown == 0
 	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && GuardConfig.GuardAlwaysShield
 	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity 
 	     || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D 
@@ -539,6 +557,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		super.writeAdditional(compound);
 		compound.putInt("Type", this.getGuardVariant());
 		compound.putInt("KickTicks", this.kickTicks);
+		compound.putInt("Cooldown", this.coolDown);
 		compound.putBoolean("Following", this.following);
 	}
 	
