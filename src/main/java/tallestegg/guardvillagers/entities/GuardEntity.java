@@ -267,7 +267,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             {
         	  this.attackEntityAsMob(attacker);
         	  this.faceEntity(attacker, 30.0F, 30.0F);
-        	  attacker.knockBack(this, 2.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
+        	  attacker.knockBack(this, 1.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
             }
         }
         if (this.coolDown > 0) {
@@ -317,9 +317,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		if (p_190777_1_) {
 		  f += 0.75F;
 		}
-		this.coolDown = 100;
-		this.resetActiveHand();
-		this.world.setEntityState(this, (byte)30);
+		if (this.rand.nextFloat() < f) {
+		 this.coolDown = 100;
+		 this.resetActiveHand();
+		 this.world.setEntityState(this, (byte)30);
+		}
     }
 	
 	public void raiseShield()
