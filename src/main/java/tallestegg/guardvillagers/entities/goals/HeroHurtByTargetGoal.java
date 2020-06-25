@@ -39,7 +39,7 @@ public class HeroHurtByTargetGoal extends TargetGoal
   @Override
   protected boolean isSuitableTarget(@Nullable LivingEntity potentialTarget, EntityPredicate targetPredicate) 
   {
-	return super.isSuitableTarget(potentialTarget, targetPredicate) && !(potentialTarget instanceof IronGolemEntity) || !(potentialTarget instanceof GuardEntity);
+	return super.isSuitableTarget(potentialTarget, targetPredicate) && !(potentialTarget instanceof IronGolemEntity) && !(potentialTarget instanceof GuardEntity);
   }
 
   public void startExecuting() 
