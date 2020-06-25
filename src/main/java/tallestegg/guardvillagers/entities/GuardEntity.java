@@ -105,6 +105,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         public void resetTask() {
            super.resetTask();
            GuardEntity.this.setAggroed(false);
+           GuardEntity.this.coolDown = 0;
         }
 
         @Override
@@ -194,7 +195,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	@Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) 
 	{
-		if (this.getHeldItemOffhand().getUseAction() == UseAction.BLOCK && this.isAggressive())
+		if (this.getHeldItemOffhand().getUseAction() == UseAction.BLOCK && this.isAggressive() && this.getActiveHand() == Hand.OFF_HAND)
 		{
 			return SoundEvents.ITEM_SHIELD_BLOCK;
 		} else {
@@ -248,7 +249,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	         zillager.setInvulnerable(this.isInvulnerable());
 			 zombie.world.addEntity(zillager);
 			 this.remove(); //oppa gangnam style
-			 zombie.world.playEvent((PlayerEntity)null, 1026, zombie.getPosition(), 0);
+			 zombie.world.playEvent((PlayerEntity)null,  1026, zombie.getPosition(), 0);
 		    }
 		}
 	}
@@ -270,6 +271,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         	  attacker.knockBack(this, 1.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
             }
         }
+        
         if (this.coolDown > 0) {
         	--this.coolDown;
         }
@@ -405,6 +407,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.dataManager.set(GUARD_VARIANT, typeId);
 	}
 	
+	//TODO reorganize this stuff
 	@Override
 	protected void registerGoals() 
 	{
@@ -413,7 +416,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
-	      this.goalSelector.addGoal(2, new HeroHurtTargetGoal(this));
+	      this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
 	      //removed this because it was worthless to add this in because there would be no reason for the player to make the guards
 	      //follow them if they can just use emerald block without getting hotv.
 	      /*if (ModList.get().isLoaded("quark")) {

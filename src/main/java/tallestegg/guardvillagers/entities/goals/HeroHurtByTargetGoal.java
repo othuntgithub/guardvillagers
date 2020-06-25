@@ -2,10 +2,13 @@ package tallestegg.guardvillagers.entities.goals;
 
 import java.util.EnumSet;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.TargetGoal;
+import net.minecraft.entity.passive.IronGolemEntity;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class HeroHurtByTargetGoal extends TargetGoal 
@@ -29,8 +32,14 @@ public class HeroHurtByTargetGoal extends TargetGoal
   		 } else {
   		 this.attacker = livingentity.getRevengeTarget();
   		 int i = livingentity.getRevengeTimer();
-  		 return i != this.timestamp && this.isSuitableTarget(this.attacker, EntityPredicate.DEFAULT) && !(attacker instanceof GuardEntity);
+  		 return i != this.timestamp && this.isSuitableTarget(this.attacker, EntityPredicate.DEFAULT);
   		}
+  }
+  
+  @Override
+  protected boolean isSuitableTarget(@Nullable LivingEntity potentialTarget, EntityPredicate targetPredicate) 
+  {
+	return super.isSuitableTarget(potentialTarget, targetPredicate) && !(potentialTarget instanceof IronGolemEntity) || !(potentialTarget instanceof GuardEntity);
   }
 
   public void startExecuting() 

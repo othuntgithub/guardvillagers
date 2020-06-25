@@ -7,6 +7,7 @@ import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.CrossbowItem;
@@ -52,6 +53,10 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	      this.entity.setAttackTarget((LivingEntity)null);
 	      ((GuardEntity)this.entity).setKicking(false); 
 	      this.field_220752_e = 0;
+	      if (this.entity.getPose() == Pose.CROUCHING) 
+	      {
+	    	  this.entity.setPose(Pose.STANDING);
+	      }
 	      if (this.entity.isHandActive()) {
 	         this.entity.resetActiveHand();
 	         ((ICrossbowUser)this.entity).setCharging(false);
@@ -86,6 +91,11 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		            --this.field_220752_e;
 		         }
 		         
+			      if (this.entity.getPose() == Pose.STANDING && this.entity.world.rand.nextInt(4) == 0 && entity.ticksExisted % 50 == 0) 
+			      {
+			    	  this.entity.setPose(Pose.CROUCHING);
+			      }
+		         
 		         double d1 = livingentity.getDistance(entity);	         
 		         //makes the entity that has this goal backup if the attack target is 10 blocks infront of them.
 		         if (d1 <= 5.0D) 
@@ -104,7 +114,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		         {
 		        	 ((GuardEntity)this.entity).setKicking(false); 	 
 		         }
-
+		         
 		         double d0 = this.entity.getDistanceSq(livingentity);
 		         boolean flag2 = (d0 > (double)this.field_220751_d || this.field_220752_e < 5) && this.field_220753_f == 0;
 		         if (flag2) {
@@ -112,6 +122,7 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		         } else {
 		            this.entity.getNavigator().clearPath();
 		         }
+		         this.entity.faceEntity(livingentity, 30.0F, 30.0F);
 		         this.entity.getLookController().setLookPositionWithEntity(livingentity, 30.0F, 30.0F);
 		         if (this.field_220749_b == RangedCrossbowAttackPassiveGoal.CrossbowState.UNCHARGED) {
 		          if (flag) {

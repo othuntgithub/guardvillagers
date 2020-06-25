@@ -42,6 +42,7 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
            guardmodel.setVisible(true);
            BipedModel.ArmPose bipedmodel$armpose = this.getArmPose(entityIn, itemstack, itemstack1, Hand.MAIN_HAND);
            BipedModel.ArmPose bipedmodel$armpose1 = this.getArmPose(entityIn, itemstack, itemstack1, Hand.OFF_HAND);
+           guardmodel.isSneak = entityIn.isCrouching();
            if (entityIn.getPrimaryHand() == HandSide.RIGHT) {
               guardmodel.rightArmPose = bipedmodel$armpose;
               guardmodel.leftArmPose = bipedmodel$armpose1;
