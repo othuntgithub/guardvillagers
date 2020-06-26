@@ -8,9 +8,8 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
-import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -30,8 +29,8 @@ import net.minecraft.world.gen.feature.template.Template;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
-public final class GuardSpawner extends JigsawPatternRegistry {
-    private static final IStructureProcessorType PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, new ResourceLocation(GuardVillagers.MODID, "golem"), Processor::new);
+/*public final class GuardSpawner extends JigsawPatternRegistry {
+    private static final Registry PROCESSOR = Registry.register(Registry.POINT_OF_INTEREST_TYPE, new ResourceLocation(GuardVillagers.MODID, "golem"));
 
     private final JigsawPatternRegistry registry;
 
@@ -49,7 +48,7 @@ public final class GuardSpawner extends JigsawPatternRegistry {
     private JigsawPattern map(final JigsawPattern pattern) {
         if (pattern.getName().equals(new ResourceLocation("village/common/iron_golem"))) {
             final List<JigsawPiece> jigsawPieces = ObfuscationReflectionHelper.getPrivateValue(JigsawPattern.class, pattern, "field_214953_e");
-            jigsawPieces.set(0, new SingleJigsawPiece("guardvillagers:village/common/iron_golem", ImmutableList.of(new Processor()), JigsawPattern.PlacementBehaviour.RIGID));
+            jigsawPieces.set(0, new SingleJigsawPiece("guardvillagers:village/common/iron_golem"));
         }
         return pattern;
     }
@@ -98,9 +97,8 @@ public final class GuardSpawner extends JigsawPatternRegistry {
             return GuardSpawner.PROCESSOR;
         }
 
-        @Override
         protected <T> Dynamic<T> serialize0(final DynamicOps<T> ops) {
             return new Dynamic<>(ops, ops.emptyMap());
         }
     }
-}
+}*/

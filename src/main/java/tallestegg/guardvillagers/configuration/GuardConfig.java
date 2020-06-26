@@ -18,8 +18,7 @@ public class GuardConfig
 		COMMON_SPEC = specPair.getRight();
 		COMMON = specPair.getLeft();
 	}
-	
-	public static boolean GuardModel;
+
 	public static boolean RaidAnimals;
 	public static boolean WitchesVillager;
 	public static boolean IllusionerRaids;
@@ -36,7 +35,6 @@ public class GuardConfig
 	public static boolean FriendlyFire;
 	
 	public static void bakeConfig() {
-		GuardModel = COMMON.GuardModel.get();
 		RaidAnimals = COMMON.RaidAnimals.get();
 		WitchesVillager = COMMON.WitchesVillager.get();
 		IllusionerRaids = COMMON.IllusionerRaids.get();
@@ -61,7 +59,6 @@ public class GuardConfig
 	public static class CommonConfig 
 	{
 
-		public final ForgeConfigSpec.BooleanValue GuardModel;
 		public final ForgeConfigSpec.BooleanValue RaidAnimals;
 		public final ForgeConfigSpec.BooleanValue WitchesVillager;
 		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
@@ -77,12 +74,7 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue FriendlyFire;
 
 		public CommonConfig(ForgeConfigSpec.Builder builder) 
-		{
-			GuardModel = builder
-					.comment("Switch Guard Model To Vanilla Style?, (textures not completed yet)")
-					.translation(GuardVillagers.MODID + ".config.GuardModel")
-					.define("Vanilla Styled Model?", false);
-			
+		{	
 			RaidAnimals = builder
 					.comment("Illagers In Raids Attack Animals?")
 					.translation(GuardVillagers.MODID + ".config.RaidAnimals")

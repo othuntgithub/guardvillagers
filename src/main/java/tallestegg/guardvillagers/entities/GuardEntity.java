@@ -6,21 +6,18 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.Quaternion;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.HurtByTargetGoal;
@@ -28,10 +25,11 @@ import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.MoveThroughVillageGoal;
-import net.minecraft.entity.ai.goal.MoveTowardsVillageGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.OpenDoorGoal;
+import net.minecraft.entity.ai.goal.PatrolVillageGoal;
 import net.minecraft.entity.ai.goal.RandomWalkingGoal;
+import net.minecraft.entity.ai.goal.ReturnToVillageGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.item.ItemEntity;
@@ -48,6 +46,7 @@ import net.minecraft.entity.monster.ZombieVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
@@ -67,6 +66,7 @@ import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.potion.Effects;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
@@ -74,7 +74,6 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
@@ -123,9 +122,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		protected void checkAndPerformAttack(LivingEntity enemy, double distToEnemySqr) 
 		{
 		  double d0 = this.getAttackReachSqr(enemy);
-	      if (distToEnemySqr <= d0 && this.attackTick <= 0) 
+	      if (distToEnemySqr <= d0 && this.field_234037_i_ <= 0) 
 	      {
-		         this.attackTick = 20;
+		         this.field_234037_i_ = 20;
 		         this.attacker.swingArm(Hand.MAIN_HAND);
 		         this.attacker.attackEntityAsMob(enemy);
 		         GuardEntity.this.resetActiveHand();
@@ -150,7 +149,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) 
 	{
 	  this.enablePersistence();
-	  int type = GuardEntity.getRandomTypeForBiome(world, this.getPosition());
+	  int type = GuardEntity.getRandomTypeForBiome(world, this.func_233580_cy_());
 	  if (spawnDataIn instanceof GuardEntity.GuardData) 
 	  {
         type = ((GuardEntity.GuardData)spawnDataIn).variantData;
@@ -228,7 +227,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		     }
 			 ZombieEntity zombie = (ZombieEntity)cause.getTrueSource();
 			 ZombieVillagerEntity zillager = EntityType.ZOMBIE_VILLAGER.create(world);
-			 zillager.onInitialSpawn(world, this.world.getDifficultyForLocation(getPosition()), SpawnReason.CONVERSION, (ILivingEntityData)null, (CompoundNBT)null);
+			 zillager.onInitialSpawn(world, this.world.getDifficultyForLocation(func_233580_cy_()), SpawnReason.CONVERSION, (ILivingEntityData)null, (CompoundNBT)null);
 			 zillager.copyLocationAndAnglesFrom(this);
 	         if (this.hasCustomName()) {
 	           zillager.setCustomName(zillager.getCustomName());
@@ -249,7 +248,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	         zillager.setInvulnerable(this.isInvulnerable());
 			 zombie.world.addEntity(zillager);
 			 this.remove(); //oppa gangnam style
-			 zombie.world.playEvent((PlayerEntity)null,  1026, zombie.getPosition(), 0);
+			 zombie.world.playEvent((PlayerEntity)null,  1026, zombie.func_233580_cy_(), 0);
 		    }
 		}
 	}
@@ -268,7 +267,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             {
         	  this.attackEntityAsMob(attacker);
         	  this.faceEntity(attacker, 30.0F, 30.0F);
-        	  attacker.knockBack(this, 1.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
+        	  attacker.func_233627_a_(1.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
             }
         }
         
@@ -335,12 +334,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	     && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem))
 	    {
 	    	this.setActiveHand(Hand.OFF_HAND);
-		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
+		    this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.3F);
 	    }
 		if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive() && !GuardConfig.GuardAlwaysShield)
 		{
 			this.resetActiveHand();
-		    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
+		    this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
 		}
 	}
 	
@@ -412,7 +411,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	protected void registerGoals() 
 	{
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
-		  this.goalSelector.addGoal(1, new MoveTowardsVillageGoal(this, 0.6D));
+		  this.goalSelector.addGoal(1, new ReturnToVillageGoal(this, 0.6D, false));
+		  this.goalSelector.addGoal(1, new PatrolVillageGoal(this, 0.6D));
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
@@ -488,13 +488,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	@Override
 	public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) 
 	{
-		 Hand hand = ProjectileHelper.getHandWith(this, Items.CROSSBOW);
-	      ItemStack itemstack = this.getHeldItem(hand);
-	      if (this.isHolding(Items.CROSSBOW)) {
-	         CrossbowItem.fireProjectiles(this.world, this, hand, itemstack, 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
-	      }
-	      ++this.arrowsFired;
-	      this.idleTime = 0;
+		this.func_234281_b_(this, 6.0F);
 	}
 
 	
@@ -507,39 +501,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.setCombatTask();
 	  }
     }
-   
-   
-	@Override
-	public void shoot(LivingEntity target, ItemStack p_213670_2_, IProjectile projectile, float projectileAngle) 
-	{
-	      Entity entity = (Entity)projectile;
-	      double d0 = target.getPosX() - this.getPosX();
-	      double d1 = target.getPosZ() - this.getPosZ();
-	      double d2 = (double)MathHelper.sqrt(d0 * d0 + d1 * d1);
-	      double d3 = target.getPosYHeight(0.3333333333333333D) - entity.getPosY() + d2 * (double)0.2F;
-	      Vector3f vector3f = this.aim(new Vec3d(d0, d3, d1), projectileAngle);
-	      projectile.shoot((double)vector3f.getX(), (double)vector3f.getY(), (double)vector3f.getZ(), 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
-	      this.playSound(SoundEvents.ITEM_CROSSBOW_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
-    }
-	
-	private Vector3f aim(Vec3d p_213673_1_, float p_213673_2_) 
-	{
-	      Vec3d vec3d = p_213673_1_.normalize();
-	      Vec3d vec3d1 = vec3d.crossProduct(new Vec3d(0.0D, 1.0D, 0.0D));
-	      if (vec3d1.lengthSquared() <= 1.0E-7D) {
-	         vec3d1 = vec3d.crossProduct(this.getUpVector(1.0F));
-	      }
-
-	      Quaternion quaternion = new Quaternion(new Vector3f(vec3d1), 90.0F, true);
-	      Vector3f vector3f = new Vector3f(vec3d);
-	      vector3f.transform(quaternion);
-	      Quaternion quaternion1 = new Quaternion(vector3f, p_213673_2_, true);
-	      Vector3f vector3f1 = new Vector3f(vec3d);
-	      vector3f1.transform(quaternion1);
-	      return vector3f1;
-	}
-	
-	
 	
 	 @Override
 	 public ItemStack findAmmo(ItemStack shootable) 
@@ -635,6 +596,18 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   }
 	   
 	   @Override
+	   public void func_230283_U__() {
+	   	// TODO Auto-generated method stub
+	   	
+	   }
+
+	   @Override
+	   public void func_230284_a_(LivingEntity arg0, ItemStack arg1, ProjectileEntity arg2, float arg3) 
+	   {
+		   this.func_234279_a_(this, arg0, arg2, arg3, 1.6F);
+	   }
+	   
+	   @Override
 	   protected void constructKnockBackVector(LivingEntity entityIn) 
 	   {  
 		      if (this.isKicking())
@@ -645,7 +618,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	    }
 	   
 	   @Override
-	   protected boolean processInteract(PlayerEntity player, Hand hand)
+	   protected ActionResultType func_230254_b_(PlayerEntity player, Hand hand)
 		{
 		  ItemStack heldStack = player.getHeldItem(hand);
 		   if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching())
@@ -655,7 +628,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			  this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 			  if (!player.abilities.isCreativeMode)
 			  heldStack.shrink(1);
-			  return true;
+			  return ActionResultType.PASS;
 			 }
 		   }
 			   
@@ -667,7 +640,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			     this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
 			     if (!player.abilities.isCreativeMode)
 			     heldStack.shrink(1);
-			     return true;
+			     return ActionResultType.PASS;
 			   }
 			  }
 			  
@@ -677,14 +650,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			     this.playHealEffect(true);
 			     if (!player.abilities.isCreativeMode)
 			     heldStack.shrink(1);
-			     return true;
+			     return ActionResultType.PASS;
 			   }
 			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
 				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);;
 			     this.following = !this.following; 
-			     return true;
+			     return ActionResultType.PASS;
 			   }
-			   return true;
+			   return ActionResultType.PASS;
 		}
 	   
 	   protected void playHealEffect(boolean play) {
@@ -721,7 +694,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	}
 	
 	
-	protected void registerAttributes() 
+	/*protected void registerAttributes() 
 	{
 	      super.registerAttributes();
 	      this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(25.0D);
@@ -729,7 +702,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
 	      this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
 	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
-	}
+	}*/
+	
+    public static AttributeModifierMap.MutableAttribute func_234200_m_() 
+    {
+     return MobEntity.func_233666_p_().func_233815_a_(Attributes.field_233818_a_, 100.0D).func_233815_a_(Attributes.field_233821_d_, 0.25D).func_233815_a_(Attributes.field_233820_c_, 1.0D).func_233815_a_(Attributes.field_233823_f_, 15.0D);
+    }
 	
 	public static class GuardData implements ILivingEntityData 
 	{

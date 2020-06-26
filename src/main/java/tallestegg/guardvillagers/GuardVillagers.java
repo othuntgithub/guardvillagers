@@ -1,11 +1,6 @@
 package tallestegg.guardvillagers;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.SpawnEggItem;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -19,9 +14,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.renderer.GuardRenderer;
-import tallestegg.guardvillagers.renderer.GuardRenderer2;
 
-@Mod("guardvillagers")
+@Mod(GuardVillagers.MODID)
 public class GuardVillagers
 {  
 	public static final String MODID = "guardvillagers";
@@ -38,7 +32,8 @@ public class GuardVillagers
         MinecraftForge.EVENT_BUS.register(new HandlerEvents());
         MinecraftForge.EVENT_BUS.register(new GuardEntityType());
 		MinecraftForge.EVENT_BUS.register(new VillagerToGuard());
-		GuardSpawner.inject();
+		//GuardEntityType.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+		//GuardSpawner.inject();
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -48,13 +43,7 @@ public class GuardVillagers
 
     private void doClientStuff(final FMLClientSetupEvent event) 
     {
-    	if (!GuardConfig.GuardModel) 
-    	{
-    	  RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer::new);
-    	} else 
-    	{
-          RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD, GuardRenderer2::new);
-    	}
+      RenderingRegistry.registerEntityRenderingHandler(GuardEntityType.GUARD.get(), GuardRenderer::new);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -71,23 +60,7 @@ public class GuardVillagers
     {
         
     }
-    
-    @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents 
-    {
-    	@SubscribeEvent
-        public static void registerSpawnEggs(final RegistryEvent.Register<Item> event) 
-    	{
-    		 event.getRegistry().registerAll
-    		 (
-    		    new SpawnEggItem(GuardEntityType.GUARD, 5651507, 9804699, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "guard_spawn_egg"),
-    	    	new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg"),
-    	    	new SpawnEggItem(EntityType.IRON_GOLEM, 12960449, 16769484, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "iron_golem_spawn_egg"),
-    	        new SpawnEggItem(EntityType.SNOW_GOLEM, 15663103, 16753185, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "snow_golem_spawn_egg")   		
-    		 );
-    	 } 
-    	}
-    }
+}
 
 
 

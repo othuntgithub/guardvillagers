@@ -3,7 +3,6 @@ package tallestegg.guardvillagers.entities.goals;
 import java.util.EnumSet;
 import java.util.List;
 
-import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
@@ -21,7 +20,7 @@ import net.minecraft.potion.Potions;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 @SuppressWarnings("unused")
@@ -116,7 +115,7 @@ public class HealGuardAndPlayerGoal extends Goal {
    
    public void throwPotion(LivingEntity target, float distanceFactor) 
    {
-		 Vec3d vec3d = target.getMotion();
+		 Vector3d vec3d = target.getMotion();
 		 double d0 = target.getPosX() + vec3d.x - healer.getPosX();
 		 double d1 = target.getPosYEye() - (double)1.1F - healer.getPosY();
 		 double d2 = target.getPosZ() + vec3d.z - healer.getPosZ();

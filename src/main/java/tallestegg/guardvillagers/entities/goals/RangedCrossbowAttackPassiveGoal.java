@@ -32,15 +32,15 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 	   }
 
 	   public boolean shouldExecute() {
-	      return this.func_220746_h() && this.func_220745_g();
+	      return this.func_220746_h() && this.isHoldingCrossbow();
 	   }
 
-	   private boolean func_220745_g() {
-	      return this.entity.isHolding(Items.CROSSBOW);
+	   private boolean isHoldingCrossbow() {
+	      return this.entity.getHeldItemMainhand().getItem() instanceof CrossbowItem;
 	   }
 
 	   public boolean shouldContinueExecuting() {
-	      return this.func_220746_h() && (this.shouldExecute() || !this.entity.getNavigator().noPath()) && this.func_220745_g();
+	      return this.func_220746_h() && (this.shouldExecute() || !this.entity.getNavigator().noPath()) && this.isHoldingCrossbow();
 	   }
 
 	   private boolean func_220746_h() {

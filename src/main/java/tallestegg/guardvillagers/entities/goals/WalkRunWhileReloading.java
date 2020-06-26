@@ -3,7 +3,7 @@ package tallestegg.guardvillagers.entities.goals;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.RandomWalkingGoal;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class WalkRunWhileReloading extends RandomWalkingGoal
@@ -19,7 +19,7 @@ public class WalkRunWhileReloading extends RandomWalkingGoal
 	}
 	
 	@Override
-	protected Vec3d getPosition() 
+	protected Vector3d getPosition() 
 	{
 	   return RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.creature, 16, 7, this.creature.getAttackTarget().getPositionVec());
 	}

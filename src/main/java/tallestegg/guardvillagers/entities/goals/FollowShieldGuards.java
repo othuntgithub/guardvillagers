@@ -8,7 +8,7 @@ import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.item.ShieldItem;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class FollowShieldGuards extends Goal
@@ -29,7 +29,7 @@ public class FollowShieldGuards extends Goal
 			         for(GuardEntity guard : list) {
 			            if (!guard.isInvisible() && guard.getHeldItemOffhand().getItem() instanceof ShieldItem && this.taskOwner.world.getTargettableEntitiesWithinAABB(GuardEntity.class, (new EntityPredicate()).setDistance(3.0D), guard, this.taskOwner.getBoundingBox().grow(5.0D)).size() < 5) {
 			               this.guardtofollow = guard;
-			               Vec3d vec3d = this.getPosition();
+			               Vector3d vec3d = this.getPosition();
 			               if (vec3d == null) {
 			                  return false;
 			               } else {
@@ -45,7 +45,7 @@ public class FollowShieldGuards extends Goal
 	   }
 	   
 	   @Nullable
-	   protected Vec3d getPosition() {
+	   protected Vector3d getPosition() {
 	      return RandomPositionGenerator.findRandomTargetBlockTowards(taskOwner, 1, 1, guardtofollow.getPositionVec());
 	   }
 	   

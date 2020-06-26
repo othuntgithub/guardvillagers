@@ -40,11 +40,11 @@ public class VillagerToGuard
 	private void VillagerConvert(LivingEntity entity, PlayerEntity player) 
 	{
 		  ItemStack itemstack = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
-		  GuardEntity guard = GuardEntityType.GUARD.create(entity.world);
+		  GuardEntity guard = GuardEntityType.GUARD.get().create(entity.world);
 		  VillagerEntity villager = (VillagerEntity)entity;
 		  guard.copyLocationAndAnglesFrom(villager);
 		  guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
-		  int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.getPosition());
+		  int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.func_233580_cy_());
 		  guard.setGuardVariant(i);
 		  guard.enablePersistence();
 		  if (villager.hasCustomName()) 
