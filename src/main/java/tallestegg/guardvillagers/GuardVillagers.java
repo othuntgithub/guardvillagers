@@ -1,6 +1,13 @@
 package tallestegg.guardvillagers;
 
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -13,6 +20,7 @@ import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tallestegg.guardvillagers.configuration.GuardConfig;
+import tallestegg.guardvillagers.entities.GuardEntity;
 import tallestegg.guardvillagers.renderer.GuardRenderer;
 
 @Mod(GuardVillagers.MODID)
@@ -37,7 +45,7 @@ public class GuardVillagers
 
     private void setup(final FMLCommonSetupEvent event)
     {
-    	
+ 
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) 
@@ -47,7 +55,7 @@ public class GuardVillagers
 
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
-     
+    	
     }
 
     private void processIMC(final InterModProcessEvent event)
@@ -58,6 +66,26 @@ public class GuardVillagers
     public void onServerStarting(FMLServerStartingEvent event)
     {
         
+    }
+    @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
+    public static class RegistryEvents 
+    {
+    	@SubscribeEvent
+        public static void registerSpawnEggs(final RegistryEvent.Register<Item> event) 
+    	{
+    		 event.getRegistry().registerAll
+    		 (
+    	    	new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg"),
+    	    	new SpawnEggItem(EntityType.IRON_GOLEM, 12960449, 16769484, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "iron_golem_spawn_egg"),
+    	        new SpawnEggItem(EntityType.SNOW_GOLEM, 15663103, 16753185, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "snow_golem_spawn_egg")   		
+    		 );
+    	 }
+    	
+    	@SubscribeEvent(priority = EventPriority.LOWEST)
+        public static void imstuff(final RegistryEvent.Register<EntityType<?>> event) 
+    	{
+    		GlobalEntityTypeAttributes.put(GuardEntityType.GUARD.get(), GuardEntity.func_234200_m_().func_233813_a_());
+    	}
     }
 }
 
