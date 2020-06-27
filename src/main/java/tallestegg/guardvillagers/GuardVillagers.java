@@ -40,7 +40,7 @@ public class GuardVillagers
         MinecraftForge.EVENT_BUS.register(new HandlerEvents());
 		MinecraftForge.EVENT_BUS.register(new VillagerToGuard());
 		GuardEntityType.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-		//GuardSpawner.inject();
+		GuardSpawner.inject();
     }
 
     private void setup(final FMLCommonSetupEvent event)

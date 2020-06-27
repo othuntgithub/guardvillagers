@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 
@@ -29,9 +30,11 @@ import net.minecraft.world.gen.feature.template.Template;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
-/*public final class GuardSpawner extends JigsawPatternRegistry {
-    private static final Registry PROCESSOR = Registry.register(Registry.POINT_OF_INTEREST_TYPE, new ResourceLocation(GuardVillagers.MODID, "golem"));
-
+public final class GuardSpawner extends JigsawPatternRegistry {
+	private static final IStructureProcessorType<Processor> PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, "guardvillagers:guard", () -> {
+        return Processor.codec;
+     });
+			
     private final JigsawPatternRegistry registry;
 
     private GuardSpawner(final JigsawPatternRegistry registry) {
@@ -75,9 +78,13 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 	
     private static final class Processor extends StructureProcessor 
     {
+    	
+    	public static Codec<Processor> codec;
+    	public static final Processor INSTANCE = new Processor();
+    	
         public Processor() 
         {
-
+        	
         }
 
         public Processor(final Dynamic<?> dynamic) 
@@ -91,14 +98,17 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 	        nbt.putInt("Type", GuardEntity.getRandomTypeForBiome((IWorld) world, pos));
             return new Template.EntityInfo(info.pos, info.blockPos, nbt);
         }
+        
+        public static void returnInstance()
+        {
+            codec = Codec.unit(() -> {
+               return INSTANCE;
+            });
+         }
 
         @Override
         protected IStructureProcessorType getType() {
             return GuardSpawner.PROCESSOR;
         }
-
-        protected <T> Dynamic<T> serialize0(final DynamicOps<T> ops) {
-            return new Dynamic<>(ops, ops.emptyMap());
-        }
     }
-}*/
+}
