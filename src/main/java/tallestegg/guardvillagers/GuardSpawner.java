@@ -31,8 +31,8 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public final class GuardSpawner extends JigsawPatternRegistry {
-	private static final IStructureProcessorType<Processor> PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, "guardvillagers:guard", () -> {
-        return Processor.codec;
+	private static final IStructureProcessorType<Processor> PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, "guardvillagers:golem", () -> {
+        return Processor.CODEC;
      });
 			
     private final JigsawPatternRegistry registry;
@@ -48,7 +48,8 @@ public final class GuardSpawner extends JigsawPatternRegistry {
         }
     }
 
-    private JigsawPattern map(final JigsawPattern pattern) {
+    @SuppressWarnings("deprecation")
+	private JigsawPattern map(final JigsawPattern pattern) {
         if (pattern.getName().equals(new ResourceLocation("village/common/iron_golem"))) {
             final List<JigsawPiece> jigsawPieces = ObfuscationReflectionHelper.getPrivateValue(JigsawPattern.class, pattern, "field_214953_e");
             jigsawPieces.set(0, new SingleJigsawPiece("guardvillagers:village/common/iron_golem"));
@@ -79,7 +80,7 @@ public final class GuardSpawner extends JigsawPatternRegistry {
     private static final class Processor extends StructureProcessor 
     {
     	
-    	public static Codec<Processor> codec;
+    	public static Codec<Processor> CODEC;
     	public static final Processor INSTANCE = new Processor();
     	
         public Processor() 
@@ -101,7 +102,7 @@ public final class GuardSpawner extends JigsawPatternRegistry {
         
         public static void returnInstance()
         {
-            codec = Codec.unit(() -> {
+            CODEC = Codec.unit(() -> {
                return INSTANCE;
             });
          }

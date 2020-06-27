@@ -413,10 +413,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 		  this.goalSelector.addGoal(1, new ReturnToVillageGoal(this, 0.6D, false));
 		  this.goalSelector.addGoal(1, new PatrolVillageGoal(this, 0.6D));
+	      this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
-	      this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
 	      //removed this because it was worthless to add this in because there would be no reason for the player to make the guards
 	      //follow them if they can just use emerald block without getting hotv.
 	      /*if (ModList.get().isLoaded("quark")) {
@@ -451,7 +451,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		     this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //phalanx  
 	      }
 	      if (GuardConfig.GuardsOpenDoors) {
-		         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
+		     this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
 		  }
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
@@ -704,9 +704,20 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
 	}*/
 	
+
+   // field_233820_c_ = movement speed
+   // field_233818_a_ = health
+   // field_233823_f_ = attack damage
+   // field_233819_b_ = follow range
+   // field_233826_i_ = armor
+	
    public static AttributeModifierMap.MutableAttribute func_234200_m_() 
    {
-	 return MobEntity.func_233666_p_().func_233815_a_(Attributes.field_233818_a_, 20.0D).func_233815_a_(Attributes.field_233821_d_, 0.5D).func_233815_a_(Attributes.field_233820_c_, 1.0D).func_233815_a_(Attributes.field_233823_f_, 15.0D);
+	 return MobEntity.func_233666_p_().
+			 func_233815_a_(Attributes.field_233818_a_, 20.0D).
+			 func_233815_a_(Attributes.field_233820_c_, 0.5D).
+			 func_233815_a_(Attributes.field_233823_f_, 1.0D).
+			 func_233815_a_(Attributes.field_233819_b_, 25.0D);
    }
 	
 	public static class GuardData implements ILivingEntityData 
