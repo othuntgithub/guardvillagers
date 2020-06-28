@@ -628,7 +628,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			  this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
 			  if (!player.abilities.isCreativeMode)
 			  heldStack.shrink(1);
-			  return ActionResultType.PASS;
+			  return ActionResultType.SUCCESS;
 			 }
 		   }
 			   
@@ -640,7 +640,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			     this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
 			     if (!player.abilities.isCreativeMode)
 			     heldStack.shrink(1);
-			     return ActionResultType.PASS;
+			     return ActionResultType.SUCCESS;
 			   }
 			  }
 			  
@@ -650,14 +650,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			     this.playHealEffect(true);
 			     if (!player.abilities.isCreativeMode)
 			     heldStack.shrink(1);
-			     return ActionResultType.PASS;
+			     return ActionResultType.SUCCESS;
 			   }
 			   if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
 				  this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);;
 			     this.following = !this.following; 
-			     return ActionResultType.PASS;
+			     return ActionResultType.SUCCESS;
 			   }
-			   return ActionResultType.PASS;
+			   return ActionResultType.SUCCESS;
 		}
 	   
 	   protected void playHealEffect(boolean play) {
