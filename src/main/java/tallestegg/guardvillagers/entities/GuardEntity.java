@@ -22,7 +22,6 @@ import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.MoveThroughVillageGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
@@ -74,12 +73,14 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
+import tallestegg.guardvillagers.GuardItems;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
@@ -406,6 +407,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.dataManager.set(GUARD_VARIANT, typeId);
 	}
 	
+	//Credit : the abnormals people for discovering this
+	public ItemStack getPickedResult(RayTraceResult target) {
+		return new ItemStack(GuardItems.GUARD_SPAWN_EGG.get());
+	}
+	
 	//TODO reorganize this stuff
 	@Override
 	protected void registerGoals() 
@@ -413,6 +419,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 		  this.goalSelector.addGoal(1, new ReturnToVillageGoal(this, 0.6D, false));
 		  this.goalSelector.addGoal(1, new PatrolVillageGoal(this, 0.6D));
+	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
+	          return false;
+	       }));
 	      this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
@@ -455,10 +464,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  }
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
-	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
-	          return false;
-	       }));
-	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
 	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
