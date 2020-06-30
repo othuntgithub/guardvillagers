@@ -10,7 +10,6 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;

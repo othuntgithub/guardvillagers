@@ -710,7 +710,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	}*/
 	
 
-   // field_233820_c_ = movement speed
+   // field_233821_d_ = movement speed
    // field_233818_a_ = health
    // field_233823_f_ = attack damage
    // field_233819_b_ = follow range
@@ -720,7 +720,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    {
 	 return MobEntity.func_233666_p_().
 			 func_233815_a_(Attributes.field_233818_a_, 20.0D).
-			 func_233815_a_(Attributes.field_233820_c_, 0.5D).
+			 func_233815_a_(Attributes.field_233821_d_, 0.5D).
 			 func_233815_a_(Attributes.field_233823_f_, 1.0D).
 			 func_233815_a_(Attributes.field_233819_b_, 25.0D);
    }

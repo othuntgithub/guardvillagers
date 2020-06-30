@@ -21,7 +21,6 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
-import tallestegg.guardvillagers.items.DeferredSpawnEggItem;
 import tallestegg.guardvillagers.renderer.GuardRenderer;
 
 @Mod(GuardVillagers.MODID)
