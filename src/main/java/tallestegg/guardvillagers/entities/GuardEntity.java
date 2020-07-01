@@ -129,7 +129,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		         this.attacker.swingArm(Hand.MAIN_HAND);
 		         this.attacker.attackEntityAsMob(enemy);
 		         GuardEntity.this.resetActiveHand();
-		         GuardEntity.this.coolDown = 10; //cooldown stuff.
+		         GuardEntity.this.coolDown = 8; //cooldown stuff.
 		  }
 		}
      };
@@ -293,10 +293,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         ItemStack itemstack = itemEntity.getItem();
         EquipmentSlotType equipmentslottype = getSlotForItemStack(itemstack);
         ItemStack itemstack1 = this.getItemStackFromSlot(equipmentslottype);
-        if (this.canEquipItem(itemstack) && itemEntity.getItem().getItem() instanceof ArmorItem) {
+        if (this.canEquipItem(itemstack) && itemEntity.getItem().getItem() instanceof ArmorItem && this.coolDown == 0) {
            if (!itemstack1.isEmpty()) {
               this.entityDropItem(itemstack1);
            }
+           this.coolDown = 200;
 
            this.setItemStackToSlot(equipmentslottype, itemstack);
            switch(equipmentslottype.getSlotType()) {
@@ -419,10 +420,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  this.goalSelector.addGoal(1, new SwimGoal(this));
 		  this.goalSelector.addGoal(1, new ReturnToVillageGoal(this, 0.6D, false));
 		  this.goalSelector.addGoal(1, new PatrolVillageGoal(this, 0.6D));
+	      this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
 	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
 	          return false;
 	       }));
-	      this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
@@ -457,7 +458,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			});
 	      }
 	      if (GuardConfig.GuardFormation) {
-		     this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //phalanx  
+		     this.goalSelector.addGoal(3, new FollowShieldGuards(this)); //phalanx  
 	      }
 	      if (GuardConfig.GuardsOpenDoors) {
 		     this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
@@ -466,8 +467,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
-	      this.goalSelector.addGoal(10, new LookAtGoal(this, MobEntity.class, 8.0F));
-	      this.goalSelector.addGoal(10, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+	      this.goalSelector.addGoal(15, new LookAtGoal(this, MobEntity.class, 8.0F));
+	      this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
 	      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
 	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
 	      this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
