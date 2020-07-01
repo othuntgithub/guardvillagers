@@ -660,7 +660,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		   }
 			   
 			  
-			  if (heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
+			  if (heldStack.getItem() instanceof ShieldItem && player.isCrouching() || heldStack.getItem() instanceof ArrowItem && player.isCrouching() || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
 			  {
 				if (this.getAttackTarget() != player && !this.world.isRemote) {  
 				 this.entityDropItem(this.getHeldItemOffhand());
