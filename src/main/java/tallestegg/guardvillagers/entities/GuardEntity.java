@@ -463,6 +463,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      if (GuardConfig.GuardsOpenDoors) {
 		     this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
 		  }
+	      this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
@@ -639,7 +640,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		   }
 			   
 			  
-			  if (heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
+			  if (heldStack.getItem() instanceof ShieldItem && player.isCrouching() || heldStack.getItem() instanceof ArrowItem && player.isCrouching() || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching())
 			  {
 				if (this.getAttackTarget() != player && !this.world.isRemote) {  
 				 this.entityDropItem(this.getHeldItemOffhand());
@@ -735,6 +736,26 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			this.variantData = type;
 		}
 	}
+	
+	   public static class MoveToArmorPieceGoal extends Goal 
+	   {
+		  private final GuardEntity guard;
+		  
+		  public MoveToArmorPieceGoal(GuardEntity guard) {
+			  this.guard = guard;
+		  }
+		  
+		  @Override
+		  public boolean shouldExecute() 
+		  {
+			List<ItemEntity> list = this.guard.world.getEntitiesWithinAABB(ItemEntity.class, this.guard.getBoundingBox().grow(3.0D, 3.0D, 3.0D));
+            if (!list.isEmpty()) {
+               return this.guard.getNavigator().tryMoveToEntityLiving(list.get(0), (double)1.15F);
+            }
+			return false;
+		  }
+			
+	   }
 	
    public static class DefendVillageGuardGoal extends TargetGoal {
 		   protected final GuardEntity guard;
