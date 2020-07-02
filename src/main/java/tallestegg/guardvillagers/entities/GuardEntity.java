@@ -257,15 +257,13 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	@Override
 	public void livingTick() 
 	{
-		if (this.ticksExisted % 100 == 0 && GuardConfig.GuardHealthRegen == true) 
-		{
-	      this.heal(2.0F);	
-		}
         if (this.kickTicks > 0) {
             ++this.kickTicks;
             LivingEntity attacker = this.getAttackTarget();
             if (this.kickTicks == 10 && attacker != null) 
             {
+          	  this.resetActiveHand();
+        	  this.coolDown = 15;
         	  this.attackEntityAsMob(attacker);
         	  this.faceEntity(attacker, 30.0F, 30.0F);
         	  attacker.func_233627_a_(1.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
@@ -458,14 +456,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			});
 	      }
 	      if (GuardConfig.GuardFormation) {
-		     this.goalSelector.addGoal(3, new FollowShieldGuards(this)); //phalanx  
+		     this.goalSelector.addGoal(2, new FollowShieldGuards(this)); //phalanx  
 	      }
+	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
+	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      if (GuardConfig.GuardsOpenDoors) {
 		     this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
 		  }
 	      this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
-	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
-	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
 	      this.goalSelector.addGoal(15, new LookAtGoal(this, MobEntity.class, 8.0F));

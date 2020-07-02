@@ -24,7 +24,6 @@ public class GuardConfig
 	public static boolean IllusionerRaids;
 	public static boolean AttackAllMobs;
 	public static boolean GuardSurrender;
-	public static boolean GuardHealthRegen;
 	public static boolean VillagersRunFromPolarBears;
 	public static boolean IllagersRunFromPolarBears;
 	public static boolean GuardsRunFromPolarBears;
@@ -40,7 +39,6 @@ public class GuardConfig
 		IllusionerRaids = COMMON.IllusionerRaids.get();
 		AttackAllMobs = COMMON.AttackAllMobs.get();
 		GuardSurrender = COMMON.GuardSurrender.get();
-		GuardHealthRegen = COMMON.GuardHealthRegen.get();
 		VillagersRunFromPolarBears = COMMON.VillagersRunFromPolarBears.get();
 		IllagersRunFromPolarBears = COMMON.IllagersRunFromPolarBears.get();
 		GuardsOpenDoors = COMMON.GuardsOpenDoors.get();
@@ -64,7 +62,6 @@ public class GuardConfig
 		public final ForgeConfigSpec.BooleanValue IllusionerRaids;
 		public final ForgeConfigSpec.BooleanValue AttackAllMobs;
 		public final ForgeConfigSpec.BooleanValue GuardSurrender;
-		public final ForgeConfigSpec.BooleanValue GuardHealthRegen;
 		public final ForgeConfigSpec.BooleanValue VillagersRunFromPolarBears;
 		public final ForgeConfigSpec.BooleanValue IllagersRunFromPolarBears;
 		public final ForgeConfigSpec.BooleanValue GuardsRunFromPolarBears;
@@ -96,10 +93,6 @@ public class GuardConfig
 					.comment("This option makes guards run from ravagers when low on health")
 					.translation(GuardVillagers.MODID + ".config.GuardSurrender")
 					.define("Have Guards be run from ravagers when on low health?", true);
-			GuardHealthRegen = builder
-					.comment("This makes the guard villagers have a slow natural health regeneration.")
-					.translation(GuardVillagers.MODID + ".config.GuardHealthRegen")
-					.define("Make Guards regenerate health?", false);
 			VillagersRunFromPolarBears = builder
 					.comment("This makes villagers run from polar bears, as anyone with common sense would.")
 					.translation(GuardVillagers.MODID + ".config.VillagersRunFromPolarBears")
@@ -127,7 +120,7 @@ public class GuardConfig
 			FriendlyFire = builder
 					.comment("This will make guards attempt to avoid friendly fire.")
 					.translation(GuardVillagers.MODID + ".config.FriendlyFire")
-					.define("Have guards avoid friendly fire?", true);
+					.define("Have guards avoid friendly fire?", false);
 		}
 	}
 }
