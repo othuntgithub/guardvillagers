@@ -129,7 +129,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		         this.attacker.swingArm(Hand.MAIN_HAND);
 		         this.attacker.attackEntityAsMob(enemy);
 		         GuardEntity.this.resetActiveHand();
-		         GuardEntity.this.coolDown = 10; //cooldown stuff.
+		         GuardEntity.this.coolDown = 8; //cooldown stuff.
 		  }
 		}
      };
@@ -293,11 +293,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         ItemStack itemstack = itemEntity.getItem();
         EquipmentSlotType equipmentslottype = getSlotForItemStack(itemstack);
         ItemStack itemstack1 = this.getItemStackFromSlot(equipmentslottype);
-        if (this.canEquipItem(itemstack) && itemEntity.getItem().getItem() instanceof ArmorItem) {
+        if (this.canEquipItem(itemstack) && itemEntity.getItem().getItem() instanceof ArmorItem && this.coolDown == 0) {
            if (!itemstack1.isEmpty()) {
               this.entityDropItem(itemstack1);
            }
-
+           this.coolDown = 200;
            this.setItemStackToSlot(equipmentslottype, itemstack);
            switch(equipmentslottype.getSlotType()) {
            case HAND:
@@ -458,6 +458,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
 	          return false;
 	       }));
+	      this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
 	      this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
 	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
 	      this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
@@ -740,6 +741,27 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			this.variantData = type;
 		}
 	}
+	
+	
+	   public static class MoveToArmorPieceGoal extends Goal 
+	   {
+		  private final GuardEntity guard;
+		  
+		  public MoveToArmorPieceGoal(GuardEntity guard) {
+			  this.guard = guard;
+		  }
+		  
+		  @Override
+		  public boolean shouldExecute() 
+		  {
+			List<ItemEntity> list = this.guard.world.getEntitiesWithinAABB(ItemEntity.class, this.guard.getBoundingBox().grow(3.0D, 3.0D, 3.0D));
+         if (!list.isEmpty()) {
+            return this.guard.getNavigator().tryMoveToEntityLiving(list.get(0), (double)1.15F);
+         }
+			return false;
+		  }
+			
+	   }
 	
    public static class DefendVillageGuardGoal extends TargetGoal {
 		   protected final GuardEntity guard;
