@@ -837,7 +837,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
    	            }
    	         }
    	      }
-   	   return guard.following;
+   	   return false;
    	}
   	
   	@Override
