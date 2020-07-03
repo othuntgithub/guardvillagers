@@ -498,7 +498,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  			return mob instanceof IMob;
 	  		}));
 	      }
-	      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::func_233680_b_));
+	      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::func_233680_b_));
 	      this.targetSelector.addGoal(4, new ResetAngerGoal<>(this, false));
 	 }
 	
