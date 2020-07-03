@@ -757,9 +757,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		  public boolean shouldExecute() 
 		  {
 			List<ItemEntity> list = this.guard.world.getEntitiesWithinAABB(ItemEntity.class, this.guard.getBoundingBox().grow(3.0D, 3.0D, 3.0D));
-         if (!list.isEmpty()) {
-            return this.guard.getNavigator().tryMoveToEntityLiving(list.get(0), (double)1.15F);
-         }
+	        if (!list.isEmpty() && list.get(0).getItem().getItem() instanceof ArmorItem) 
+	        {
+              return this.guard.getNavigator().tryMoveToEntityLiving(list.get(0), (double)1.15F);
+	        }
 			return false;
 		  }
 			
