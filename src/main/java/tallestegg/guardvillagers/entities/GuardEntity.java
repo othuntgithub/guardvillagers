@@ -2,6 +2,7 @@ package tallestegg.guardvillagers.entities;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -10,6 +11,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.IRangedAttackMob;
@@ -28,6 +30,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.entity.ai.goal.PatrolVillageGoal;
 import net.minecraft.entity.ai.goal.RandomWalkingGoal;
+import net.minecraft.entity.ai.goal.ResetAngerGoal;
 import net.minecraft.entity.ai.goal.ReturnToVillageGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
@@ -68,8 +71,10 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
+import net.minecraft.util.RangedInteger;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.TickRangeConverter;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -80,6 +85,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
+import net.minecraft.world.server.ServerWorld;
 import tallestegg.guardvillagers.GuardItems;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
@@ -89,7 +95,7 @@ import tallestegg.guardvillagers.entities.goals.HeroHurtTargetGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
 
-public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob
+public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob, IAngerable
 { 
 	private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
@@ -99,6 +105,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	public boolean following;
 	public int coolDown;
 	public PlayerEntity hero;
+	private int field_234197_bv_;
+	private static final RangedInteger field_234196_bu_ = TickRangeConverter.func_233037_a_(20, 39);
+	private UUID field_234198_bw_;
     private final RangedCrossbowAttackPassiveGoal<GuardEntity> aiCrossBowAttack = new RangedCrossbowAttackPassiveGoal<GuardEntity>(this, 1.0D, 8.0F);
     private final MeleeAttackGoal aiAttackOnCollide = new MeleeAttackGoal(this, 0.9D, true) {
     	@Override
@@ -216,6 +225,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		this.kickTicks = compound.getInt("KickTicks");
 		this.following = compound.getBoolean("Following");
 		this.coolDown = compound.getInt("Cooldown");
+		this.func_241358_a_((ServerWorld)this.world, compound);
 		this.setCombatTask();
 	}
 	
@@ -488,6 +498,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	  			return mob instanceof IMob;
 	  		}));
 	      }
+	      this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::func_233680_b_));
+	      this.targetSelector.addGoal(4, new ResetAngerGoal<>(this, false));
 	 }
 	
 	@Override
@@ -530,6 +542,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 		compound.putInt("KickTicks", this.kickTicks);
 		compound.putInt("Cooldown", this.coolDown);
 		compound.putBoolean("Following", this.following);
+		this.func_241358_a_((ServerWorld)this.world, compound);
 	}
 	
 	public int getKickTicks()
@@ -696,6 +709,31 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 				return "snow";
 		}
 		return "";
+	}
+	
+	@Override
+	public int func_230256_F__() {
+		return this.field_234197_bv_;
+	}
+
+	@Override
+	public UUID func_230257_G__() {
+		return this.field_234198_bw_;
+	}
+
+	@Override
+	public void func_230258_H__() {
+		this.func_230260_a__(field_234196_bu_.func_233018_a_(this.rand));
+	}
+
+	@Override
+	public void func_230259_a_(@Nullable UUID arg0) {
+		this.field_234198_bw_ = arg0;
+	}
+
+	@Override
+	public void func_230260_a__(int arg0) {
+		this.field_234197_bv_ = arg0;
 	}
 	
 	
