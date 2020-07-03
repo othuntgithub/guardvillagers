@@ -90,10 +90,14 @@ public class RangedCrossbowAttackPassiveGoal<T extends CreatureEntity & IRangedA
 		         } else {
 		            --this.field_220752_e;
 		         }
-		         
 			      if (this.entity.getPose() == Pose.STANDING && this.entity.world.rand.nextInt(4) == 0 && entity.ticksExisted % 50 == 0) 
 			      {
 			    	  this.entity.setPose(Pose.CROUCHING);
+			      }
+			      
+			      if (this.entity.getPose() == Pose.CROUCHING && this.entity.world.rand.nextInt(4) == 0 && entity.ticksExisted % 100 == 0) 
+			      {
+			    	  this.entity.setPose(Pose.STANDING);
 			      }
 		         
 		         double d1 = livingentity.getDistance(entity);	         

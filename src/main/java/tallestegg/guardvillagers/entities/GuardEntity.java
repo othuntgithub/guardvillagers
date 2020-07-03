@@ -267,6 +267,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             if (this.kickTicks == 10 && attacker != null) 
             {
         	  this.attackEntityAsMob(attacker);
+          	  this.resetActiveHand();
+        	  this.coolDown = 15;
         	  this.faceEntity(attacker, 30.0F, 30.0F);
         	  attacker.knockBack(this, 1.0F, (double)MathHelper.sin(this.rotationYaw * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(this.rotationYaw * ((float)Math.PI / 180F))));
             }
