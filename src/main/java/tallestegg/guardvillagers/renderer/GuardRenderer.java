@@ -22,8 +22,7 @@ import tallestegg.guardvillagers.models.GuardModel;
 
 public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
 {
-
-    @SuppressWarnings({ "unchecked", "rawtypes" }) //no warnings.
+	
 	public GuardRenderer(EntityRendererManager manager) 
     {
         super(manager, new GuardModel(0), 0.5f);

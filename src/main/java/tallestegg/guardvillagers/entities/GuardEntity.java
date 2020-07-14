@@ -435,11 +435,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
 	      this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
 	      this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
-	      //removed this because it was worthless to add this in because there would be no reason for the player to make the guards
-	      //follow them if they can just use emerald block without getting hotv.
-	      /*if (ModList.get().isLoaded("quark")) {
-		    this.goalSelector.addGoal(2, new TemptGoal(this, 0.6, Ingredient.fromItems(Items.EMERALD_BLOCK), false));
-	      }*/ 
 	      if (GuardConfig.GuardSurrender) {
 		      this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class,  12.0F, 1.0D, 1.2D) {
 					@Override

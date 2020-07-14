@@ -84,7 +84,7 @@ public class GuardConfig
 			IllusionerRaids = builder
 					.comment("This will make Illusioners get involved in raids")
 					.translation(GuardVillagers.MODID + ".config.IllusionerRaids")
-					.define("Have Illusioners in Raids?", false);
+					.define("Have Illusioners in Raids?", true);
 			AttackAllMobs = builder
 					.comment("Guards will attack all hostiles with this option")
 					.translation(GuardVillagers.MODID + ".config.AttackAllMobs")

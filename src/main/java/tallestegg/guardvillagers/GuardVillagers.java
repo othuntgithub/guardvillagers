@@ -5,6 +5,7 @@ import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.SpawnEggItem;
+import net.minecraft.world.raid.Raid;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -46,7 +47,9 @@ public class GuardVillagers
 
     private void setup(final FMLCommonSetupEvent event)
     {
- 
+       if (GuardConfig.IllusionerRaids) {
+	     Raid.WaveMember.create("thebluemengroup", EntityType.ILLUSIONER, new int[]{0, 0, 0, 0, 0, 1, 1, 2});
+       }
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) 
