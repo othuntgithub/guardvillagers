@@ -660,7 +660,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			  if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) 
 			  {
 			     this.heal(heldStack.getItem().getFood().getHealing());
-			     this.playHealEffect(true);
+			     this.playHealEffect();
 			     if (!player.abilities.isCreativeMode)
 			     heldStack.shrink(1);
 			     return ActionResultType.SUCCESS;
@@ -673,16 +673,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			   return ActionResultType.SUCCESS;
 		}
 	   
-	   protected void playHealEffect(boolean play) {
-		      IParticleData iparticledata = ParticleTypes.HAPPY_VILLAGER;
-		      for(int i = 0; i < 7; ++i) {
-		         double d0 = this.rand.nextGaussian() * 0.02D;
-		         double d1 = this.rand.nextGaussian() * 0.02D;
-		         double d2 = this.rand.nextGaussian() * 0.02D;
-		         this.world.addParticle(iparticledata, this.getPosX() + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), this.getPosY() + 0.5D + (double)(this.rand.nextFloat() * this.getHeight()), this.getPosZ() + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), d0, d1, d2);
-		      }
-
-		   }
+  protected void playHealEffect() 
+  {
+	 IParticleData iparticledata = ParticleTypes.HAPPY_VILLAGER;
+	 for(int i = 0; i < 7; ++i) 
+	 {
+       double d0 = this.rand.nextGaussian() * 0.02D;
+	   double d1 = this.rand.nextGaussian() * 0.02D;
+	   double d2 = this.rand.nextGaussian() * 0.02D;
+	   this.world.addParticle(iparticledata, this.getPosX() + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), this.getPosY() + 0.5D + (double)(this.rand.nextFloat() * this.getHeight()), this.getPosZ() + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), d0, d1, d2);
+     }
+  }
 	   
 	public static String getNameByType(int id) 
 	{
@@ -755,7 +756,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			 func_233815_a_(Attributes.field_233818_a_, 20.0D).
 			 func_233815_a_(Attributes.field_233821_d_, 0.5D).
 			 func_233815_a_(Attributes.field_233823_f_, 1.0D).
-			 func_233815_a_(Attributes.field_233819_b_, 25.0D);
+			 func_233815_a_(Attributes.field_233819_b_, 25.0D).
+	         func_233815_a_(Attributes.field_233826_i_, 1.0D);
    }
 	
 	public static class GuardData implements ILivingEntityData 

@@ -4,10 +4,8 @@ import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
-import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShootableItem;
-import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
@@ -86,47 +84,6 @@ public class GuardModel extends BipedModel<GuardEntity>
 		boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
 		this.ArmLShoulderPad.showModel = !flag2;
 		this.ArmRShoulderPad.showModel = !flag2;
-		if (itemstack.getItem() instanceof CrossbowItem && entityIn.isAggressive())
-        {
-            if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
-       	    {
-                this.bipedRightArm.rotateAngleY = -0.6F;
-                this.bipedLeftArm.rotateAngleY = 0.3F;
-                this.bipedRightArm.rotateAngleX = -1.5F + this.bipedHead.rotateAngleX;
-                this.bipedLeftArm.rotateAngleX = (-(float)Math.PI / 2F) + this.bipedHead.rotateAngleX + 0.1F;
-       	    }
-            if (entityIn.getPrimaryHand() == HandSide.LEFT) 
-       	    {
-                this.bipedRightArm.rotateAngleY = -0.3F;
-                this.bipedLeftArm.rotateAngleY = 0.6F;
-                this.bipedRightArm.rotateAngleX = (-(float)Math.PI / 2F) + this.bipedHead.rotateAngleX + 0.1F;
-                this.bipedLeftArm.rotateAngleX = -1.5F + this.bipedHead.rotateAngleX;
-       	    }
-        }
-        
-		float f3 = (float)CrossbowItem.getChargeTime(entityIn.getActiveItemStack());
-        if (entityIn.isCharging() && itemstack.getItem() instanceof CrossbowItem) {
-            if (entityIn.getPrimaryHand() == HandSide.RIGHT) 
-            {
-          	    this.bipedRightArm.rotateAngleY = -0.8F;
-                this.bipedRightArm.rotateAngleX = -0.97079635F;
-                this.bipedLeftArm.rotateAngleX = -0.97079635F;
-                float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
-                this.bipedLeftArm.rotateAngleY = MathHelper.lerp(f2 / f3, 0.4F, 0.85F);
-                this.bipedLeftArm.rotateAngleX = MathHelper.lerp(f2 / f3, this.bipedLeftArm.rotateAngleX, (-(float)Math.PI / 2F));
-            }
-            
-            if (entityIn.getPrimaryHand() == HandSide.LEFT) 
-            {
-                this.bipedLeftArm.rotateAngleY = 0.8F;
-                this.bipedRightArm.rotateAngleX = -0.97079635F;
-                this.bipedLeftArm.rotateAngleX = -0.97079635F;
-                float f2 = MathHelper.clamp(this.floatthing, 0.0F, 25.0F);
-                this.bipedRightArm.rotateAngleY = MathHelper.lerp(f2 / f3, -0.4F, -0.85F);
-                this.bipedRightArm.rotateAngleX = MathHelper.lerp(f2 / f3, this.bipedRightArm.rotateAngleX, (-(float)Math.PI / 2F));
-            }
-        }
-        
         if (entityIn.isKicking())
         {
         	 float f4 = MathHelper.clamp(this.floatthing2,  0.0F, 25.0F);

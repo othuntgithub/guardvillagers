@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.BipedRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.Hand;
@@ -56,17 +57,31 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
         BipedModel.ArmPose bipedmodel$armpose = BipedModel.ArmPose.EMPTY;
         ItemStack itemstack = handIn == Hand.MAIN_HAND ? itemStackMain : itemStackOff;
         if (!itemstack.isEmpty()) {
-           bipedmodel$armpose = BipedModel.ArmPose.ITEM;
-           if (entityIn.getItemInUseCount() > 0) {
-              UseAction useaction = itemstack.getUseAction();
-              if (useaction == UseAction.BLOCK) {
-                 bipedmodel$armpose = BipedModel.ArmPose.BLOCK;
-              } else if (useaction == UseAction.BOW) {
-                 bipedmodel$armpose = BipedModel.ArmPose.BOW_AND_ARROW;
-              } else if (useaction == UseAction.SPEAR) {
-                 bipedmodel$armpose = BipedModel.ArmPose.THROW_SPEAR;
-           }
-          }
+            bipedmodel$armpose = BipedModel.ArmPose.ITEM;
+            if (entityIn.getItemInUseCount() > 0) {
+               UseAction useaction = itemstack.getUseAction();
+               if (useaction == UseAction.BLOCK) {
+                  bipedmodel$armpose = BipedModel.ArmPose.BLOCK;
+               } else if (useaction == UseAction.BOW) {
+                  bipedmodel$armpose = BipedModel.ArmPose.BOW_AND_ARROW;
+               } else if (useaction == UseAction.SPEAR) {
+                  bipedmodel$armpose = BipedModel.ArmPose.THROW_SPEAR;
+               } else if (useaction == UseAction.CROSSBOW && handIn == entityIn.getActiveHand()) {
+                  bipedmodel$armpose = BipedModel.ArmPose.CROSSBOW_CHARGE;
+               }
+            } else {
+               boolean flag3 = itemStackMain.getItem() instanceof CrossbowItem;
+               boolean flag = CrossbowItem.isCharged(itemStackMain);
+               boolean flag1 = itemStackOff.getItem() instanceof CrossbowItem;
+               boolean flag2 = CrossbowItem.isCharged(itemStackOff);
+               if (flag3 && flag && entityIn.isAggressive()) {
+                  bipedmodel$armpose = BipedModel.ArmPose.CROSSBOW_HOLD;
+               }
+
+               if (flag1 && flag2 && itemStackMain.getItem().getUseAction(itemStackMain) == UseAction.NONE && entityIn.isAggressive()) {
+                  bipedmodel$armpose = BipedModel.ArmPose.CROSSBOW_HOLD;
+               }
+            }
         }
         return bipedmodel$armpose;
      }
