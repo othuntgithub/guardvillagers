@@ -466,7 +466,13 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	      this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
 	      this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
 	      if (GuardConfig.GuardsOpenDoors) {
-		     this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
+		     this.goalSelector.addGoal(3, new OpenDoorGoal(this, true) {
+		    	 @Override
+		    	 public void startExecuting() {
+		    		 super.startExecuting();
+		    		 this.entity.swingArm(Hand.MAIN_HAND);
+		    	 }
+		     });
 		  }
 	      this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
 	      this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
@@ -673,8 +679,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 			   return ActionResultType.SUCCESS;
 		}
 	   
-  protected void playHealEffect() 
-  {
+    protected void playHealEffect() 
+    {
 	 IParticleData iparticledata = ParticleTypes.HAPPY_VILLAGER;
 	 for(int i = 0; i < 7; ++i) 
 	 {
@@ -683,7 +689,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 	   double d2 = this.rand.nextGaussian() * 0.02D;
 	   this.world.addParticle(iparticledata, this.getPosX() + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), this.getPosY() + 0.5D + (double)(this.rand.nextFloat() * this.getHeight()), this.getPosZ() + (double)(this.rand.nextFloat() * this.getWidth() * 2.0F) - (double)this.getWidth(), d0, d1, d2);
      }
-  }
+    }
 	   
 	public static String getNameByType(int id) 
 	{

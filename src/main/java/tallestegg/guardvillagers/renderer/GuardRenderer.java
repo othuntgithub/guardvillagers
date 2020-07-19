@@ -60,15 +60,27 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel>
             bipedmodel$armpose = BipedModel.ArmPose.ITEM;
             if (entityIn.getItemInUseCount() > 0) {
                UseAction useaction = itemstack.getUseAction();
-               if (useaction == UseAction.BLOCK) {
-                  bipedmodel$armpose = BipedModel.ArmPose.BLOCK;
-               } else if (useaction == UseAction.BOW) {
-                  bipedmodel$armpose = BipedModel.ArmPose.BOW_AND_ARROW;
-               } else if (useaction == UseAction.SPEAR) {
-                  bipedmodel$armpose = BipedModel.ArmPose.THROW_SPEAR;
-               } else if (useaction == UseAction.CROSSBOW && handIn == entityIn.getActiveHand()) {
-                  bipedmodel$armpose = BipedModel.ArmPose.CROSSBOW_CHARGE;
-               }
+               switch (useaction) 
+               {
+                 case BLOCK:
+                 bipedmodel$armpose = BipedModel.ArmPose.BLOCK; 
+                 break;
+                 case BOW:
+                 bipedmodel$armpose = BipedModel.ArmPose.BOW_AND_ARROW;
+                 break;
+                 case SPEAR:
+                 bipedmodel$armpose = BipedModel.ArmPose.THROW_SPEAR;
+                 break;
+                 case CROSSBOW:
+                 if (handIn == entityIn.getActiveHand()) 
+                 {
+                   bipedmodel$armpose = BipedModel.ArmPose.CROSSBOW_CHARGE;
+                 }
+                 break;
+			     default:
+			     bipedmodel$armpose = BipedModel.ArmPose.EMPTY;	
+				 break;
+               } 
             } else {
                boolean flag1 = itemStackMain.getItem() instanceof CrossbowItem;
                boolean flag2 = itemStackOff.getItem() instanceof CrossbowItem;
