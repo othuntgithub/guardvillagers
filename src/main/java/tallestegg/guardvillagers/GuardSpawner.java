@@ -30,10 +30,10 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public final class GuardSpawner extends JigsawPatternRegistry {
-	private static final IStructureProcessorType<Processor> PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, "guardvillagers:golem", () -> {
+    private static final IStructureProcessorType<Processor> PROCESSOR = Registry.register(Registry.STRUCTURE_PROCESSOR, "guardvillagers:golem", () -> {
         return Processor.CODEC;
-     });
-			
+    });
+
     private final JigsawPatternRegistry registry;
 
     private GuardSpawner(final JigsawPatternRegistry registry) {
@@ -48,14 +48,14 @@ public final class GuardSpawner extends JigsawPatternRegistry {
     }
 
     @SuppressWarnings("deprecation")
-	private JigsawPattern map(final JigsawPattern pattern) {
+    private JigsawPattern map(final JigsawPattern pattern) {
         if (pattern.getName().equals(new ResourceLocation("village/common/iron_golem"))) {
             final List<JigsawPiece> jigsawPieces = ObfuscationReflectionHelper.getPrivateValue(JigsawPattern.class, pattern, "field_214953_e");
             jigsawPieces.set(0, new SingleJigsawPiece("guardvillagers:village/common/iron_golem"));
         }
         return pattern;
     }
-    
+
     @Override
     public JigsawPattern get(final ResourceLocation name) {
         return this.registry.get(name);
@@ -75,39 +75,31 @@ public final class GuardSpawner extends JigsawPatternRegistry {
             throw new RuntimeException(e);
         }
     }
-	
-    private static final class Processor extends StructureProcessor 
-    {
-    	
-    	public static Codec<Processor> CODEC;
-    	public static final Processor INSTANCE = new Processor();
-    	
-        public Processor() 
-        {
-        	
+
+    private static final class Processor extends StructureProcessor {
+
+        public static Codec<Processor> CODEC;
+        @SuppressWarnings("unused")
+        public static final Processor INSTANCE = new Processor();
+
+        public Processor() {
+
         }
 
-        public Processor(final Dynamic<?> dynamic) 
-        { 
-        	
+        @SuppressWarnings("unused")
+        public Processor(final Dynamic<?> dynamic) {
+
         }
-        
+
         @Override
         public Template.EntityInfo processEntity(final IWorldReader world, final BlockPos pos, final Template.EntityInfo rawInfo, final Template.EntityInfo info, final PlacementSettings settings, final Template template) {
-        	final CompoundNBT nbt = info.nbt.copy();
-	        nbt.putInt("Type", GuardEntity.getRandomTypeForBiome((IWorld) world, pos));
+            final CompoundNBT nbt = info.nbt.copy();
+            nbt.putInt("Type", GuardEntity.getRandomTypeForBiome((IWorld) world, pos));
             return new Template.EntityInfo(info.pos, info.blockPos, nbt);
         }
-        
-        public static void returnInstance()
-        {
-            CODEC = Codec.unit(() -> {
-               return INSTANCE;
-            });
-         }
 
         @Override
-        protected IStructureProcessorType getType() {
+        protected IStructureProcessorType<Processor> getType() {
             return GuardSpawner.PROCESSOR;
         }
     }

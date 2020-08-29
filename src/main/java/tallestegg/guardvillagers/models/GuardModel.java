@@ -9,17 +9,14 @@ import net.minecraft.item.ShootableItem;
 import net.minecraft.util.math.MathHelper;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
-public class GuardModel extends BipedModel<GuardEntity> 
-{
+public class GuardModel extends BipedModel<GuardEntity> {
     public ModelRenderer quiver;
     public ModelRenderer ArmLShoulderPad;
     public ModelRenderer ArmRShoulderPad;
     public ModelRenderer Nose;
-    public float floatthing;
-	public float floatthing2;
 
     public GuardModel(float f) {
-    	super(f);
+        super(f);
         this.textureWidth = 128;
         this.textureHeight = 128;
         this.quiver = new ModelRenderer(this, 100, 0);
@@ -66,34 +63,24 @@ public class GuardModel extends BipedModel<GuardEntity>
         this.bipedHead.addChild(this.Nose);
     }
 
-
-	public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) 
-	{
-		ModelRenderer.rotateAngleX = x;
-		ModelRenderer.rotateAngleY = y;
-		ModelRenderer.rotateAngleZ = z;
-	}
-
-    
-	public void setRotationAngles(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netbipedHeadYaw, float bipedHeadPitch) 
-	{
-		super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netbipedHeadYaw, bipedHeadPitch);
-		ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
-		boolean flag = itemstack.getItem() instanceof ShootableItem;
-		this.quiver.showModel = flag;
-		boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
-		this.ArmLShoulderPad.showModel = !flag2;
-		this.ArmRShoulderPad.showModel = !flag2;
-        if (entityIn.isKicking())
-        {
-        	 float f4 = MathHelper.clamp(this.floatthing2,  0.0F, 25.0F);
-        	 this.bipedRightLeg.rotateAngleX = MathHelper.lerp(f4 / 25.0F, -1.40F, 1.05F);
-        }
+    public void setRotateAngle(ModelRenderer ModelRenderer, float x, float y, float z) {
+        ModelRenderer.rotateAngleX = x;
+        ModelRenderer.rotateAngleY = y;
+        ModelRenderer.rotateAngleZ = z;
     }
-    
-    public void setLivingAnimations(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float partialTick) {
-        this.floatthing = (float)entityIn.getItemInUseMaxCount();
-        this.floatthing2 = (float)entityIn.getKickTicks();
-        super.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTick);
-     }
+
+    public void setRotationAngles(GuardEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netbipedHeadYaw, float bipedHeadPitch) {
+        super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netbipedHeadYaw, bipedHeadPitch);
+        ItemStack itemstack = entityIn.getHeldItem(entityIn.getActiveHand());
+        boolean flag = itemstack.getItem() instanceof ShootableItem;
+        this.quiver.showModel = flag;
+        boolean flag2 = entityIn.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ArmorItem;
+        this.ArmLShoulderPad.showModel = !flag2;
+        this.ArmRShoulderPad.showModel = !flag2;
+        if (entityIn.getKickTicks() > 0) {
+            float f1 = 1.0F - (float) MathHelper.abs(10 - 2 * entityIn.getKickTicks()) / 10.0F;
+            this.bipedRightLeg.rotateAngleX = MathHelper.lerp(f1, 0.0F, -1.40F);
+        }
+
+    }
 }

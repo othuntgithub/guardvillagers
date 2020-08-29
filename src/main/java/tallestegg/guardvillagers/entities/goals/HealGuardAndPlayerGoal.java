@@ -25,115 +25,112 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 @SuppressWarnings("unused")
 public class HealGuardAndPlayerGoal extends Goal {
-   private final MobEntity healer;
-   private LivingEntity mob;
-   private int rangedAttackTime = -1;
-   private final double entityMoveSpeed;
-   private int seeTime;
-   private final int attackIntervalMin;
-   private final int maxRangedAttackTime;
-   private final float attackRadius;
-   private final float maxAttackDistance;
-   protected final EntityPredicate predicate = (new EntityPredicate()).setDistance(64.0D);
+    private final MobEntity healer;
+    private LivingEntity mob;
+    private int rangedAttackTime = -1;
+    private final double entityMoveSpeed;
+    private int seeTime;
+    private final int attackIntervalMin;
+    private final int maxRangedAttackTime;
+    private final float attackRadius;
+    private final float maxAttackDistance;
+    protected final EntityPredicate predicate = (new EntityPredicate()).setDistance(64.0D);
 
-   public HealGuardAndPlayerGoal(MobEntity healer, double movespeed, int p_i1650_4_, int maxAttackTime, float maxAttackDistanceIn) {
-         this.healer = healer;
-         this.entityMoveSpeed = movespeed;
-         this.attackIntervalMin = p_i1650_4_;
-         this.maxRangedAttackTime = maxAttackTime;
-         this.attackRadius = maxAttackDistanceIn;
-         this.maxAttackDistance = maxAttackDistanceIn * maxAttackDistanceIn;
-         this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-   }
+    public HealGuardAndPlayerGoal(MobEntity healer, double movespeed, int p_i1650_4_, int maxAttackTime, float maxAttackDistanceIn) {
+        this.healer = healer;
+        this.entityMoveSpeed = movespeed;
+        this.attackIntervalMin = p_i1650_4_;
+        this.maxRangedAttackTime = maxAttackTime;
+        this.attackRadius = maxAttackDistanceIn;
+        this.maxAttackDistance = maxAttackDistanceIn * maxAttackDistanceIn;
+        this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+    }
 
-	@Override
-	public boolean shouldExecute() {
-		if (((VillagerEntity)this.healer).getVillagerData().getProfession() != VillagerProfession.CLERIC || this.healer.isSleeping())
-		{
-		  return false;
-		}
-		 List<GuardEntity> list = this.healer.world.getEntitiesWithinAABB(GuardEntity.class, this.healer.getBoundingBox().grow(10.0D));
-	      if (!list.isEmpty()) {
-	         for(GuardEntity mob : list) {
-	            if (mob.isAlive()) {
-	               this.mob = mob;
-	               return true;
-	            }
-	         }
-	      }
-	      AxisAlignedBB axisalignedbb = this.healer.getBoundingBox().grow(10.0D, 8.0D, 10.0D);
-	      List<PlayerEntity> list2 = this.healer.world.getEntitiesWithinAABB(PlayerEntity.class, this.healer.getBoundingBox().grow(10.0D));
-	      if (!list2.isEmpty()) {
-		         for(PlayerEntity player : list2) {
-		            if (player.isAlive() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && !player.abilities.isCreativeMode) {
-		               this.mob = player;
-		               return true;
-		            }
-		         }
-		}
-		return false;
-	}
+    @Override
+    public boolean shouldExecute() {
+        if (((VillagerEntity) this.healer).getVillagerData().getProfession() != VillagerProfession.CLERIC || this.healer.isSleeping()) {
+            return false;
+        }
+        List<GuardEntity> list = this.healer.world.getEntitiesWithinAABB(GuardEntity.class, this.healer.getBoundingBox().grow(10.0D));
+        if (!list.isEmpty()) {
+            for (GuardEntity mob : list) {
+                if (mob.isAlive()) {
+                    this.mob = mob;
+                    return true;
+                }
+            }
+        }
+        AxisAlignedBB axisalignedbb = this.healer.getBoundingBox().grow(10.0D, 8.0D, 10.0D);
+        List<PlayerEntity> list2 = this.healer.world.getEntitiesWithinAABB(PlayerEntity.class, this.healer.getBoundingBox().grow(10.0D));
+        if (!list2.isEmpty()) {
+            for (PlayerEntity player : list2) {
+                if (player.isAlive() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && !player.abilities.isCreativeMode) {
+                    this.mob = player;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-   public boolean shouldContinueExecuting() {
-      return this.shouldExecute() || mob.getHealth() < mob.getMaxHealth();
-   }
+    public boolean shouldContinueExecuting() {
+        return this.shouldExecute() || mob.getHealth() < mob.getMaxHealth();
+    }
 
-   public void resetTask() {
-      this.mob = null;
-      this.seeTime = 0;
-      this.rangedAttackTime = -1;
-   }
+    public void resetTask() {
+        this.mob = null;
+        this.seeTime = 0;
+        this.rangedAttackTime = -1;
+    }
 
-   public void tick() {
-      double d0 = this.healer.getDistanceSq(this.healer.getPosX(), this.healer.getPosY(), this.healer.getPosZ());
-      boolean flag = this.healer.getEntitySenses().canSee(this.healer);
-      if (flag) {
-         ++this.seeTime;
-      } else {
-         this.seeTime = 0;
-      }
+    public void tick() {
+        double d0 = this.healer.getDistanceSq(this.healer.getPosX(), this.healer.getPosY(), this.healer.getPosZ());
+        boolean flag = this.healer.getEntitySenses().canSee(this.healer);
+        if (flag) {
+            ++this.seeTime;
+        } else {
+            this.seeTime = 0;
+        }
 
-      this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
-      if (--this.rangedAttackTime == 0 && mob.getHealth() < mob.getMaxHealth() && mob.isAlive()) {
-         if (!flag) {
-            return;
-         }
-         this.healer.faceEntity(mob, 30.0F, 30.0F);
-	     if (healer.getDistance(mob) >= 5.0D) {
-		    healer.getNavigator().tryMoveToEntityLiving(mob, 0.5D);
-		 }
-         float f = MathHelper.sqrt(d0) / this.attackRadius;
-         healer.faceEntity(mob, 30.0F, 30.0F);
-         healer.getLookController().setLookPositionWithEntity(mob, 30.0F, 30.0F);
-         this.throwPotion(mob, 1.0F);
-         this.rangedAttackTime = MathHelper.floor(f * (float)(this.maxRangedAttackTime - this.attackIntervalMin) + (float)this.attackIntervalMin);
-      } else if (this.rangedAttackTime < 0) {
-         float f2 = MathHelper.sqrt(d0) / this.attackRadius;
-         this.rangedAttackTime = MathHelper.floor(f2 * (float)(this.maxRangedAttackTime - this.attackIntervalMin) + (float)this.attackIntervalMin);
-      }
-   }
-   
-   public void throwPotion(LivingEntity target, float distanceFactor) 
-   {
-		 Vector3d vec3d = target.getMotion();
-		 double d0 = target.getPosX() + vec3d.x - healer.getPosX();
-		 double d1 = target.getPosYEye() - (double)1.1F - healer.getPosY();
-		 double d2 = target.getPosZ() + vec3d.z - healer.getPosZ();
-		 float f = MathHelper.sqrt(d0 * d0 + d2 * d2);
-		 Potion potion = Potions.REGENERATION;
-         if (target.getHealth() <= 4.0F) 
-         {
-             potion = Potions.HEALING;
-          } else {
-             potion = Potions.REGENERATION;
-          }
+        if (healer.getDistance(mob) >= 5.0D) {
+            healer.getNavigator().tryMoveToEntityLiving(mob, 0.5D);
+        }
 
-		 PotionEntity potionentity = new PotionEntity(healer.world, healer);
-		 potionentity.setItem(PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), potion));
-		 potionentity.rotationPitch -= -20.0F;
-		 potionentity.shoot(d0, d1 + (double)(f * 0.2F), d2, 0.75F, 8.0F);
-		 healer.world.playSound((PlayerEntity)null, healer.getPosX(), healer.getPosY(), healer.getPosZ(), SoundEvents.ENTITY_SPLASH_POTION_THROW, healer.getSoundCategory(), 1.0F, 0.8F + healer.rand.nextFloat() * 0.4F);
-		 healer.world.addEntity(potionentity);
-   }
+        this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
+        if (--this.rangedAttackTime == 0 && mob.getHealth() < mob.getMaxHealth() && mob.isAlive() && healer.getDistance(mob) <= 5.0D) {
+            if (!flag) {
+                return;
+            }
+            this.healer.faceEntity(mob, 30.0F, 30.0F);
+            float f = MathHelper.sqrt(d0) / this.attackRadius;
+            healer.faceEntity(mob, 30.0F, 30.0F);
+            healer.getLookController().setLookPositionWithEntity(mob, 30.0F, 30.0F);
+            this.throwPotion(mob, 1.0F);
+            this.rangedAttackTime = MathHelper.floor(f * (float) (this.maxRangedAttackTime - this.attackIntervalMin) + (float) this.attackIntervalMin);
+        } else if (this.rangedAttackTime < 0 && healer.getDistance(mob) <= 5.0D) {
+            float f2 = MathHelper.sqrt(d0) / this.attackRadius;
+            this.rangedAttackTime = MathHelper.floor(f2 * (float) (this.maxRangedAttackTime - this.attackIntervalMin) + (float) this.attackIntervalMin);
+        }
+    }
+
+    public void throwPotion(LivingEntity target, float distanceFactor) {
+        Vector3d vec3d = target.getMotion();
+        double d0 = target.getPosX() + vec3d.x - healer.getPosX();
+        double d1 = target.getPosYEye() - (double) 1.1F - healer.getPosY();
+        double d2 = target.getPosZ() + vec3d.z - healer.getPosZ();
+        float f = MathHelper.sqrt(d0 * d0 + d2 * d2);
+        Potion potion = Potions.REGENERATION;
+        if (target.getHealth() <= 4.0F) {
+            potion = Potions.HEALING;
+        } else {
+            potion = Potions.REGENERATION;
+        }
+
+        PotionEntity potionentity = new PotionEntity(healer.world, healer);
+        potionentity.setItem(PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), potion));
+        potionentity.rotationPitch -= -20.0F;
+        potionentity.shoot(d0, d1 + (double) (f * 0.2F), d2, 0.75F, 8.0F);
+        healer.world.playSound((PlayerEntity) null, healer.getPosX(), healer.getPosY(), healer.getPosZ(), SoundEvents.ENTITY_SPLASH_POTION_THROW, healer.getSoundCategory(), 1.0F, 0.8F + healer.rand.nextFloat() * 0.4F);
+        healer.world.addEntity(potionentity);
+    }
 }
-
