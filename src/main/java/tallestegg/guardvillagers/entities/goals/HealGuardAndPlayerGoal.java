@@ -51,7 +51,7 @@ public class HealGuardAndPlayerGoal extends Goal {
         if (((VillagerEntity) this.healer).getVillagerData().getProfession() != VillagerProfession.CLERIC || this.healer.isSleeping()) {
             return false;
         }
-        List<GuardEntity> list = this.healer.world.getEntitiesWithinAABB(GuardEntity.class, this.healer.getBoundingBox().grow(20.0D));
+        List<GuardEntity> list = this.healer.world.getEntitiesWithinAABB(GuardEntity.class, this.healer.getBoundingBox().grow(10.0D));
         if (!list.isEmpty()) {
             for (GuardEntity mob : list) {
                 if (mob.isAlive()) {
@@ -74,7 +74,7 @@ public class HealGuardAndPlayerGoal extends Goal {
     }
 
     public boolean shouldContinueExecuting() {
-        return this.shouldExecute() || mob.getHealth() < mob.getMaxHealth();
+        return this.shouldExecute() && mob.getHealth() < mob.getMaxHealth();
     }
 
     public void resetTask() {
