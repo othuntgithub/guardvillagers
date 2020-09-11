@@ -51,7 +51,7 @@ public class HealGuardAndPlayerGoal extends Goal {
         if (((VillagerEntity) this.healer).getVillagerData().getProfession() != VillagerProfession.CLERIC || this.healer.isSleeping()) {
             return false;
         }
-        List<GuardEntity> list = this.healer.world.getEntitiesWithinAABB(GuardEntity.class, this.healer.getBoundingBox().grow(10.0D));
+        List<GuardEntity> list = this.healer.world.getEntitiesWithinAABB(GuardEntity.class, this.healer.getBoundingBox().grow(20.0D));
         if (!list.isEmpty()) {
             for (GuardEntity mob : list) {
                 if (mob.isAlive()) {
@@ -91,21 +91,21 @@ public class HealGuardAndPlayerGoal extends Goal {
         } else {
             this.seeTime = 0;
         }
-
-        if (healer.getDistance(mob) >= 5.0D) {
-            healer.getNavigator().tryMoveToEntityLiving(mob, 0.5D);
+        
+        if (mob.getDistance(healer) <= 3.0D) {
+            healer.getMoveHelper().strafe(-0.5F, 0);
         }
 
+        this.healer.faceEntity(mob, 30.0F, 30.0F);
         this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
         if (--this.rangedAttackTime == 0 && mob.getHealth() < mob.getMaxHealth() && mob.isAlive() && healer.getDistance(mob) <= 5.0D) {
             if (!flag) {
                 return;
             }
-            this.healer.faceEntity(mob, 30.0F, 30.0F);
             float f = MathHelper.sqrt(d0) / this.attackRadius;
-            healer.faceEntity(mob, 30.0F, 30.0F);
-            healer.getLookController().setLookPositionWithEntity(mob, 30.0F, 30.0F);
             this.throwPotion(mob, 1.0F);
+            this.healer.faceEntity(mob, 30.0F, 30.0F);
+            this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
             this.rangedAttackTime = MathHelper.floor(f * (float) (this.maxRangedAttackTime - this.attackIntervalMin) + (float) this.attackIntervalMin);
         } else if (this.rangedAttackTime < 0 && healer.getDistance(mob) <= 5.0D) {
             float f2 = MathHelper.sqrt(d0) / this.attackRadius;
@@ -125,7 +125,9 @@ public class HealGuardAndPlayerGoal extends Goal {
         } else {
             potion = Potions.REGENERATION;
         }
-
+        
+        this.healer.faceEntity(mob, 30.0F, 30.0F);
+        this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
         PotionEntity potionentity = new PotionEntity(healer.world, healer);
         potionentity.setItem(PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), potion));
         potionentity.rotationPitch -= -20.0F;
