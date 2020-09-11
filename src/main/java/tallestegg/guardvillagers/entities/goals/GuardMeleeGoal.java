@@ -21,12 +21,6 @@ public class GuardMeleeGoal extends MeleeAttackGoal {
     }
 
     @Override
-    public void resetTask() {
-        super.resetTask();
-        this.guard.shieldCoolDown = 0;
-    }
-
-    @Override
     protected double getAttackReachSqr(LivingEntity attackTarget) {
         return super.getAttackReachSqr(attackTarget) * 3.55D;
     }
@@ -36,10 +30,12 @@ public class GuardMeleeGoal extends MeleeAttackGoal {
         double d0 = this.getAttackReachSqr(enemy);
         if (distToEnemySqr <= d0 && this.field_234037_i_ <= 0) {
             this.field_234037_i_ = 20;
-            this.attacker.swingArm(Hand.MAIN_HAND);
-            this.attacker.attackEntityAsMob(enemy);
-            this.attacker.resetActiveHand();
-            ((GuardEntity) this.attacker).shieldCoolDown = 10;
+            this.guard.swingArm(Hand.MAIN_HAND);
+            this.guard.attackEntityAsMob(enemy);
+            this.guard.resetActiveHand();
+            if (guard.shieldCoolDown == 0) {
+                this.guard.shieldCoolDown = 10;
+            }
         }
     }
 

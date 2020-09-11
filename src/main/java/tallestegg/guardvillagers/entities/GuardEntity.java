@@ -38,7 +38,6 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
@@ -52,7 +51,6 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArrowItem;
-import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.FireworkRocketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -93,6 +91,7 @@ import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.goals.HeroHurtByTargetGoal;
 import tallestegg.guardvillagers.entities.goals.HeroHurtTargetGoal;
 import tallestegg.guardvillagers.entities.goals.KickGoal;
+import tallestegg.guardvillagers.entities.goals.RaiseShieldGoal;
 import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
 import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
 
@@ -251,7 +250,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             --this.shieldCoolDown;
         }
         this.updateArmSwingProgress();
-        this.raiseShield();
+        //this.raiseShield();
         super.livingTick();
     }
 
@@ -301,23 +300,20 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         }
     }
 
-    public void raiseShield() {
-        if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 4.0D && this.coolDown == 0 || this.getHeldItemOffhand().getItem() instanceof ShieldItem && GuardConfig.GuardAlwaysShield
-                || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity
-                || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem)) {
-            this.setActiveHand(Hand.OFF_HAND);
-            this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.3F);
+    /*public void raiseShield() {
+        if (this.shieldCoolDown == 0) {
+            if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 4.0D || this.getHeldItemOffhand().getItem() instanceof ShieldItem && GuardConfig.GuardAlwaysShield
+                    || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity
+                    || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem)) {
+                this.setActiveHand(Hand.OFF_HAND);
+                this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.3F);
+            }
+            if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive() && !GuardConfig.GuardAlwaysShield) {
+                this.resetActiveHand();
+                this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
+            }
         }
-        if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive() && !GuardConfig.GuardAlwaysShield) {
-            this.resetActiveHand();
-            this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
-        }
-    }
-
-    public void kick(float f1) {
-        this.setKicking(true);
-        this.kickTicks = 9;
-    }
+    }*/
 
     @Override
     protected void registerData() {
@@ -379,6 +375,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.goalSelector.addGoal(1, new ReturnToVillageGoal(this, 0.6D, false));
         this.goalSelector.addGoal(1, new PatrolVillageGoal(this, 0.6D));
         this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
+        this.goalSelector.addGoal(1, new KickGoal(this));
+        this.goalSelector.addGoal(1, new RaiseShieldGoal(this));
         this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
             return false;
         }));
@@ -422,13 +420,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 }
             });
         }
-        this.goalSelector.addGoal(1, new KickGoal(this));
         this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
         this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
         this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
         this.targetSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.targetSelector.addGoal(3, new GuardMeleeGoal(this, 1.0D, true));
+        this.targetSelector.addGoal(3, new GuardMeleeGoal(this, 0.8D, true));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));

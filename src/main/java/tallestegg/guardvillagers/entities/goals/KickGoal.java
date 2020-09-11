@@ -14,19 +14,21 @@ public class KickGoal extends Goal {
 
     @Override
     public boolean shouldExecute() {
-        return guard.getAttackTarget() != null && guard.getAttackTarget().getDistance(guard) <= 3.0D && guard.getHeldItemMainhand().getItem() instanceof CrossbowItem;
+        return guard.getAttackTarget() != null && guard.getAttackTarget().getDistance(guard) <= 2.5D && guard.getHeldItemMainhand().getItem() instanceof CrossbowItem && guard.kickCoolDown == 0;
     }
 
     @Override
     public void startExecuting() {
         guard.setKicking(true);
-        guard.kickTicks = 10;
+        if (guard.kickTicks <= 0) {
+            guard.kickTicks = 10;
+        }
         guard.attackEntityAsMob(guard.getAttackTarget());
     }
 
     @Override
     public void resetTask() {
-        guard.kickTicks = 0;
-        guard.setKicking(true);
+        guard.setKicking(false);
+        guard.kickCoolDown = 10;
     }
 }
