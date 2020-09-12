@@ -21,7 +21,12 @@ public class RaiseShieldGoal extends Goal {
 
     @Override
     public boolean shouldExecute() {
-        return guard.getHeldItemOffhand().getItem().isShield(guard.getHeldItemOffhand(), guard) && raiseShield() && guard.shieldCoolDown == 0 && guard.isAggressive() && guard.getAttackTarget() != null;
+        return guard.getHeldItemOffhand().getItem().isShield(guard.getHeldItemOffhand(), guard) && raiseShield() && guard.shieldCoolDown == 0;
+    }
+
+    @Override
+    public boolean shouldContinueExecuting() {
+        return this.shouldExecute();
     }
 
     @Override
@@ -34,9 +39,10 @@ public class RaiseShieldGoal extends Goal {
 
     @Override
     public void resetTask() {
-        if (!GuardConfig.GuardAlwaysShield)
+        if (!GuardConfig.GuardAlwaysShield && !guard.isAggressive()) {
             guard.resetActiveHand();
-        guard.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
+            guard.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
+        }
     }
 
     protected boolean raiseShield() {
