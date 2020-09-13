@@ -28,7 +28,7 @@ public class GuardMeleeGoal extends MeleeAttackGoal {
     @Override
     protected void checkAndPerformAttack(LivingEntity enemy, double distToEnemySqr) {
         double d0 = this.getAttackReachSqr(enemy);
-        if (distToEnemySqr <= d0 && this.field_234037_i_ <= 0 && guard.canEntityBeSeen(enemy)) {
+        if (distToEnemySqr <= d0 && this.field_234037_i_ <= 0) {
             this.field_234037_i_ = 20;
             this.guard.swingArm(Hand.MAIN_HAND);
             this.guard.attackEntityAsMob(enemy);
