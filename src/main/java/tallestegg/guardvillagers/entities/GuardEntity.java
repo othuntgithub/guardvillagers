@@ -78,6 +78,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -106,7 +107,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public int coolDown;
     public PlayerEntity hero;
     private int field_234197_bv_;
-    private static final RangedInteger field_234196_bu_ = TickRangeConverter.func_233037_a_(20, 39);
+    private static final RangedInteger field_234196_bu_ = TickRangeConverter.convertRange(20, 39);
     private UUID field_234198_bw_;
 
     public GuardEntity(EntityType<? extends GuardEntity> type, World world) {
@@ -119,9 +120,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
 
     @Override
-    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) {
+    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) {
         this.enablePersistence();
-        int type = GuardEntity.getRandomTypeForBiome(world, this.func_233580_cy_());
+        int type = GuardEntity.getRandomTypeForBiome(world, this.getPosition());
         if (spawnDataIn instanceof GuardEntity.GuardData) {
             type = ((GuardEntity.GuardData) spawnDataIn).variantData;
             spawnDataIn = new GuardEntity.GuardData(type);
@@ -163,7 +164,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.coolDown = compound.getInt("Cooldown");
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
-        this.func_241358_a_((ServerWorld) this.world, compound);
+        this.readAngerNBT((ServerWorld) this.world, compound);
     }
 
     @Override
@@ -175,7 +176,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("ShieldCooldown", this.shieldCoolDown);
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
-        this.func_241358_a_((ServerWorld) this.world, compound);
+        this.readAngerNBT((ServerWorld) this.world, compound);
     }
 
     @Override
@@ -188,7 +189,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 }
                 ZombieEntity zombie = (ZombieEntity) cause.getTrueSource();
                 ZombieVillagerEntity zillager = EntityType.ZOMBIE_VILLAGER.create(world);
-                zillager.onInitialSpawn(world, this.world.getDifficultyForLocation(func_233580_cy_()), SpawnReason.CONVERSION, (ILivingEntityData) null, (CompoundNBT) null);
+                zillager.onInitialSpawn((IServerWorld) world, this.world.getDifficultyForLocation(getPosition()), SpawnReason.CONVERSION, (ILivingEntityData) null, (CompoundNBT) null);
                 zillager.copyLocationAndAnglesFrom(this);
                 if (this.hasCustomName()) {
                     zillager.setCustomName(zillager.getCustomName());
@@ -209,7 +210,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 zillager.setInvulnerable(this.isInvulnerable());
                 zombie.world.addEntity(zillager);
                 this.remove(); // oppa gangnam style
-                zombie.world.playEvent((PlayerEntity) null, 1026, zombie.func_233580_cy_(), 0);
+                zombie.world.playEvent((PlayerEntity) null, 1026, zombie.getPosition(), 0);
             }
         }
     }
@@ -217,7 +218,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     @Override
     public boolean attackEntityAsMob(Entity entityIn) {
         if (this.isKicking()) {
-            ((LivingEntity) entityIn).func_233627_a_(1.0F, MathHelper.sin(this.rotationYaw * ((float) Math.PI / 180F)), (-MathHelper.cos(this.rotationYaw * ((float) Math.PI / 180F))));
+            ((LivingEntity) entityIn).applyKnockback(1.0F, MathHelper.sin(this.rotationYaw * ((float) Math.PI / 180F)), (-MathHelper.cos(this.rotationYaw * ((float) Math.PI / 180F))));
             this.kickTicks = 10;
             this.world.setEntityState(this, (byte) 4);
             this.faceEntity(entityIn, 90.0F, 90.0F);
@@ -250,7 +251,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             --this.shieldCoolDown;
         }
         this.updateArmSwingProgress();
-        //this.raiseShield();
+        // this.raiseShield();
         super.livingTick();
     }
 
@@ -299,21 +300,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             this.world.setEntityState(this, (byte) 30);
         }
     }
-
-    /*public void raiseShield() {
-        if (this.shieldCoolDown == 0) {
-            if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget().getDistance(this) <= 4.0D || this.getHeldItemOffhand().getItem() instanceof ShieldItem && GuardConfig.GuardAlwaysShield
-                    || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof CreeperEntity
-                    || this.getHeldItemOffhand().getItem() instanceof ShieldItem && this.getAttackTarget() != null && this.getAttackTarget() instanceof IRangedAttackMob && this.getAttackTarget().getDistance(this) >= 5.0D && !(this.getHeldItemMainhand().getItem() instanceof CrossbowItem)) {
-                this.setActiveHand(Hand.OFF_HAND);
-                this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.3F);
-            }
-            if (this.getHeldItemOffhand().getItem() instanceof ShieldItem && !this.isAggressive() && !GuardConfig.GuardAlwaysShield) {
-                this.resetActiveHand();
-                this.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
-            }
-        }
-    }*/
 
     @Override
     protected void registerData() {
@@ -609,28 +595,28 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
 
     @Override
-    public int func_230256_F__() {
-        return this.field_234197_bv_;
-    }
-
-    @Override
-    public UUID func_230257_G__() {
+    public UUID getAngerTarget() {
         return this.field_234198_bw_;
     }
 
     @Override
-    public void func_230258_H__() {
-        this.func_230260_a__(field_234196_bu_.func_233018_a_(this.rand));
+    public int getAngerTime() {
+        return this.field_234197_bv_;
     }
 
     @Override
-    public void func_230259_a_(@Nullable UUID arg0) {
+    public void setAngerTarget(UUID arg0) {
         this.field_234198_bw_ = arg0;
     }
 
     @Override
-    public void func_230260_a__(int arg0) {
+    public void setAngerTime(int arg0) {
         this.field_234197_bv_ = arg0;
+    }
+    
+    @Override
+    public void func_230258_H__() {
+        this.setAngerTime(field_234196_bu_.func_233018_a_(this.rand));
     }
 
     /*
@@ -650,7 +636,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     // field_233826_i_ = armor
 
     public static AttributeModifierMap.MutableAttribute func_234200_m_() {
-        return MobEntity.func_233666_p_().func_233815_a_(Attributes.field_233818_a_, 20.0D).func_233815_a_(Attributes.field_233821_d_, 0.5D).func_233815_a_(Attributes.field_233823_f_, 1.0D).func_233815_a_(Attributes.field_233819_b_, 25.0D).func_233815_a_(Attributes.field_233826_i_, 1.0D);
+        return MobEntity.func_233666_p_().createMutableAttribute(Attributes.MAX_HEALTH, 20.0D).createMutableAttribute(Attributes.MOVEMENT_SPEED, 0.5D).createMutableAttribute(Attributes.ATTACK_DAMAGE, 1.0D).createMutableAttribute(Attributes.FOLLOW_RANGE, 25.0D)
+                .createMutableAttribute(Attributes.ARMOR, 1.0D);
     }
 
     public static class GuardData implements ILivingEntityData {

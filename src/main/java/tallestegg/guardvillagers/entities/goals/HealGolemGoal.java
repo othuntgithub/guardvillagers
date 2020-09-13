@@ -64,7 +64,7 @@ public class HealGolemGoal extends Goal {
             healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));
             healer.swingArm(Hand.MAIN_HAND);
             golem.heal(15.0F);
-            golem.playSound(SoundEvents.field_226143_fP_, 1.0F, 1.0F);
+            golem.playSound(SoundEvents.ENTITY_IRON_GOLEM_REPAIR, 1.0F, 1.0F);
         }
     }
 

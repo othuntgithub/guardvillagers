@@ -41,7 +41,7 @@ public class GuardVillagers {
         MinecraftForge.EVENT_BUS.register(new VillagerToGuard());
         GuardEntityType.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         GuardItems.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        GuardSpawner.inject();
+        //GuardSpawner.inject();
     }
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -78,7 +78,7 @@ public class GuardVillagers {
 
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void imstuff(final RegistryEvent.Register<EntityType<?>> event) {
-            GlobalEntityTypeAttributes.put(GuardEntityType.GUARD.get(), GuardEntity.func_234200_m_().func_233813_a_());
+            GlobalEntityTypeAttributes.put(GuardEntityType.GUARD.get(), GuardEntity.func_234200_m_().create());
             DeferredSpawnEggItem.initUnaddedEggs(); //credit : Cadiboo
         }
     }

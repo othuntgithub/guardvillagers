@@ -33,7 +33,7 @@ public class RaiseShieldGoal extends Goal {
     public void startExecuting() {
         if (guard.getHeldItemOffhand().getItem().isShield(guard.getHeldItemOffhand(), guard)) {
             guard.setActiveHand(Hand.OFF_HAND);
-            guard.getAttribute(Attributes.field_233821_d_).setBaseValue(0.3F);
+            guard.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.3F);
         }
     }
 
@@ -41,7 +41,7 @@ public class RaiseShieldGoal extends Goal {
     public void resetTask() {
         if (!GuardConfig.GuardAlwaysShield && !guard.isAggressive()) {
             guard.resetActiveHand();
-            guard.getAttribute(Attributes.field_233821_d_).setBaseValue(0.5D);
+            guard.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.5D);
         }
     }
 

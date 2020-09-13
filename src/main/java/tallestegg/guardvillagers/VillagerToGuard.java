@@ -39,7 +39,7 @@ public class VillagerToGuard {
         VillagerEntity villager = (VillagerEntity) entity;
         guard.copyLocationAndAnglesFrom(villager);
         guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, itemstack.copy());
-        int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.func_233580_cy_());
+        int i = GuardEntity.getRandomTypeForBiome(guard.world, guard.getPosition());
         guard.setGuardVariant(i);
         guard.enablePersistence();
         if (villager.hasCustomName()) {
