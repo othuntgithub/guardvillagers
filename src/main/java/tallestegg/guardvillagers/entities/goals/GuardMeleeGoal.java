@@ -2,7 +2,6 @@ package tallestegg.guardvillagers.entities.goals;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.item.CrossbowItem;
 import net.minecraft.util.Hand;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
@@ -17,7 +16,7 @@ public class GuardMeleeGoal extends MeleeAttackGoal {
 
     @Override
     public boolean shouldExecute() {
-        return !(this.guard.getHeldItemMainhand().getItem() instanceof CrossbowItem) && super.shouldExecute();
+        return !(this.guard.getHeldItemMainhand().getItem().isCrossbow(guard.getHeldItemMainhand())) && super.shouldExecute();
     }
 
     @Override

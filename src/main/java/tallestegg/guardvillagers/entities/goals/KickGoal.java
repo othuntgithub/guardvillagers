@@ -29,6 +29,6 @@ public class KickGoal extends Goal {
     @Override
     public void resetTask() {
         guard.setKicking(false);
-        guard.kickCoolDown = 10;
+        guard.kickCoolDown = 50;
     }
 }

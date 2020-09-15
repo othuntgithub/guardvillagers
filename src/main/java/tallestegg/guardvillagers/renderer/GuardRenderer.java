@@ -88,6 +88,11 @@ public class GuardRenderer extends BipedRenderer<GuardEntity, GuardModel> {
         }
         return bipedmodel$armpose;
     }
+    
+    @Override
+    protected void preRenderCallback(GuardEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
+        matrixStackIn.scale(0.9375F, 0.9375F, 0.9375F);
+    }
 
     @Nullable
     @Override

@@ -409,7 +409,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
         this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
-        this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F));
+        this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F) {
+            @Override
+            public boolean shouldContinueExecuting() {
+                return this.entity.getAttackTarget() == null && super.shouldContinueExecuting();
+            }
+        });
         this.targetSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
         this.targetSelector.addGoal(3, new GuardMeleeGoal(this, 0.8D, true));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
@@ -613,7 +618,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public void setAngerTime(int arg0) {
         this.field_234197_bv_ = arg0;
     }
-    
+
     @Override
     public void func_230258_H__() {
         this.setAngerTime(field_234196_bu_.func_233018_a_(this.rand));

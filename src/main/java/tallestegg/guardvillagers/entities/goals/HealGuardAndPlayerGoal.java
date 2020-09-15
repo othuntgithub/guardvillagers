@@ -95,17 +95,13 @@ public class HealGuardAndPlayerGoal extends Goal {
         if (mob.getDistance(healer) <= 3.0D) {
             healer.getMoveHelper().strafe(-0.5F, 0);
         }
-
         this.healer.faceEntity(mob, 30.0F, 30.0F);
-        this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
         if (--this.rangedAttackTime == 0 && mob.getHealth() < mob.getMaxHealth() && mob.isAlive() && healer.getDistance(mob) <= 5.0D) {
             if (!flag) {
                 return;
             }
             float f = MathHelper.sqrt(d0) / this.attackRadius;
             this.throwPotion(mob, 1.0F);
-            this.healer.faceEntity(mob, 30.0F, 30.0F);
-            this.healer.getLookController().setLookPositionWithEntity(this.healer, 30.0F, 30.0F);
             this.rangedAttackTime = MathHelper.floor(f * (float) (this.maxRangedAttackTime - this.attackIntervalMin) + (float) this.attackIntervalMin);
         } else if (this.rangedAttackTime < 0 && healer.getDistance(mob) <= 5.0D) {
             float f2 = MathHelper.sqrt(d0) / this.attackRadius;
