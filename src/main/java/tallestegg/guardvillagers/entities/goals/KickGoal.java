@@ -1,7 +1,6 @@
 package tallestegg.guardvillagers.entities.goals;
 
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.item.CrossbowItem;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class KickGoal extends Goal {
@@ -14,7 +13,7 @@ public class KickGoal extends Goal {
 
     @Override
     public boolean shouldExecute() {
-        return guard.getAttackTarget() != null && guard.getAttackTarget().getDistance(guard) <= 2.5D && guard.getHeldItemMainhand().getItem() instanceof CrossbowItem && guard.kickCoolDown == 0;
+        return guard.getAttackTarget() != null && guard.getAttackTarget().getDistance(guard) <= 2.5D && guard.getHeldItemMainhand().getItem().isCrossbow(guard.getHeldItemMainhand()) && !guard.getHeldItemOffhand().isShield(guard) && guard.kickCoolDown == 0;
     }
 
     @Override

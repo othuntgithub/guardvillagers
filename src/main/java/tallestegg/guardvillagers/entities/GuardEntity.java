@@ -25,6 +25,7 @@ import net.minecraft.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.LookAtGoal;
+import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.MoveThroughVillageGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.OpenDoorGoal;
@@ -64,9 +65,11 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
+import net.minecraft.pathfinding.Path;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.Hand;
 import net.minecraft.util.RangedInteger;
 import net.minecraft.util.SoundEvent;
@@ -87,7 +90,6 @@ import net.minecraft.world.server.ServerWorld;
 import tallestegg.guardvillagers.GuardItems;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
-import tallestegg.guardvillagers.entities.goals.GuardMeleeGoal;
 import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.goals.HeroHurtByTargetGoal;
 import tallestegg.guardvillagers.entities.goals.HeroHurtTargetGoal;
@@ -416,7 +418,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             }
         });
         this.targetSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.targetSelector.addGoal(3, new GuardMeleeGoal(this, 0.8D, true));
+        this.targetSelector.addGoal(3, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
@@ -754,6 +756,51 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             this.guard.getNavigator().clearPath();
             guard.following = false;
             guard.hero = null;
+        }
+    }
+
+    public class GuardMeleeGoal extends MeleeAttackGoal {
+
+        public final GuardEntity guard;
+
+        public GuardMeleeGoal(GuardEntity guard, double speedIn, boolean useLongMemory) {
+            super(guard, speedIn, useLongMemory);
+            this.guard = guard;
+        }
+
+        @Override
+        public boolean shouldExecute() {
+            return !(this.guard.getHeldItemMainhand().getItem().isCrossbow(guard.getHeldItemMainhand())) && this.guard.getAttackTarget() != null && super.shouldExecute();
+        }
+        
+        @Override
+        public boolean shouldContinueExecuting() {
+            return super.shouldContinueExecuting() && this.guard.getAttackTarget() != null;
+        }
+        
+        @Override
+        public void tick() {
+            if (this.guard.getAttackTarget() != null) {
+                super.tick();
+            }
+        }
+        @Override
+        protected double getAttackReachSqr(LivingEntity attackTarget) {
+            return super.getAttackReachSqr(attackTarget) * 3.55D;
+        }
+
+        @Override
+        protected void checkAndPerformAttack(LivingEntity enemy, double distToEnemySqr) {
+            double d0 = this.getAttackReachSqr(enemy);
+            if (distToEnemySqr <= d0 && this.field_234037_i_ <= 0) {
+                this.field_234037_i_ = 20;
+                this.guard.swingArm(Hand.MAIN_HAND);
+                this.guard.attackEntityAsMob(enemy);
+                this.guard.resetActiveHand();
+                if (guard.shieldCoolDown == 0) {
+                    this.guard.shieldCoolDown = 8;
+                }
+            }
         }
     }
 }

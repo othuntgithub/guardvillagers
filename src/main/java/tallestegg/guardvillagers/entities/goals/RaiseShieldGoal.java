@@ -38,6 +38,15 @@ public class RaiseShieldGoal extends Goal {
     }
 
     @Override
+    public void tick() {
+        if (guard.getActiveHand() == Hand.OFF_HAND) {
+            guard.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.3F);
+        } else {
+            guard.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.5D);
+        }
+    }
+
+    @Override
     public void resetTask() {
         if (!GuardConfig.GuardAlwaysShield && !guard.isAggressive()) {
             guard.resetActiveHand();

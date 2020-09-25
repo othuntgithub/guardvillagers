@@ -110,9 +110,7 @@ public class HandlerEvents {
             illusioner.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(illusioner, GuardEntity.class, false));
             if (GuardConfig.RaidAnimals) {
                 if (illusioner.isRaidActive()) {
-                    {
-                        illusioner.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(illusioner, AnimalEntity.class, false));
-                    }
+                    illusioner.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(illusioner, AnimalEntity.class, false));
                 }
             }
         }
