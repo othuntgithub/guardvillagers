@@ -65,11 +65,9 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
-import net.minecraft.pathfinding.Path;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.Hand;
 import net.minecraft.util.RangedInteger;
 import net.minecraft.util.SoundEvent;
@@ -772,18 +770,19 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         public boolean shouldExecute() {
             return !(this.guard.getHeldItemMainhand().getItem().isCrossbow(guard.getHeldItemMainhand())) && this.guard.getAttackTarget() != null && super.shouldExecute();
         }
-        
+
         @Override
         public boolean shouldContinueExecuting() {
             return super.shouldContinueExecuting() && this.guard.getAttackTarget() != null;
         }
-        
+
         @Override
         public void tick() {
             if (this.guard.getAttackTarget() != null) {
                 super.tick();
             }
         }
+
         @Override
         protected double getAttackReachSqr(LivingEntity attackTarget) {
             return super.getAttackReachSqr(attackTarget) * 3.55D;
