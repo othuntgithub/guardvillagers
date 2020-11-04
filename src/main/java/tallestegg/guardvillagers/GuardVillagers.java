@@ -69,13 +69,6 @@ public class GuardVillagers {
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
-        @SubscribeEvent
-        public static void registerSpawnEggs(final RegistryEvent.Register<Item> event) {
-            event.getRegistry().registerAll(new SpawnEggItem(EntityType.ILLUSIONER, 9804699, 4547222, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "illusioner_spawn_egg"),
-                    new SpawnEggItem(EntityType.IRON_GOLEM, 12960449, 16769484, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "iron_golem_spawn_egg"),
-                    new SpawnEggItem(EntityType.SNOW_GOLEM, 15663103, 16753185, new Item.Properties().group(ItemGroup.MISC)).setRegistryName(GuardVillagers.MODID, "snow_golem_spawn_egg"));
-        }
-
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void imstuff(final RegistryEvent.Register<EntityType<?>> event) {
             GlobalEntityTypeAttributes.put(GuardEntityType.GUARD.get(), GuardEntity.func_234200_m_().create());
