@@ -20,8 +20,8 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
-import tallestegg.guardvillagers.entities.goals.HealGolemGoal;
-import tallestegg.guardvillagers.entities.goals.HealGuardAndPlayerGoal;
+import tallestegg.guardvillagers.entities.ai.goals.HealGolemGoal;
+import tallestegg.guardvillagers.entities.ai.goals.HealGuardAndPlayerGoal;
 
 public class HandlerEvents {
     @SubscribeEvent

@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.models;
+package tallestegg.guardvillagers.client.models;
 
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;

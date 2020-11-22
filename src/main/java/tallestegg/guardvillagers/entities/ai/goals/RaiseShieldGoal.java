@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.entities.goals;
+package tallestegg.guardvillagers.entities.ai.goals;
 
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
@@ -48,7 +48,7 @@ public class RaiseShieldGoal extends Goal {
 
     @Override
     public void resetTask() {
-        if (!GuardConfig.GuardAlwaysShield && !guard.isAggressive()) {
+        if (!GuardConfig.GuardAlwaysShield && !guard.isAggressive() && guard.getAttackTarget() == null) {
             guard.resetActiveHand();
             guard.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.5D);
         }

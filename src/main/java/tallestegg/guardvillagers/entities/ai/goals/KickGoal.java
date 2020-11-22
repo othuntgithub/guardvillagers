@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.entities.goals;
+package tallestegg.guardvillagers.entities.ai.goals;
 
 import net.minecraft.entity.ai.goal.Goal;
 import tallestegg.guardvillagers.entities.GuardEntity;

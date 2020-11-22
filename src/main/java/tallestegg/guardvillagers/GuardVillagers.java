@@ -2,9 +2,6 @@ package tallestegg.guardvillagers;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.SpawnEggItem;
 import net.minecraft.world.raid.Raid;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -20,10 +17,10 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import tallestegg.guardvillagers.client.renderer.GuardRenderer;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
 import tallestegg.guardvillagers.items.DeferredSpawnEggItem;
-import tallestegg.guardvillagers.renderer.GuardRenderer;
 
 @Mod(GuardVillagers.MODID)
 public class GuardVillagers {
@@ -41,6 +38,7 @@ public class GuardVillagers {
         MinecraftForge.EVENT_BUS.register(new VillagerToGuard());
         GuardEntityType.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         GuardItems.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        GuardPacketHandler.registerPackets();
         //GuardSpawner.inject();
     }
 

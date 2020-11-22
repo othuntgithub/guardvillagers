@@ -35,7 +35,6 @@ import net.minecraft.entity.ai.goal.ResetAngerGoal;
 import net.minecraft.entity.ai.goal.ReturnToVillageGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
@@ -48,11 +47,13 @@ import net.minecraft.entity.monster.ZombieVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.IInventoryChangedListener;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArrowItem;
-import net.minecraft.item.FireworkRocketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.ShieldItem;
@@ -85,21 +86,27 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Category;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import tallestegg.guardvillagers.GuardItems;
+import tallestegg.guardvillagers.GuardPacketHandler;
 import tallestegg.guardvillagers.configuration.GuardConfig;
-import tallestegg.guardvillagers.entities.goals.FollowShieldGuards;
-import tallestegg.guardvillagers.entities.goals.HelpVillagerGoal;
-import tallestegg.guardvillagers.entities.goals.HeroHurtByTargetGoal;
-import tallestegg.guardvillagers.entities.goals.HeroHurtTargetGoal;
-import tallestegg.guardvillagers.entities.goals.KickGoal;
-import tallestegg.guardvillagers.entities.goals.RaiseShieldGoal;
-import tallestegg.guardvillagers.entities.goals.RangedCrossbowAttackPassiveGoal;
-import tallestegg.guardvillagers.entities.goals.WalkRunWhileReloading;
+import tallestegg.guardvillagers.entities.ai.goals.FollowShieldGuards;
+import tallestegg.guardvillagers.entities.ai.goals.HelpVillagerGoal;
+import tallestegg.guardvillagers.entities.ai.goals.HeroHurtByTargetGoal;
+import tallestegg.guardvillagers.entities.ai.goals.HeroHurtTargetGoal;
+import tallestegg.guardvillagers.entities.ai.goals.KickGoal;
+import tallestegg.guardvillagers.entities.ai.goals.RaiseShieldGoal;
+import tallestegg.guardvillagers.entities.ai.goals.RangedCrossbowAttackPassiveGoal;
+import tallestegg.guardvillagers.entities.ai.goals.WalkRunWhileReloading;
+import tallestegg.guardvillagers.networking.GuardOpenInventoryPacket;
 
-public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob, IAngerable {
+public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob, IAngerable, IInventoryChangedListener {
     private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
+    public Inventory guardInventory = new Inventory(8);
     public int kickTicks;
     public int shieldCoolDown;
     public int kickCoolDown;
@@ -164,6 +171,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.coolDown = compound.getInt("Cooldown");
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
+        this.guardInventory.read(compound.getList("Inventory", 10));
         this.readAngerNBT((ServerWorld) this.world, compound);
     }
 
@@ -176,7 +184,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("ShieldCooldown", this.shieldCoolDown);
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
-        this.readAngerNBT((ServerWorld) this.world, compound);
+        compound.put("Inventory", this.guardInventory.write());
+        this.writeAngerNBT(compound);
     }
 
     @Override
@@ -251,7 +260,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             --this.shieldCoolDown;
         }
         this.updateArmSwingProgress();
-        // this.raiseShield();
         super.livingTick();
     }
 
@@ -260,32 +268,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         super.blockUsingShield(entityIn);
         if (entityIn.getHeldItemMainhand().canDisableShield(this.activeItemStack, this, entityIn)) {
             this.disableShield(true);
-        }
-    }
-
-    @Override
-    protected void updateEquipmentIfNeeded(ItemEntity itemEntity) {
-        ItemStack itemstack = itemEntity.getItem();
-        EquipmentSlotType equipmentslottype = getSlotForItemStack(itemstack);
-        ItemStack itemstack1 = this.getItemStackFromSlot(equipmentslottype);
-        if (this.canEquipItem(itemstack) && itemEntity.getItem().getItem() instanceof ArmorItem && this.coolDown == 0) {
-            if (!itemstack1.isEmpty()) {
-                this.entityDropItem(itemstack1);
-            }
-            this.coolDown = 200;
-
-            this.setItemStackToSlot(equipmentslottype, itemstack);
-            switch (equipmentslottype.getSlotType()) {
-            case HAND:
-                this.inventoryHandsDropChances[equipmentslottype.getIndex()] = 2.0F;
-                break;
-            case ARMOR:
-                this.inventoryArmorDropChances[equipmentslottype.getIndex()] = 2.0F;
-            }
-
-            this.enablePersistence();
-            this.onItemPickup(itemEntity, itemstack.getCount());
-            itemEntity.remove();
         }
     }
 
@@ -406,7 +388,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 }
             });
         }
-        this.goalSelector.addGoal(4, new GuardEntity.MoveToArmorPieceGoal(this));
+        this.goalSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
+        this.goalSelector.addGoal(3, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
         this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F) {
@@ -415,8 +398,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 return this.entity.getAttackTarget() == null && super.shouldContinueExecuting();
             }
         });
-        this.targetSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.targetSelector.addGoal(3, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
@@ -512,8 +493,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void func_230283_U__() {
-        // TODO Auto-generated method stub
-
+        this.idleTime = 0;
     }
 
     @Override
@@ -532,26 +512,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     @Override
     protected ActionResultType func_230254_b_(PlayerEntity player, Hand hand) {
         ItemStack heldStack = player.getHeldItem(hand);
-        if (!(heldStack.getItem() instanceof ShieldItem || heldStack.getItem() instanceof ArrowItem || heldStack.getItem() instanceof FireworkRocketItem) && !(heldStack.getItem().isFood()) && player.isCrouching()) {
-            if (this.getAttackTarget() != player && !this.world.isRemote) {
-                this.entityDropItem(this.getHeldItemMainhand());
-                this.setItemStackToSlot(EquipmentSlotType.MAINHAND, heldStack.copy());
-                if (!player.abilities.isCreativeMode)
-                    heldStack.shrink(1);
-                return ActionResultType.SUCCESS;
-            }
+        if (player.isCrouching() && this.isServerWorld()) {
+            this.openGui((ServerPlayerEntity) player);
+            return ActionResultType.func_233537_a_(this.world.isRemote);
         }
-
-        if (heldStack.getItem() instanceof ShieldItem && player.isCrouching() || heldStack.getItem() instanceof ArrowItem && player.isCrouching() || heldStack.getItem() instanceof FireworkRocketItem && player.isCrouching()) {
-            if (this.getAttackTarget() != player && !this.world.isRemote) {
-                this.entityDropItem(this.getHeldItemOffhand());
-                this.setItemStackToSlot(EquipmentSlotType.OFFHAND, heldStack.copy());
-                if (!player.abilities.isCreativeMode)
-                    heldStack.shrink(1);
-                return ActionResultType.SUCCESS;
-            }
-        }
-
         if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) {
             this.heal(heldStack.getItem().getFood().getHealing());
             this.playHealEffect();
@@ -561,11 +525,33 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         }
         if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
             this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
-            ;
             this.following = !this.following;
             return ActionResultType.SUCCESS;
         }
         return ActionResultType.SUCCESS;
+    }
+
+    @Override
+    public boolean replaceItemInInventory(int inventorySlot, ItemStack itemStackIn) {
+        int i = inventorySlot - 400;
+        if (i >= 0 && i < 2 && i < this.guardInventory.getSizeInventory()) {
+            if (i == 0) {
+                return false;
+            } else if (i != 1 || itemStackIn.getItem() instanceof ArmorItem) {
+                this.guardInventory.setInventorySlotContents(i, itemStackIn);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int j = inventorySlot - 500 + 2;
+            if (j >= 2 && j < this.guardInventory.getSizeInventory()) {
+                this.guardInventory.setInventorySlotContents(j, itemStackIn);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     protected void playHealEffect() {
@@ -600,6 +586,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
 
     @Override
+    public void onInventoryChanged(IInventory invBasic) {
+    }
+
+    @Override
     public UUID getAngerTarget() {
         return this.field_234198_bw_;
     }
@@ -622,6 +612,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     @Override
     public void func_230258_H__() {
         this.setAngerTime(field_234196_bu_.func_233018_a_(this.rand));
+    }
+
+    public void openGui(ServerPlayerEntity player) {
+        if (player.openContainer != player.container) {
+            player.closeScreen();
+        }
+        player.getNextWindowId();
+        GuardPacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new GuardOpenInventoryPacket(player.currentWindowId, this.guardInventory.getSizeInventory(), this.getEntityId()));
+        player.openContainer = new GuardContainer(player.currentWindowId, player.inventory, this.guardInventory, this);
+        player.openContainer.addListener(player);
+        MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, player.openContainer));
     }
 
     /*
@@ -651,24 +652,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         public GuardData(int type) {
             this.variantData = type;
         }
-    }
-
-    public static class MoveToArmorPieceGoal extends Goal {
-        private final GuardEntity guard;
-
-        public MoveToArmorPieceGoal(GuardEntity guard) {
-            this.guard = guard;
-        }
-
-        @Override
-        public boolean shouldExecute() {
-            List<ItemEntity> list = this.guard.world.getEntitiesWithinAABB(ItemEntity.class, this.guard.getBoundingBox().grow(3.0D, 3.0D, 3.0D));
-            if (!list.isEmpty() && list.get(0).getItem().getItem() instanceof ArmorItem) {
-                return this.guard.getNavigator().tryMoveToEntityLiving(list.get(0), (double) 1.15F);
-            }
-            return false;
-        }
-
     }
 
     public static class DefendVillageGuardGoal extends TargetGoal {

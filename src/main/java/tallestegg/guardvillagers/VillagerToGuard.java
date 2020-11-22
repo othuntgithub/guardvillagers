@@ -10,6 +10,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,15 +26,17 @@ public class VillagerToGuard {
             if (target instanceof VillagerEntity) {
                 VillagerEntity villager = (VillagerEntity) event.getTarget();
                 if (!villager.isChild() && villager.getVillagerData().getProfession() == VillagerProfession.NONE || villager.getVillagerData().getProfession() == VillagerProfession.NITWIT) {
-                    this.VillagerConvert(villager, event.getPlayer());
-                    if (!event.getPlayer().abilities.isCreativeMode)
-                        itemstack.shrink(1);
+                    if (event.getPlayer().isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
+                        this.convertVillager(villager, event.getPlayer());
+                        if (!event.getPlayer().abilities.isCreativeMode)
+                            itemstack.shrink(1);
+                    }
                 }
             }
         }
     }
 
-    private void VillagerConvert(LivingEntity entity, PlayerEntity player) {
+    private void convertVillager(LivingEntity entity, PlayerEntity player) {
         ItemStack itemstack = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
         GuardEntity guard = GuardEntityType.GUARD.get().create(entity.world);
         VillagerEntity villager = (VillagerEntity) entity;

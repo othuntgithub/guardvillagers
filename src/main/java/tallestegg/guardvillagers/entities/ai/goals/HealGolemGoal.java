@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.entities.goals;
+package tallestegg.guardvillagers.entities.ai.goals;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvents;
-
+//TODO make this a task instead of a goal.
 public class HealGolemGoal extends Goal {
     public final MobEntity healer;
     public IronGolemEntity golem;

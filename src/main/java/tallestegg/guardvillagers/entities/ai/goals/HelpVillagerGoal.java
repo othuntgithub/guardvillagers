@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.entities.goals;
+package tallestegg.guardvillagers.entities.ai.goals;
 
 import java.util.EnumSet;
 import java.util.List;
