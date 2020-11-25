@@ -11,7 +11,7 @@ import tallestegg.guardvillagers.entities.GuardContainer;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
-    private static final ResourceLocation HORSE_GUI_TEXTURES = new ResourceLocation("textures/gui/container/horse.png");
+    private static final ResourceLocation GUARD_GUI_TEXTURES = new ResourceLocation("guardvillagers:textures/container/inventory.png");
     private final GuardEntity guard;
     private float mousePosx;
     private float mousePosY;
@@ -25,11 +25,11 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bindTexture(HORSE_GUI_TEXTURES);
+        this.minecraft.getTextureManager().bindTexture(GUARD_GUI_TEXTURES);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
         this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
-        InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float) (i + 51) - this.mousePosx, (float) (j + 75 - 50) - this.mousePosY, this.guard);
+        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.mousePosx, (float)(j + 75 - 50) - this.mousePosY, this.guard);
     }
 
     @Override

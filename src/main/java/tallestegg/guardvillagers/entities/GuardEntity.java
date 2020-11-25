@@ -106,7 +106,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
-    public Inventory guardInventory = new Inventory(8);
+    public Inventory guardInventory = new Inventory(6);
     public int kickTicks;
     public int shieldCoolDown;
     public int kickCoolDown;
@@ -119,6 +119,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     public GuardEntity(EntityType<? extends GuardEntity> type, World world) {
         super(type, world);
+        this.guardInventory.addListener(this);
+        this.itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> new net.minecraftforge.items.wrapper.InvWrapper(this.guardInventory));
         this.enablePersistence();
         this.setCanPickUpLoot(true);
         if (GuardConfig.GuardsOpenDoors) {
@@ -172,6 +174,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
         this.guardInventory.read(compound.getList("Inventory", 10));
+        this.setItemStackToSlot(EquipmentSlotType.HEAD, this.guardInventory.getStackInSlot(0));
+        this.setItemStackToSlot(EquipmentSlotType.CHEST, this.guardInventory.getStackInSlot(1));
+        this.setItemStackToSlot(EquipmentSlotType.LEGS, this.guardInventory.getStackInSlot(2));
+        this.setItemStackToSlot(EquipmentSlotType.FEET, this.guardInventory.getStackInSlot(3));
+        this.setItemStackToSlot(EquipmentSlotType.OFFHAND, this.guardInventory.getStackInSlot(4));
+        this.setItemStackToSlot(EquipmentSlotType.MAINHAND, this.guardInventory.getStackInSlot(5));
         this.readAngerNBT((ServerWorld) this.world, compound);
     }
 
@@ -208,12 +216,13 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 if (this.isNoDespawnRequired()) {
                     zillager.enablePersistence();
                 }
-                zillager.setItemStackToSlot(EquipmentSlotType.MAINHAND, this.getHeldItemMainhand().copy());
-                zillager.setItemStackToSlot(EquipmentSlotType.OFFHAND, this.getHeldItemOffhand().copy());
-                zillager.setItemStackToSlot(EquipmentSlotType.HEAD, this.getItemStackFromSlot(EquipmentSlotType.HEAD).copy());
-                zillager.setItemStackToSlot(EquipmentSlotType.CHEST, this.getItemStackFromSlot(EquipmentSlotType.CHEST).copy());
-                zillager.setItemStackToSlot(EquipmentSlotType.LEGS, this.getItemStackFromSlot(EquipmentSlotType.LEGS).copy());
-                zillager.setItemStackToSlot(EquipmentSlotType.FEET, this.getItemStackFromSlot(EquipmentSlotType.FEET).copy());
+                for (EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
+                    ItemStack itemstack = this.getItemStackFromSlot(equipmentslottype);
+                    if (!itemstack.isEmpty()) {
+                        zillager.setItemStackToSlot(equipmentslottype, itemstack.copy());
+                        zillager.setDropChance(equipmentslottype, this.getDropChance(equipmentslottype));
+                    }
+                }
                 zillager.setChild(false);
                 zillager.setNoAI(this.isAIDisabled());
                 zillager.setInvulnerable(this.isInvulnerable());
@@ -388,8 +397,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 }
             });
         }
-        this.goalSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.goalSelector.addGoal(3, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.goalSelector.addGoal(8, new LookAtGoal(this, AbstractVillagerEntity.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomWalkingGoal(this, 0.6D));
         this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 8.0F) {
@@ -398,6 +405,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 return this.entity.getAttackTarget() == null && super.shouldContinueExecuting();
             }
         });
+        this.targetSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
+        this.targetSelector.addGoal(3, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
@@ -421,6 +430,52 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     @Override
     public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) {
         this.func_234281_b_(this, 6.0F);
+    }
+
+    @Override
+    public ItemStack getItemStackFromSlot(EquipmentSlotType slotIn) {
+        super.getItemStackFromSlot(slotIn);
+        switch (slotIn) {
+        case CHEST:
+            return this.guardInventory.getStackInSlot(1);
+        case FEET:
+            return this.guardInventory.getStackInSlot(3);
+        case HEAD:
+            return this.guardInventory.getStackInSlot(0);
+        case LEGS:
+            return this.guardInventory.getStackInSlot(2);
+        case OFFHAND:
+            return this.guardInventory.getStackInSlot(4);
+        case MAINHAND:
+            return this.guardInventory.getStackInSlot(5);
+        default:
+            return ItemStack.EMPTY;
+        }
+    }
+
+    @Override
+    public void setItemStackToSlot(EquipmentSlotType slotIn, ItemStack stack) {
+        super.setItemStackToSlot(slotIn, stack);
+        switch (slotIn) {
+        case CHEST:
+            this.guardInventory.setInventorySlotContents(1, stack);
+            break;
+        case FEET:
+            this.guardInventory.setInventorySlotContents(3, stack);
+            break;
+        case HEAD:
+            this.guardInventory.setInventorySlotContents(0, stack);
+            break;
+        case LEGS:
+            this.guardInventory.setInventorySlotContents(2, stack);
+            break;
+        case MAINHAND:
+            this.guardInventory.setInventorySlotContents(5, stack);
+            break;
+        case OFFHAND:
+            this.guardInventory.setInventorySlotContents(4, stack);
+            break;
+        }
     }
 
     @Override
@@ -587,6 +642,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void onInventoryChanged(IInventory invBasic) {
+        /*
+         * if (!world.isRemote()) this.playSound(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC,
+         * 1.0F, 1.0F);
+         */
     }
 
     @Override
@@ -644,6 +703,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public static AttributeModifierMap.MutableAttribute func_234200_m_() {
         return MobEntity.func_233666_p_().createMutableAttribute(Attributes.MAX_HEALTH, 20.0D).createMutableAttribute(Attributes.MOVEMENT_SPEED, 0.5D).createMutableAttribute(Attributes.ATTACK_DAMAGE, 1.0D).createMutableAttribute(Attributes.FOLLOW_RANGE, 25.0D)
                 .createMutableAttribute(Attributes.ARMOR, 1.0D);
+    }
+
+    private net.minecraftforge.common.util.LazyOptional<?> itemHandler = null;
+
+    @Override
+    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable net.minecraft.util.Direction facing) {
+        if (this.isAlive() && capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && itemHandler != null)
+            return itemHandler.cast();
+        return super.getCapability(capability, facing);
     }
 
     public static class GuardData implements ILivingEntityData {

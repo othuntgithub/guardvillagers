@@ -1,12 +1,18 @@
 package tallestegg.guardvillagers.entities;
 
+import com.mojang.datafixers.util.Pair;
+
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public class GuardContainer extends Container {
     private final IInventory guardInventory;
@@ -17,28 +23,84 @@ public class GuardContainer extends Container {
         this.guardInventory = guardInventory;
         this.guard = guard;
         guardInventory.openInventory(playerInventory.player);
-        this.addSlot(new Slot(guardInventory, 0, 8, 18) {
+        this.addSlot(new Slot(guardInventory, 0, 8, 9) {
+            @Override
             public boolean isItemValid(ItemStack stack) {
-                return true;
+                return stack.canEquip(EquipmentSlotType.HEAD, guard);
             }
 
-            public boolean isEnabled() {
-                return true;
+            @Override
+            public int getSlotStackLimit() {
+                return 1;
+            }
+
+            @Override
+            public Pair<ResourceLocation, ResourceLocation> getBackground() {
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
             }
         });
-        this.addSlot(new Slot(guardInventory, 1, 8, 36) {
-            /**
-             * Check if the stack is allowed to be placed in this slot, used for armor slots
-             * as well as furnace fuel.
-             */
+        this.addSlot(new Slot(guardInventory, 1, 8, 26) {
+            @Override
             public boolean isItemValid(ItemStack stack) {
-                return true;
+                return stack.canEquip(EquipmentSlotType.CHEST, guard);
             }
 
-            public boolean isEnabled() {
-                return true;
+            @Override
+            public int getSlotStackLimit() {
+                return 1;
             }
 
+            @Override
+            public Pair<ResourceLocation, ResourceLocation> getBackground() {
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
+            }
+        });
+        this.addSlot(new Slot(guardInventory, 2, 8, 44) {
+            @Override
+            public boolean isItemValid(ItemStack stack) {
+                return stack.canEquip(EquipmentSlotType.LEGS, guard);
+            }
+
+            @Override
+            public int getSlotStackLimit() {
+                return 1;
+            }
+
+            @Override
+            public Pair<ResourceLocation, ResourceLocation> getBackground() {
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
+            }
+        });
+        this.addSlot(new Slot(guardInventory, 3, 8, 62) {
+            @Override
+            public boolean isItemValid(ItemStack stack) {
+                return stack.canEquip(EquipmentSlotType.FEET, guard);
+            }
+
+            @Override
+            public int getSlotStackLimit() {
+                return 1;
+            }
+
+            @Override
+            public Pair<ResourceLocation, ResourceLocation> getBackground() {
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
+            }
+        });
+        this.addSlot(new Slot(guardInventory, 4, 77, 62) {
+            @Override
+            public int getSlotStackLimit() {
+                return 1;
+            }
+
+            @Override
+            public Pair<ResourceLocation, ResourceLocation> getBackground() {
+                return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
+            }
+        });
+        
+        this.addSlot(new Slot(guardInventory, 5, 77, 44) {
+            @Override
             public int getSlotStackLimit() {
                 return 1;
             }
@@ -107,9 +169,7 @@ public class GuardContainer extends Container {
         return itemstack;
     }
 
-    /**
-     * Called when the container is closed.
-     */
+    @Override
     public void onContainerClosed(PlayerEntity playerIn) {
         super.onContainerClosed(playerIn);
         this.guardInventory.closeInventory(playerIn);
