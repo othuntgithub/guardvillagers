@@ -60,6 +60,7 @@ import net.minecraft.item.ShieldItem;
 import net.minecraft.item.ShootableItem;
 import net.minecraft.item.UseAction;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -173,13 +174,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.coolDown = compound.getInt("Cooldown");
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
-        this.guardInventory.read(compound.getList("Inventory", 10));
-        this.setItemStackToSlot(EquipmentSlotType.HEAD, this.guardInventory.getStackInSlot(0));
-        this.setItemStackToSlot(EquipmentSlotType.CHEST, this.guardInventory.getStackInSlot(1));
-        this.setItemStackToSlot(EquipmentSlotType.LEGS, this.guardInventory.getStackInSlot(2));
-        this.setItemStackToSlot(EquipmentSlotType.FEET, this.guardInventory.getStackInSlot(3));
-        this.setItemStackToSlot(EquipmentSlotType.OFFHAND, this.guardInventory.getStackInSlot(4));
-        this.setItemStackToSlot(EquipmentSlotType.MAINHAND, this.guardInventory.getStackInSlot(5));
+        ListNBT listnbt = compound.getList("Inventory", 10);
+        for (int i = 0; i < listnbt.size(); ++i) {
+            CompoundNBT compoundnbt = listnbt.getCompound(i);
+            int j = compoundnbt.getByte("Slot") & 255;
+            this.guardInventory.setInventorySlotContents(j, ItemStack.read(compoundnbt));
+        }
         this.readAngerNBT((ServerWorld) this.world, compound);
     }
 
@@ -192,7 +192,25 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("ShieldCooldown", this.shieldCoolDown);
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
-        compound.put("Inventory", this.guardInventory.write());
+        for (int j = 0; j < this.guardInventory.getSizeInventory(); ++j) {
+            ItemStack itemstack = this.guardInventory.getStackInSlot(j);
+            if (!itemstack.isEmpty()) {
+                this.guardInventory.setInventorySlotContents(j, itemstack.copy());
+            }
+        }
+        ListNBT listnbt = new ListNBT();
+
+        for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
+            ItemStack itemstack = this.guardInventory.getStackInSlot(i);
+            if (!itemstack.isEmpty()) {
+                CompoundNBT compoundnbt = new CompoundNBT();
+                compoundnbt.putByte("Slot", (byte) i);
+                itemstack.write(compoundnbt);
+                listnbt.add(compoundnbt);
+            }
+        }
+
+        compound.put("Inventory", listnbt);
         this.writeAngerNBT(compound);
     }
 
@@ -642,10 +660,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void onInventoryChanged(IInventory invBasic) {
-        /*
-         * if (!world.isRemote()) this.playSound(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC,
-         * 1.0F, 1.0F);
-         */
     }
 
     @Override

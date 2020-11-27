@@ -2,7 +2,6 @@ package tallestegg.guardvillagers.entities;
 
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EquipmentSlotType;
