@@ -192,12 +192,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("ShieldCooldown", this.shieldCoolDown);
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
-        for (int j = 0; j < this.guardInventory.getSizeInventory(); ++j) {
-            ItemStack itemstack = this.guardInventory.getStackInSlot(j);
-            if (!itemstack.isEmpty()) {
-                this.guardInventory.setInventorySlotContents(j, itemstack.copy());
-            }
-        }
         ListNBT listnbt = new ListNBT();
 
         for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
@@ -857,7 +851,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         protected void checkAndPerformAttack(LivingEntity enemy, double distToEnemySqr) {
             double d0 = this.getAttackReachSqr(enemy);
             if (distToEnemySqr <= d0 && this.field_234037_i_ <= 0) {
-                this.field_234037_i_ = 20;
+                this.func_234039_g_();
                 this.guard.swingArm(Hand.MAIN_HAND);
                 this.guard.attackEntityAsMob(enemy);
                 this.guard.resetActiveHand();

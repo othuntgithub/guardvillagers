@@ -129,7 +129,7 @@ public class HealGuardAndPlayerGoal extends Goal {
         potionentity.setItem(PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), potion));
         potionentity.rotationPitch -= -20.0F;
         potionentity.shoot(d0, d1 + (double) (f * 0.2F), d2, 0.75F, 8.0F);
-        healer.world.playSound((PlayerEntity) null, healer.getPosX(), healer.getPosY(), healer.getPosZ(), SoundEvents.ENTITY_SPLASH_POTION_THROW, healer.getSoundCategory(), 1.0F, 0.8F + healer.rand.nextFloat() * 0.4F);
+        healer.world.playSound((PlayerEntity) null, healer.getPosX(), healer.getPosY(), healer.getPosZ(), SoundEvents.ENTITY_SPLASH_POTION_THROW, healer.getSoundCategory(), 1.0F, 0.8F + healer.getRNG().nextFloat() * 0.4F);
         healer.world.addEntity(potionentity);
     }
 }
