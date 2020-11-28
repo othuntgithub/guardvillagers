@@ -165,6 +165,22 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         return SoundEvents.ENTITY_VILLAGER_DEATH;
     }
 
+    public static int slotToInventoryIndex(EquipmentSlotType slot) {
+        switch (slot) {
+        case CHEST:
+            return 1;
+        case FEET:
+            return 3;
+        case HEAD:
+            return 0;
+        case LEGS:
+            return 2;
+        default:
+            break;
+        }
+        return 0;
+    }
+
     @Override
     public void readAdditional(CompoundNBT compound) {
         super.readAdditional(compound);
@@ -180,6 +196,22 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             int j = compoundnbt.getByte("Slot") & 255;
             this.guardInventory.setInventorySlotContents(j, ItemStack.read(compoundnbt));
         }
+        if (compound.contains("ArmorItems", 9)) {
+            ListNBT armorItems = compound.getList("ArmorItems", 10);
+            for (int i = 0; i < this.inventoryArmor.size(); ++i) {
+                this.inventoryArmor.set(i, ItemStack.read(armorItems.getCompound(i)));
+                int index = GuardEntity.slotToInventoryIndex(MobEntity.getSlotForItemStack(ItemStack.read(armorItems.getCompound(i))));
+                this.guardInventory.setInventorySlotContents(index, ItemStack.read(armorItems.getCompound(i)));
+            }
+        }
+        if (compound.contains("HandItems", 9)) {
+            ListNBT handItems = compound.getList("HandItems", 10);
+            for (int i = 0; i < this.inventoryHands.size(); ++i) {
+                this.inventoryHands.set(i, ItemStack.read(handItems.getCompound(i)));
+                int handSlot = i == 0 ? 5 : 4; //TODO find a better way to do this
+                this.guardInventory.setInventorySlotContents(handSlot, ItemStack.read(handItems.getCompound(i)));
+            }
+        }
         this.readAngerNBT((ServerWorld) this.world, compound);
     }
 
@@ -193,7 +225,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
         ListNBT listnbt = new ListNBT();
-
         for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
             ItemStack itemstack = this.guardInventory.getStackInSlot(i);
             if (!itemstack.isEmpty()) {
@@ -203,7 +234,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 listnbt.add(compoundnbt);
             }
         }
-
         compound.put("Inventory", listnbt);
         this.writeAngerNBT(compound);
     }
@@ -446,7 +476,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public ItemStack getItemStackFromSlot(EquipmentSlotType slotIn) {
-        super.getItemStackFromSlot(slotIn);
         switch (slotIn) {
         case CHEST:
             return this.guardInventory.getStackInSlot(1);
@@ -470,22 +499,22 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         super.setItemStackToSlot(slotIn, stack);
         switch (slotIn) {
         case CHEST:
-            this.guardInventory.setInventorySlotContents(1, stack);
+            this.guardInventory.setInventorySlotContents(1, this.inventoryArmor.get(slotIn.getIndex()));
             break;
         case FEET:
-            this.guardInventory.setInventorySlotContents(3, stack);
+            this.guardInventory.setInventorySlotContents(3, this.inventoryArmor.get(slotIn.getIndex()));
             break;
         case HEAD:
-            this.guardInventory.setInventorySlotContents(0, stack);
+            this.guardInventory.setInventorySlotContents(0, this.inventoryArmor.get(slotIn.getIndex()));
             break;
         case LEGS:
-            this.guardInventory.setInventorySlotContents(2, stack);
+            this.guardInventory.setInventorySlotContents(2, this.inventoryArmor.get(slotIn.getIndex()));
             break;
         case MAINHAND:
-            this.guardInventory.setInventorySlotContents(5, stack);
+            this.guardInventory.setInventorySlotContents(5, this.inventoryHands.get(slotIn.getIndex()));
             break;
         case OFFHAND:
-            this.guardInventory.setInventorySlotContents(4, stack);
+            this.guardInventory.setInventorySlotContents(4, this.inventoryHands.get(slotIn.getIndex()));
             break;
         }
     }
