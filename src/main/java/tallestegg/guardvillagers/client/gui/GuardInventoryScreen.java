@@ -19,9 +19,12 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
     public GuardInventoryScreen(GuardContainer p_i51084_1_, PlayerInventory p_i51084_2_, GuardEntity p_i51084_3_) {
         super(p_i51084_1_, p_i51084_2_, p_i51084_3_.getDisplayName());
         this.guard = p_i51084_3_;
+        this.titleX = 97;
+        this.playerInventoryTitleX = 100;
         this.passEvents = false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -29,7 +32,7 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
         this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
-        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.mousePosx, (float)(j + 75 - 50) - this.mousePosY, this.guard);
+        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float) (i + 51) - this.mousePosx, (float) (j + 75 - 50) - this.mousePosY, this.guard);
     }
 
     @Override
