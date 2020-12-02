@@ -100,7 +100,6 @@ import tallestegg.guardvillagers.entities.ai.goals.HeroHurtTargetGoal;
 import tallestegg.guardvillagers.entities.ai.goals.KickGoal;
 import tallestegg.guardvillagers.entities.ai.goals.RaiseShieldGoal;
 import tallestegg.guardvillagers.entities.ai.goals.RangedCrossbowAttackPassiveGoal;
-import tallestegg.guardvillagers.entities.ai.goals.WalkRunWhileReloading;
 import tallestegg.guardvillagers.networking.GuardOpenInventoryPacket;
 
 public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRangedAttackMob, IAngerable, IInventoryChangedListener {
@@ -123,7 +122,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.guardInventory.addListener(this);
         this.itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> new net.minecraftforge.items.wrapper.InvWrapper(this.guardInventory));
         this.enablePersistence();
-        this.setCanPickUpLoot(true);
         if (GuardConfig.GuardsOpenDoors) {
             ((GroundPathNavigator) this.getNavigator()).setBreakDoors(true);
         }
@@ -137,7 +135,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             type = ((GuardEntity.GuardData) spawnDataIn).variantData;
             spawnDataIn = new GuardEntity.GuardData(type);
         }
-        this.setCanPickUpLoot(true);
         if (this.world.rand.nextFloat() < 0.5F) {
             this.setItemStackToSlot(EquipmentSlotType.OFFHAND, new ItemStack(Items.SHIELD));
         }
@@ -182,6 +179,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
 
     @Override
+    protected void dropSpecialItems(DamageSource source, int looting, boolean recentlyHitIn) {
+        super.dropSpecialItems(source, looting, recentlyHitIn);
+        this.guardInventory.func_233543_f_().forEach(this::entityDropItem);
+    }
+
+    @Override
     public void readAdditional(CompoundNBT compound) {
         super.readAdditional(compound);
         this.setGuardVariant(compound.getInt("Type"));
@@ -208,7 +211,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             ListNBT handItems = compound.getList("HandItems", 10);
             for (int i = 0; i < this.inventoryHands.size(); ++i) {
                 this.inventoryHands.set(i, ItemStack.read(handItems.getCompound(i)));
-                int handSlot = i == 0 ? 5 : 4; //TODO find a better way to do this
+                int handSlot = i == 0 ? 5 : 4; // TODO find a better way to do this
                 this.guardInventory.setInventorySlotContents(handSlot, ItemStack.read(handItems.getCompound(i)));
             }
         }
@@ -240,7 +243,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void onDeath(DamageSource cause) {
-        super.onDeath(cause);
         if (cause.getTrueSource() instanceof ZombieEntity) {
             if (this.world.getDifficulty() == Difficulty.NORMAL || this.world.getDifficulty() == Difficulty.HARD) {
                 if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
@@ -269,9 +271,18 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 zillager.setNoAI(this.isAIDisabled());
                 zillager.setInvulnerable(this.isInvulnerable());
                 zombie.world.addEntity(zillager);
-                this.remove(); // oppa gangnam style
-                zombie.world.playEvent((PlayerEntity) null, 1026, zombie.getPosition(), 0);
+                if (!this.isSilent()) {
+                    zombie.world.playEvent((PlayerEntity) null, 1026, zombie.getPosition(), 0);
+                }
             }
+        }
+        super.onDeath(cause);
+    }
+
+    @Override
+    protected void spawnDrops(DamageSource damageSourceIn) {
+        if (!(damageSourceIn.getTrueSource() instanceof ZombieEntity)) {
+            super.spawnDrops(damageSourceIn);
         }
     }
 
@@ -390,16 +401,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     // TODO reorganize this stuff
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new SwimGoal(this));
-        this.goalSelector.addGoal(1, new ReturnToVillageGoal(this, 0.6D, false));
-        this.goalSelector.addGoal(1, new PatrolVillageGoal(this, 0.6D));
-        this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
         this.goalSelector.addGoal(1, new KickGoal(this));
         this.goalSelector.addGoal(1, new RaiseShieldGoal(this));
+        this.goalSelector.addGoal(1, new SwimGoal(this));
+        this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
+        this.goalSelector.addGoal(2, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
+        this.goalSelector.addGoal(2, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
             return false;
         }));
-        this.goalSelector.addGoal(2, new WalkRunWhileReloading(this, 1.0D));
         this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
         this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
         if (GuardConfig.GuardSurrender) {
@@ -430,6 +440,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         }
         this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
         this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
+        this.goalSelector.addGoal(3, new ReturnToVillageGoal(this, 0.6D, false));
+        this.goalSelector.addGoal(3, new PatrolVillageGoal(this, 0.6D));
         if (GuardConfig.GuardsOpenDoors) {
             this.goalSelector.addGoal(3, new OpenDoorGoal(this, true) {
                 @Override
@@ -447,8 +459,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 return this.entity.getAttackTarget() == null && super.shouldContinueExecuting();
             }
         });
-        this.targetSelector.addGoal(3, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.targetSelector.addGoal(3, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
@@ -476,6 +486,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public ItemStack getItemStackFromSlot(EquipmentSlotType slotIn) {
+        super.getItemStackFromSlot(slotIn);
         switch (slotIn) {
         case CHEST:
             return this.guardInventory.getStackInSlot(1);
@@ -826,7 +837,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 for (LivingEntity mob : list) {
                     PlayerEntity player = (PlayerEntity) mob;
                     if (!player.isInvisible() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-                        guard.hero = player; // this makes it so guards stan the player
+                        guard.hero = player; // TODO do this better with uuids
                         if (guard.following) {
                             guard.getNavigator().tryMoveToEntityLiving(guard.hero, 0.9D);
                         }
@@ -844,7 +855,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             guard.hero = null;
         }
     }
-
+  
     public class GuardMeleeGoal extends MeleeAttackGoal {
 
         public final GuardEntity guard;
