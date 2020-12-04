@@ -7,13 +7,16 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import tallestegg.guardvillagers.entities.GuardContainer;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
     private static final ResourceLocation GUARD_GUI_TEXTURES = new ResourceLocation("guardvillagers:textures/container/inventory.png");
     private final GuardEntity guard;
-    private float mousePosx;
+    private float mousePosX;
     private float mousePosY;
 
     public GuardInventoryScreen(GuardContainer p_i51084_1_, PlayerInventory p_i51084_2_, GuardEntity p_i51084_3_) {
@@ -32,13 +35,21 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
         this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
-        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float) (i + 51) - this.mousePosx, (float) (j + 75 - 50) - this.mousePosY, this.guard);
+        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float) (i + 51) - this.mousePosX, (float) (j + 75 - 50) - this.mousePosY, this.guard);
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+        super.drawGuiContainerForegroundLayer(matrixStack, x, y);
+        int health = MathHelper.ceil(guard.getHealth());
+        ITextComponent itextcomponent = new TranslationTextComponent("Health: " + health);
+        this.font.func_243248_b(matrixStack, itextcomponent, 90.0F, 16.0F, 4210752);
     }
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
-        this.mousePosx = (float) mouseX;
+        this.mousePosX = (float) mouseX;
         this.mousePosY = (float) mouseY;
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderHoveredTooltip(matrixStack, mouseX, mouseY);

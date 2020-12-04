@@ -243,7 +243,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void onDeath(DamageSource cause) {
-        if (cause.getTrueSource() instanceof ZombieEntity) {
+        if (cause.getTrueSource() instanceof ZombieEntity && world.getRandom().nextInt(10) == 0) {
             if (this.world.getDifficulty() == Difficulty.NORMAL || this.world.getDifficulty() == Difficulty.HARD) {
                 if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
                     return;
@@ -271,9 +271,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 zillager.setNoAI(this.isAIDisabled());
                 zillager.setInvulnerable(this.isInvulnerable());
                 zombie.world.addEntity(zillager);
-                if (!this.isSilent()) {
+                if (!this.isSilent()) 
                     zombie.world.playEvent((PlayerEntity) null, 1026, zombie.getPosition(), 0);
-                }
             }
         }
         super.onDeath(cause);

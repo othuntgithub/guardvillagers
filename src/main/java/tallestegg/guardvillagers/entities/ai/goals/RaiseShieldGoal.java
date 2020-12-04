@@ -48,10 +48,9 @@ public class RaiseShieldGoal extends Goal {
 
     @Override
     public void resetTask() {
-        if (!GuardConfig.GuardAlwaysShield && !guard.isAggressive() && guard.getAttackTarget() == null) {
+        if (!GuardConfig.GuardAlwaysShield)
             guard.resetActiveHand();
             guard.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.5D);
-        }
     }
 
     protected boolean raiseShield() {
