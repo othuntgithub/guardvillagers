@@ -110,6 +110,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public int kickTicks;
     public int shieldCoolDown;
     public int kickCoolDown;
+    public boolean deathByZombie;
     public boolean following;
     public int coolDown;
     public PlayerEntity hero;
@@ -193,6 +194,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.coolDown = compound.getInt("Cooldown");
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
+        this.deathByZombie = compound.getBoolean("DeathByZombie");
         ListNBT listnbt = compound.getList("Inventory", 10);
         for (int i = 0; i < listnbt.size(); ++i) {
             CompoundNBT compoundnbt = listnbt.getCompound(i);
@@ -227,6 +229,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("ShieldCooldown", this.shieldCoolDown);
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
+        compound.putBoolean("DeathByZombie", this.deathByZombie);
         ListNBT listnbt = new ListNBT();
         for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
             ItemStack itemstack = this.guardInventory.getStackInSlot(i);
@@ -248,6 +251,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
                     return;
                 }
+                this.deathByZombie = true;
                 ZombieEntity zombie = (ZombieEntity) cause.getTrueSource();
                 ZombieVillagerEntity zillager = EntityType.ZOMBIE_VILLAGER.create(world);
                 zillager.onInitialSpawn((IServerWorld) world, this.world.getDifficultyForLocation(getPosition()), SpawnReason.CONVERSION, (ILivingEntityData) null, (CompoundNBT) null);
@@ -271,7 +275,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 zillager.setNoAI(this.isAIDisabled());
                 zillager.setInvulnerable(this.isInvulnerable());
                 zombie.world.addEntity(zillager);
-                if (!this.isSilent()) 
+                if (!this.isSilent())
                     zombie.world.playEvent((PlayerEntity) null, 1026, zombie.getPosition(), 0);
             }
         }
@@ -280,7 +284,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     protected void spawnDrops(DamageSource damageSourceIn) {
-        if (!(damageSourceIn.getTrueSource() instanceof ZombieEntity)) {
+        if (!(damageSourceIn.getTrueSource() instanceof ZombieEntity) && !this.deathByZombie) {
             super.spawnDrops(damageSourceIn);
         }
     }
@@ -400,17 +404,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     // TODO reorganize this stuff
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new KickGoal(this));
-        this.goalSelector.addGoal(1, new RaiseShieldGoal(this));
-        this.goalSelector.addGoal(1, new SwimGoal(this));
-        this.goalSelector.addGoal(1, new HeroHurtTargetGoal(this));
-        this.goalSelector.addGoal(2, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.goalSelector.addGoal(2, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
-        this.goalSelector.addGoal(2, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
+        this.goalSelector.addGoal(0, new SwimGoal(this));
+        this.goalSelector.addGoal(0, new KickGoal(this));
+        this.goalSelector.addGoal(0, new RaiseShieldGoal(this));
+        this.goalSelector.addGoal(1, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
+        this.goalSelector.addGoal(1, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
+        this.goalSelector.addGoal(1, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
             return false;
         }));
         this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
         this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
+        this.goalSelector.addGoal(2, new HeroHurtTargetGoal(this));
         if (GuardConfig.GuardSurrender) {
             this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 1.0D, 1.2D) {
                 @Override
@@ -423,14 +427,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                     if (((GuardEntity) this.entity).getAttackTarget() == this.avoidTarget) {
                         ((GuardEntity) this.entity).setAttackTarget(null);
                     }
-                }
-            });
-        }
-        if (GuardConfig.GuardSurrender) {
-            this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
-                @Override
-                public boolean shouldExecute() {
-                    return ((GuardEntity) this.goalOwner).getHealth() > 13 && super.shouldExecute();
                 }
             });
         }
@@ -473,6 +469,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
                 return mob instanceof IMob;
             }));
+        }
+        if (GuardConfig.GuardSurrender) {
+            this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
+                @Override
+                public boolean shouldExecute() {
+                    return ((GuardEntity) this.goalOwner).getHealth() > 13 && super.shouldExecute();
+                }
+            });
         }
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::func_233680_b_));
         this.targetSelector.addGoal(4, new ResetAngerGoal<>(this, false));
@@ -622,13 +626,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             this.openGui((ServerPlayerEntity) player);
             return ActionResultType.func_233537_a_(this.world.isRemote);
         }
-        if (heldStack.getItem().isFood() && this.getHealth() < this.getMaxHealth()) {
-            this.heal(heldStack.getItem().getFood().getHealing());
-            this.playHealEffect();
-            if (!player.abilities.isCreativeMode)
-                heldStack.shrink(1);
-            return ActionResultType.SUCCESS;
-        }
         if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
             this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
             this.following = !this.following;
@@ -693,6 +690,26 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void onInventoryChanged(IInventory invBasic) {
+    }
+
+    @Override
+    protected void damageArmor(DamageSource damageSource, float damage) {
+        if (damage >= 0.0F) {
+            damage = damage / 4.0F;
+            if (damage < 1.0F) {
+                damage = 1.0F;
+            }
+
+            for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
+                ItemStack itemstack = this.guardInventory.getStackInSlot(i);
+                if ((!damageSource.isFireDamage() || !itemstack.getItem().isImmuneToFire()) && itemstack.getItem() instanceof ArmorItem) {
+                    int j = i;
+                    itemstack.damageItem((int) damage, this, (p_214023_1_) -> {
+                        p_214023_1_.sendBreakAnimation(EquipmentSlotType.fromSlotTypeAndIndex(EquipmentSlotType.Group.ARMOR, j));
+                    });
+                }
+            }
+        }
     }
 
     @Override
@@ -854,7 +871,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             guard.hero = null;
         }
     }
-  
+
     public class GuardMeleeGoal extends MeleeAttackGoal {
 
         public final GuardEntity guard;

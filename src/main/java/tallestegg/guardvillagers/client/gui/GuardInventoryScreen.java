@@ -1,10 +1,12 @@
 package tallestegg.guardvillagers.client.gui;
 
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -22,7 +24,7 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
     public GuardInventoryScreen(GuardContainer p_i51084_1_, PlayerInventory p_i51084_2_, GuardEntity p_i51084_3_) {
         super(p_i51084_1_, p_i51084_2_, p_i51084_3_.getDisplayName());
         this.guard = p_i51084_3_;
-        this.titleX = 97;
+        this.titleX = 80;
         this.playerInventoryTitleX = 100;
         this.passEvents = false;
     }
@@ -42,8 +44,11 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
         super.drawGuiContainerForegroundLayer(matrixStack, x, y);
         int health = MathHelper.ceil(guard.getHealth());
-        ITextComponent itextcomponent = new TranslationTextComponent("Health: " + health);
-        this.font.func_243248_b(matrixStack, itextcomponent, 90.0F, 16.0F, 4210752);
+        int armor = guard.getTotalArmorValue();
+        ITextComponent guardHealthText = new TranslationTextComponent("Health: " + health);
+        ITextComponent guardArmorText = new TranslationTextComponent("Armor: " + armor);
+        this.font.func_243248_b(matrixStack, guardHealthText, 80.0F, 20.0F, 4210752);
+        this.font.func_243248_b(matrixStack, guardArmorText, 80.0F, 30.0F, 4210752);
     }
 
     @Override

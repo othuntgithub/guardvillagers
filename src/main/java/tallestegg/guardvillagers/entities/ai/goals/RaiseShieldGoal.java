@@ -55,7 +55,7 @@ public class RaiseShieldGoal extends Goal {
 
     protected boolean raiseShield() {
         LivingEntity target = guard.getAttackTarget();
-        if (target != null) {
+        if (target != null && guard.shieldCoolDown == 0) {
             if (guard.getDistance(target) <= 4.0D || target instanceof CreeperEntity || target instanceof IRangedAttackMob && target.getDistance(guard) >= 5.0D && !(guard.getHeldItemMainhand().getItem() instanceof CrossbowItem) || target instanceof RavagerEntity || GuardConfig.GuardAlwaysShield) {
                 return true;
             } else {
