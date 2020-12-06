@@ -172,5 +172,6 @@ public class GuardContainer extends Container {
     public void onContainerClosed(PlayerEntity playerIn) {
         super.onContainerClosed(playerIn);
         this.guardInventory.closeInventory(playerIn);
+        this.guard.interacting = false;
     }
 }

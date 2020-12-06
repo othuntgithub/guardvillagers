@@ -38,6 +38,7 @@ import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
+import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
@@ -79,6 +80,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
@@ -111,6 +113,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public int shieldCoolDown;
     public int kickCoolDown;
     public boolean deathByZombie;
+    public boolean interacting;
     public boolean following;
     public int coolDown;
     public PlayerEntity hero;
@@ -191,10 +194,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.setGuardVariant(compound.getInt("Type"));
         this.kickTicks = compound.getInt("KickTicks");
         this.following = compound.getBoolean("Following");
+        this.interacting = compound.getBoolean("Interacting");
         this.coolDown = compound.getInt("Cooldown");
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
         this.deathByZombie = compound.getBoolean("DeathByZombie");
+        this.getAttribute(Attributes.ARMOR).setBaseValue(this.getAttributeValue(Attributes.ARMOR));
         ListNBT listnbt = compound.getList("Inventory", 10);
         for (int i = 0; i < listnbt.size(); ++i) {
             CompoundNBT compoundnbt = listnbt.getCompound(i);
@@ -229,6 +234,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("ShieldCooldown", this.shieldCoolDown);
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
+        compound.putBoolean("Interacting", this.interacting);
         compound.putBoolean("DeathByZombie", this.deathByZombie);
         ListNBT listnbt = new ListNBT();
         for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
@@ -251,7 +257,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
                     return;
                 }
-                this.deathByZombie = true;
+                this.deathByZombie = true; // TODO use a mixin to do this instead of this
                 ZombieEntity zombie = (ZombieEntity) cause.getTrueSource();
                 ZombieVillagerEntity zillager = EntityType.ZOMBIE_VILLAGER.create(world);
                 zillager.onInitialSpawn((IServerWorld) world, this.world.getDifficultyForLocation(getPosition()), SpawnReason.CONVERSION, (ILivingEntityData) null, (CompoundNBT) null);
@@ -470,6 +476,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 return mob instanceof IMob;
             }));
         }
+
+        if (GuardConfig.AttackAllMobsExceptCreepers) {
+            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
+                return mob instanceof IMob && !(mob instanceof CreeperEntity);
+            }));
+        }
         if (GuardConfig.GuardSurrender) {
             this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
                 @Override
@@ -549,6 +561,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
 
     @Override
+    public void travel(Vector3d travelVector) {
+        if (!this.interacting)
+            super.travel(travelVector);
+    }
+
+    @Override
     public boolean canAttack(EntityType<?> typeIn) {
         if (this.following && typeIn == EntityType.PLAYER || this.hero != null && typeIn == EntityType.PLAYER) {
             return false;
@@ -621,8 +639,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     protected ActionResultType func_230254_b_(PlayerEntity player, Hand hand) {
-        ItemStack heldStack = player.getHeldItem(hand);
-        if (player.isCrouching() && this.isServerWorld()) {
+        if (player.isCrouching() && this.isServerWorld() && this.getAttackTarget() != player) {
             this.openGui((ServerPlayerEntity) player);
             return ActionResultType.func_233537_a_(this.world.isRemote);
         }
@@ -741,6 +758,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (player.openContainer != player.container) {
             player.closeScreen();
         }
+        this.interacting = true;
         player.getNextWindowId();
         GuardPacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new GuardOpenInventoryPacket(player.currentWindowId, this.guardInventory.getSizeInventory(), this.getEntityId()));
         player.openContainer = new GuardContainer(player.currentWindowId, player.inventory, this.guardInventory, this);
@@ -748,25 +766,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, player.openContainer));
     }
 
-    /*
-     * protected void registerAttributes() { super.registerAttributes();
-     * this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(25.0D);
-     * this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(10.0D);
-     * this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
-     * this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
-     * this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE)
-     * .setBaseValue(1.0D); }
-     */
-
-    // field_233821_d_ = movement speed
-    // field_233818_a_ = health
-    // field_233823_f_ = attack damage
-    // field_233819_b_ = follow range
-    // field_233826_i_ = armor
-
     public static AttributeModifierMap.MutableAttribute func_234200_m_() {
-        return MobEntity.func_233666_p_().createMutableAttribute(Attributes.MAX_HEALTH, 20.0D).createMutableAttribute(Attributes.MOVEMENT_SPEED, 0.5D).createMutableAttribute(Attributes.ATTACK_DAMAGE, 1.0D).createMutableAttribute(Attributes.FOLLOW_RANGE, 25.0D)
-                .createMutableAttribute(Attributes.ARMOR, 1.0D);
+        return MobEntity.func_233666_p_().createMutableAttribute(Attributes.MAX_HEALTH, 20.0D).createMutableAttribute(Attributes.MOVEMENT_SPEED, 0.5D).createMutableAttribute(Attributes.ATTACK_DAMAGE, 1.0D).createMutableAttribute(Attributes.FOLLOW_RANGE, 25.0D);
     }
 
     private net.minecraftforge.common.util.LazyOptional<?> itemHandler = null;
