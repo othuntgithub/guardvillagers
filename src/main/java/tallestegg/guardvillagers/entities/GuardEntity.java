@@ -199,7 +199,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
         this.deathByZombie = compound.getBoolean("DeathByZombie");
-        this.getAttribute(Attributes.ARMOR).setBaseValue(this.getAttributeValue(Attributes.ARMOR));
         ListNBT listnbt = compound.getList("Inventory", 10);
         for (int i = 0; i < listnbt.size(); ++i) {
             CompoundNBT compoundnbt = listnbt.getCompound(i);
@@ -209,7 +208,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (compound.contains("ArmorItems", 9)) {
             ListNBT armorItems = compound.getList("ArmorItems", 10);
             for (int i = 0; i < this.inventoryArmor.size(); ++i) {
-                this.inventoryArmor.set(i, ItemStack.read(armorItems.getCompound(i)));
                 int index = GuardEntity.slotToInventoryIndex(MobEntity.getSlotForItemStack(ItemStack.read(armorItems.getCompound(i))));
                 this.guardInventory.setInventorySlotContents(index, ItemStack.read(armorItems.getCompound(i)));
             }
@@ -217,8 +215,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (compound.contains("HandItems", 9)) {
             ListNBT handItems = compound.getList("HandItems", 10);
             for (int i = 0; i < this.inventoryHands.size(); ++i) {
-                this.inventoryHands.set(i, ItemStack.read(handItems.getCompound(i)));
-                int handSlot = i == 0 ? 5 : 4; // TODO find a better way to do this
+                int handSlot = i == 0 ? 5 : 4; 
                 this.guardInventory.setInventorySlotContents(handSlot, ItemStack.read(handItems.getCompound(i)));
             }
         }
@@ -244,6 +241,29 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 compoundnbt.putByte("Slot", (byte) i);
                 itemstack.write(compoundnbt);
                 listnbt.add(compoundnbt);
+            }
+            EquipmentSlotType slot = MobEntity.getSlotForItemStack(itemstack);
+            switch (i) {
+            case 0:
+                this.inventoryArmor.set(slot.getIndex(), itemstack);
+                break;
+            case 1:
+                this.inventoryArmor.set(slot.getIndex(), itemstack);
+                break;
+            case 2:
+                this.inventoryArmor.set(slot.getIndex(), itemstack);
+                break;
+            case 3:
+                this.inventoryArmor.set(slot.getIndex(), itemstack);
+                break;
+            case 4:
+                this.inventoryHands.set(1, itemstack);
+                break;
+            case 5:
+                this.inventoryHands.set(0, itemstack);
+                break;
+            default:
+                break;
             }
         }
         compound.put("Inventory", listnbt);
@@ -498,28 +518,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) {
         this.func_234281_b_(this, 6.0F);
     }
-
-    @Override
-    public ItemStack getItemStackFromSlot(EquipmentSlotType slotIn) {
-        super.getItemStackFromSlot(slotIn);
-        switch (slotIn) {
-        case CHEST:
-            return this.guardInventory.getStackInSlot(1);
-        case FEET:
-            return this.guardInventory.getStackInSlot(3);
-        case HEAD:
-            return this.guardInventory.getStackInSlot(0);
-        case LEGS:
-            return this.guardInventory.getStackInSlot(2);
-        case OFFHAND:
-            return this.guardInventory.getStackInSlot(4);
-        case MAINHAND:
-            return this.guardInventory.getStackInSlot(5);
-        default:
-            return ItemStack.EMPTY;
-        }
-    }
-
+    
     @Override
     public void setItemStackToSlot(EquipmentSlotType slotIn, ItemStack stack) {
         super.setItemStackToSlot(slotIn, stack);
@@ -639,7 +638,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     protected ActionResultType func_230254_b_(PlayerEntity player, Hand hand) {
-        if (player.isCrouching() && this.isServerWorld() && this.getAttackTarget() != player) {
+        if (player.isCrouching() && this.isServerWorld() && this.getAttackTarget() != player && this.onGround) {
             this.openGui((ServerPlayerEntity) player);
             return ActionResultType.func_233537_a_(this.world.isRemote);
         }

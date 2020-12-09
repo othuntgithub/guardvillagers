@@ -2,6 +2,7 @@ package tallestegg.guardvillagers.entities;
 
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -32,6 +33,12 @@ public class GuardContainer extends Container {
             public int getSlotStackLimit() {
                 return 1;
             }
+            
+            @Override
+            public void putStack(ItemStack stack) {
+                super.putStack(stack);
+                guard.setItemStackToSlot(EquipmentSlotType.HEAD, stack);
+            }
 
             @Override
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
@@ -47,6 +54,12 @@ public class GuardContainer extends Container {
             @Override
             public int getSlotStackLimit() {
                 return 1;
+            }
+            
+            @Override
+            public void putStack(ItemStack stack) {
+                super.putStack(stack);
+                guard.setItemStackToSlot(EquipmentSlotType.CHEST, stack);
             }
 
             @Override
@@ -64,6 +77,12 @@ public class GuardContainer extends Container {
             public int getSlotStackLimit() {
                 return 1;
             }
+            
+            @Override
+            public void putStack(ItemStack stack) {
+                super.putStack(stack);
+                guard.setItemStackToSlot(EquipmentSlotType.LEGS, stack);
+            }
 
             @Override
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
@@ -80,6 +99,12 @@ public class GuardContainer extends Container {
             public int getSlotStackLimit() {
                 return 1;
             }
+            
+            @Override
+            public void putStack(ItemStack stack) {
+                super.putStack(stack);
+                guard.setItemStackToSlot(EquipmentSlotType.FEET, stack);
+            }
 
             @Override
             public Pair<ResourceLocation, ResourceLocation> getBackground() {
@@ -90,6 +115,12 @@ public class GuardContainer extends Container {
             @Override
             public int getSlotStackLimit() {
                 return 1;
+            }
+            
+            @Override
+            public void putStack(ItemStack stack) {
+                super.putStack(stack);
+                guard.setItemStackToSlot(EquipmentSlotType.OFFHAND, stack);
             }
 
             @Override
@@ -102,6 +133,12 @@ public class GuardContainer extends Container {
             @Override
             public int getSlotStackLimit() {
                 return 1;
+            }
+            
+            @Override
+            public void putStack(ItemStack stack) {
+                super.putStack(stack);
+                guard.setItemStackToSlot(EquipmentSlotType.MAINHAND, stack);
             }
         });
         for (int l = 0; l < 3; ++l) {
