@@ -2,7 +2,6 @@ package tallestegg.guardvillagers.entities;
 
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -113,11 +112,6 @@ public class GuardContainer extends Container {
         });
         this.addSlot(new Slot(guardInventory, 4, 77, 62) {
             @Override
-            public int getSlotStackLimit() {
-                return 1;
-            }
-            
-            @Override
             public void putStack(ItemStack stack) {
                 super.putStack(stack);
                 guard.setItemStackToSlot(EquipmentSlotType.OFFHAND, stack);
@@ -130,11 +124,6 @@ public class GuardContainer extends Container {
         });
         
         this.addSlot(new Slot(guardInventory, 5, 77, 44) {
-            @Override
-            public int getSlotStackLimit() {
-                return 1;
-            }
-            
             @Override
             public void putStack(ItemStack stack) {
                 super.putStack(stack);
