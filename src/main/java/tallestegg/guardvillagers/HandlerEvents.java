@@ -27,7 +27,7 @@ public class HandlerEvents {
     @SubscribeEvent
     public void onLivingSpawned(EntityJoinWorldEvent event) {
         if (GuardConfig.AttackAllMobs) {
-            if (event.getEntity() instanceof IMob) {
+            if (event.getEntity() instanceof IMob && !GuardConfig.MobBlackList.contains(event.getEntity().getEntityString())) {
                 MobEntity mob = (MobEntity) event.getEntity();
                 mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, GuardEntity.class, false));
             }

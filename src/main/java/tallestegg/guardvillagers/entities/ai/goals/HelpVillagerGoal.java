@@ -3,7 +3,6 @@ package tallestegg.guardvillagers.entities.ai.goals;
 import java.util.EnumSet;
 import java.util.List;
 
-import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.Goal;
@@ -13,7 +12,6 @@ import net.minecraft.entity.merchant.villager.VillagerEntity;
 public class HelpVillagerGoal extends TargetGoal {
     protected final MobEntity mob;
     protected LivingEntity villageAggressorTarget;
-    protected final EntityPredicate field_223190_c = (new EntityPredicate()).setDistance(64.0D);
 
     public HelpVillagerGoal(MobEntity mob) {
         super(mob, false, true);
@@ -24,8 +22,9 @@ public class HelpVillagerGoal extends TargetGoal {
     public boolean shouldExecute() {
         List<MobEntity> list = this.goalOwner.world.getEntitiesWithinAABB(MobEntity.class, this.goalOwner.getBoundingBox().grow((double) 100.0D));
 
-        for (LivingEntity entity : list) {
-            if (((MobEntity) entity).getAttackTarget() instanceof VillagerEntity) {
+        for (MobEntity entity : list) {
+            LivingEntity attackTarget = entity.getAttackTarget();
+            if ((entity).getAttackTarget() instanceof VillagerEntity && entity.canEntityBeSeen(attackTarget)) {
                 this.villageAggressorTarget = entity;
             }
         }
@@ -44,7 +43,6 @@ public class HelpVillagerGoal extends TargetGoal {
 
     @Override
     public void startExecuting() {
-        this.goalOwner.getNavigator().tryMoveToEntityLiving(villageAggressorTarget, goalOwner.getAIMoveSpeed());
         this.goalOwner.setAttackTarget(this.villageAggressorTarget);
     }
 }

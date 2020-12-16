@@ -1,4 +1,4 @@
-package tallestegg.guardvillagers.entities;
+ package tallestegg.guardvillagers.entities;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -38,13 +38,11 @@ import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
 import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
-import net.minecraft.entity.monster.ZombieVillagerEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -73,6 +71,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.RangedInteger;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.TickRangeConverter;
@@ -81,7 +80,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
@@ -96,6 +94,8 @@ import tallestegg.guardvillagers.GuardItems;
 import tallestegg.guardvillagers.GuardPacketHandler;
 import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.ai.goals.FollowShieldGuards;
+import tallestegg.guardvillagers.entities.ai.goals.GuardEatFoodGoal;
+import tallestegg.guardvillagers.entities.ai.goals.GuardFindCoverGoal;
 import tallestegg.guardvillagers.entities.ai.goals.HelpVillagerGoal;
 import tallestegg.guardvillagers.entities.ai.goals.HeroHurtByTargetGoal;
 import tallestegg.guardvillagers.entities.ai.goals.HeroHurtTargetGoal;
@@ -112,7 +112,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     public int kickTicks;
     public int shieldCoolDown;
     public int kickCoolDown;
-    public boolean deathByZombie;
+    private boolean eating;
     public boolean interacting;
     public boolean following;
     public int coolDown;
@@ -195,10 +195,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.kickTicks = compound.getInt("KickTicks");
         this.following = compound.getBoolean("Following");
         this.interacting = compound.getBoolean("Interacting");
+        this.setEating(compound.getBoolean("Eating"));
         this.coolDown = compound.getInt("Cooldown");
         this.shieldCoolDown = compound.getInt("KickCooldown");
         this.kickCoolDown = compound.getInt("ShieldCooldown");
-        this.deathByZombie = compound.getBoolean("DeathByZombie");
         ListNBT listnbt = compound.getList("Inventory", 10);
         for (int i = 0; i < listnbt.size(); ++i) {
             CompoundNBT compoundnbt = listnbt.getCompound(i);
@@ -215,7 +215,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (compound.contains("HandItems", 9)) {
             ListNBT handItems = compound.getList("HandItems", 10);
             for (int i = 0; i < this.inventoryHands.size(); ++i) {
-                int handSlot = i == 0 ? 5 : 4; 
+                int handSlot = i == 0 ? 5 : 4;
                 this.guardInventory.setInventorySlotContents(handSlot, ItemStack.read(handItems.getCompound(i)));
             }
         }
@@ -232,7 +232,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putInt("KickCooldown", this.kickCoolDown);
         compound.putBoolean("Following", this.following);
         compound.putBoolean("Interacting", this.interacting);
-        compound.putBoolean("DeathByZombie", this.deathByZombie);
+        compound.putBoolean("Eating", this.isEating());
         ListNBT listnbt = new ListNBT();
         for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
             ItemStack itemstack = this.guardInventory.getStackInSlot(i);
@@ -269,52 +269,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.put("Inventory", listnbt);
         this.writeAngerNBT(compound);
     }
-
-    @Override
-    public void onDeath(DamageSource cause) {
-        if (cause.getTrueSource() instanceof ZombieEntity && world.getRandom().nextInt(10) == 0) {
-            if (this.world.getDifficulty() == Difficulty.NORMAL || this.world.getDifficulty() == Difficulty.HARD) {
-                if (this.world.getDifficulty() != Difficulty.HARD && this.rand.nextBoolean()) {
-                    return;
-                }
-                this.deathByZombie = true; // TODO use a mixin to do this instead of this
-                ZombieEntity zombie = (ZombieEntity) cause.getTrueSource();
-                ZombieVillagerEntity zillager = EntityType.ZOMBIE_VILLAGER.create(world);
-                zillager.onInitialSpawn((IServerWorld) world, this.world.getDifficultyForLocation(getPosition()), SpawnReason.CONVERSION, (ILivingEntityData) null, (CompoundNBT) null);
-                zillager.copyLocationAndAnglesFrom(this);
-                if (this.hasCustomName()) {
-                    zillager.setCustomName(zillager.getCustomName());
-                    zillager.setCustomNameVisible(this.isCustomNameVisible());
-                }
-
-                if (this.isNoDespawnRequired()) {
-                    zillager.enablePersistence();
-                }
-                for (EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
-                    ItemStack itemstack = this.getItemStackFromSlot(equipmentslottype);
-                    if (!itemstack.isEmpty()) {
-                        zillager.setItemStackToSlot(equipmentslottype, itemstack.copy());
-                        zillager.setDropChance(equipmentslottype, this.getDropChance(equipmentslottype));
-                    }
-                }
-                zillager.setChild(false);
-                zillager.setNoAI(this.isAIDisabled());
-                zillager.setInvulnerable(this.isInvulnerable());
-                zombie.world.addEntity(zillager);
-                if (!this.isSilent())
-                    zombie.world.playEvent((PlayerEntity) null, 1026, zombie.getPosition(), 0);
-            }
-        }
-        super.onDeath(cause);
-    }
-
-    @Override
-    protected void spawnDrops(DamageSource damageSourceIn) {
-        if (!(damageSourceIn.getTrueSource() instanceof ZombieEntity) && !this.deathByZombie) {
-            super.spawnDrops(damageSourceIn);
-        }
-    }
-
+    
     @Override
     public boolean attackEntityAsMob(Entity entityIn) {
         if (this.isKicking()) {
@@ -333,6 +288,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         } else {
             super.handleStatusUpdate(id);
         }
+    }
+
+    @Override
+    public ItemStack onFoodEaten(World p_213357_1_, ItemStack p_213357_2_) {
+        if (p_213357_2_.isFood()) {
+            this.heal(p_213357_2_.getItem().getFood().getHealing() / 2); //Experimental for now, so potions get a chance too.
+        }
+        super.onFoodEaten(p_213357_1_, p_213357_2_);
+        p_213357_1_.playSound((PlayerEntity) null, this.getPosX(), this.getPosY(), this.getPosZ(), SoundEvents.ENTITY_PLAYER_BURP, SoundCategory.PLAYERS, 0.5F, p_213357_1_.rand.nextFloat() * 0.1F + 0.9F);
+        this.setEating(false);
+        return p_213357_2_;
     }
 
     @Override
@@ -432,12 +398,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new SwimGoal(this));
         this.goalSelector.addGoal(0, new KickGoal(this));
+        this.goalSelector.addGoal(0, new GuardEatFoodGoal(this));
         this.goalSelector.addGoal(0, new RaiseShieldGoal(this));
-        this.goalSelector.addGoal(1, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
-        this.goalSelector.addGoal(1, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
-        this.goalSelector.addGoal(1, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
-            return false;
-        }));
+        this.goalSelector.addGoal(1, new GuardFindCoverGoal(this, 1.0D));
+        this.goalSelector.addGoal(2, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
+        this.goalSelector.addGoal(2, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
         this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
         this.goalSelector.addGoal(2, new HeroHurtTargetGoal(this));
@@ -459,10 +424,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (GuardConfig.GuardFormation) {
             this.goalSelector.addGoal(2, new FollowShieldGuards(this)); // phalanx
         }
-        this.goalSelector.addGoal(2, new GuardEntity.DefendVillageGuardGoal(this));
-        this.goalSelector.addGoal(2, new HelpVillagerGoal(this));
+        if (GuardConfig.GuardsRunFromPolarBears) {
+            this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, PolarBearEntity.class, 12.0F, 1.0D, 1.2D));
+        }
         this.goalSelector.addGoal(3, new ReturnToVillageGoal(this, 0.6D, false));
         this.goalSelector.addGoal(3, new PatrolVillageGoal(this, 0.6D));
+        this.goalSelector.addGoal(3, new MoveThroughVillageGoal(this, 0.6D, false, 4, () -> {
+            return false;
+        }));
         if (GuardConfig.GuardsOpenDoors) {
             this.goalSelector.addGoal(3, new OpenDoorGoal(this, true) {
                 @Override
@@ -480,26 +449,16 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 return this.entity.getAttackTarget() == null && super.shouldContinueExecuting();
             }
         });
-        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
         if (!GuardConfig.GuardSurrender) {
             this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
         }
         this.targetSelector.addGoal(2, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
-        if (GuardConfig.GuardsRunFromPolarBears) {
-            this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, PolarBearEntity.class, 12.0F, 1.0D, 1.2D));
-        }
         if (GuardConfig.AttackAllMobs) {
             this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
-                return mob instanceof IMob;
-            }));
-        }
-
-        if (GuardConfig.AttackAllMobsExceptCreepers) {
-            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
-                return mob instanceof IMob && !(mob instanceof CreeperEntity);
+                return mob instanceof IMob && !GuardConfig.MobBlackList.contains(mob.getEntityString());
             }));
         }
         if (GuardConfig.GuardSurrender) {
@@ -511,14 +470,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             });
         }
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::func_233680_b_));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
         this.targetSelector.addGoal(4, new ResetAngerGoal<>(this, false));
+        this.targetSelector.addGoal(5, new HelpVillagerGoal(this));
+        this.targetSelector.addGoal(6, new GuardEntity.DefendVillageGuardGoal(this));
     }
 
     @Override
     public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) {
         this.func_234281_b_(this, 6.0F);
     }
-    
+
     @Override
     public void setItemStackToSlot(EquipmentSlotType slotIn, ItemStack stack) {
         super.setItemStackToSlot(slotIn, stack);
@@ -715,7 +677,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             if (damage < 1.0F) {
                 damage = 1.0F;
             }
-
             for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
                 ItemStack itemstack = this.guardInventory.getStackInSlot(i);
                 if ((!damageSource.isFireDamage() || !itemstack.getItem().isImmuneToFire()) && itemstack.getItem() instanceof ArmorItem) {
@@ -776,6 +737,14 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (this.isAlive() && capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && itemHandler != null)
             return itemHandler.cast();
         return super.getCapability(capability, facing);
+    }
+
+    public boolean isEating() {
+        return eating;
+    }
+
+    public void setEating(boolean eating) {
+        this.eating = eating;
     }
 
     public static class GuardData implements ILivingEntityData {

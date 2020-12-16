@@ -1,5 +1,8 @@
 package tallestegg.guardvillagers.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -31,7 +34,7 @@ public class GuardConfig {
     public static boolean GuardAlwaysShield;
     public static boolean GuardFormation;
     public static boolean FriendlyFire;
-    public static boolean AttackAllMobsExceptCreepers;
+    public static List<String> MobBlackList;
 
     public static void bakeConfig() {
         RaidAnimals = COMMON.RaidAnimals.get();
@@ -45,7 +48,7 @@ public class GuardConfig {
         GuardAlwaysShield = COMMON.GuardRaiseShield.get();
         GuardFormation = COMMON.GuardFormation.get();
         FriendlyFire = COMMON.FriendlyFire.get();
-        AttackAllMobsExceptCreepers = COMMON.AttackAllMobsExceptCreepers.get();
+        MobBlackList = COMMON.MobBlackList.get();
     }
 
     @SubscribeEvent
@@ -69,7 +72,7 @@ public class GuardConfig {
         public final ForgeConfigSpec.BooleanValue GuardRaiseShield;
         public final ForgeConfigSpec.BooleanValue GuardFormation;
         public final ForgeConfigSpec.BooleanValue FriendlyFire;
-        public final ForgeConfigSpec.BooleanValue AttackAllMobsExceptCreepers;
+        public final ForgeConfigSpec.ConfigValue<List<String>> MobBlackList;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
             RaidAnimals = builder.comment("Illagers In Raids Attack Animals?").translation(GuardVillagers.MODID + ".config.RaidAnimals").define("Illagers in raids attack animals?", false);
@@ -77,7 +80,7 @@ public class GuardConfig {
             WitchesVillager = builder.comment("Witches Attack Villagers?").translation(GuardVillagers.MODID + ".config.WitchesVillager").define("Witches attack villagers?", true);
             IllusionerRaids = builder.comment("This will make Illusioners get involved in raids").translation(GuardVillagers.MODID + ".config.IllusionerRaids").define("Have Illusioners in raids?", true);
             AttackAllMobs = builder.comment("Guards will attack all hostiles with this option").translation(GuardVillagers.MODID + ".config.AttackAllMobs").define("Guards attack all mobs?", false);
-            AttackAllMobsExceptCreepers = builder.comment("Guards will attack all except hostiles with this option").translation(GuardVillagers.MODID + ".config.AttackAllMobs").define("Guards attack all mobs except for creepers?", false);
+            MobBlackList = builder.comment("Guards won't attack mobs in this list if AttackAllMobs is enabled, for example, putting minecraft:creeper in this list will make guards ignore creepers.").define("Mob BlackList", new ArrayList<>());
             GuardSurrender = builder.comment("This option makes guards run from ravagers when low on health").translation(GuardVillagers.MODID + ".config.GuardSurrender").define("Have Guards be run from ravagers when on low health?", true);
             VillagersRunFromPolarBears = builder.comment("This makes villagers run from polar bears, as anyone with common sense would.").translation(GuardVillagers.MODID + ".config.VillagersRunFromPolarBears").define("Have Villagers have some common sense?", true);
             IllagersRunFromPolarBears = builder.comment("This makes Illagers run from polar bears, as anyone with common sense would.").translation(GuardVillagers.MODID + ".config.IllagersRunFromPolarBears").define("Have Illagers have some common sense?", true);
