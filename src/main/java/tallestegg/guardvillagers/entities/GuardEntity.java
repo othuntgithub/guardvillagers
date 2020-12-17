@@ -426,8 +426,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.goalSelector.addGoal(2, new RangedBowAttackPassiveGoal<>(this, 0.5D, 20, 15.0F));
         this.goalSelector.addGoal(2, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.goalSelector.addGoal(3, new GuardEntity.FollowHeroGoal(this));
-        this.goalSelector.addGoal(3, new HeroHurtByTargetGoal(this));
-        this.goalSelector.addGoal(3, new HeroHurtTargetGoal(this));
         if (GuardConfig.GuardSurrender) {
             this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 1.0D, 1.2D) {
                 @Override
@@ -472,6 +470,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             }
         });
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
+        this.targetSelector.addGoal(3, new HeroHurtByTargetGoal(this));
+        this.targetSelector.addGoal(3, new HeroHurtTargetGoal(this));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
         if (!GuardConfig.GuardSurrender) {
