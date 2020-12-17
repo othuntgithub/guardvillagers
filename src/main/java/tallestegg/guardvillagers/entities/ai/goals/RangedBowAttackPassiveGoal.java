@@ -42,7 +42,7 @@ public class RangedBowAttackPassiveGoal<T extends CreatureEntity & IRangedAttack
     }
 
     protected boolean isBowInMainhand() {
-        return this.entity.func_233634_a_(item -> item instanceof BowItem);
+        return this.entity.getHeldItemMainhand().getItem() instanceof BowItem;
     }
 
     /**

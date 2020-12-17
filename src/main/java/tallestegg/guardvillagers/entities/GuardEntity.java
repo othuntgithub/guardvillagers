@@ -285,6 +285,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             this.world.setEntityState(this, (byte) 4);
             this.faceEntity(entityIn, 90.0F, 90.0F);
         }
+        ItemStack hand = this.getHeldItemMainhand();
+        hand.damageItem(1, this, (p_220017_1_) -> {
+            p_220017_1_.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+        });
         return super.attackEntityAsMob(entityIn);
     }
 
@@ -421,9 +425,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.goalSelector.addGoal(2, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
         this.goalSelector.addGoal(2, new RangedBowAttackPassiveGoal<>(this, 0.5D, 20, 15.0F));
         this.goalSelector.addGoal(2, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
-        this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
-        this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
-        this.goalSelector.addGoal(2, new HeroHurtTargetGoal(this));
+        this.goalSelector.addGoal(3, new GuardEntity.FollowHeroGoal(this));
+        this.goalSelector.addGoal(3, new HeroHurtByTargetGoal(this));
+        this.goalSelector.addGoal(3, new HeroHurtTargetGoal(this));
         if (GuardConfig.GuardSurrender) {
             this.goalSelector.addGoal(2, new AvoidEntityGoal<RavagerEntity>(this, RavagerEntity.class, 12.0F, 1.0D, 1.2D) {
                 @Override
@@ -500,6 +504,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
             this.func_234281_b_(this, 6.0F);
         if (this.getHeldItemMainhand().getItem() instanceof BowItem) {
             ItemStack itemstack = this.findAmmo(this.getHeldItem(ProjectileHelper.getHandWith(this, Items.BOW)));
+            ItemStack hand = this.getHeldItemMainhand();
+            hand.damageItem(1, this, (p_220017_1_) -> {
+                p_220017_1_.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+            });
             AbstractArrowEntity abstractarrowentity = ProjectileHelper.fireArrow(this, itemstack, distanceFactor);
             abstractarrowentity = ((net.minecraft.item.BowItem) this.getHeldItemMainhand().getItem()).customArrow(abstractarrowentity);
             double d0 = target.getPosX() - this.getPosX();
