@@ -55,7 +55,7 @@ public class HandlerEvents {
 
         if (event.getEntity() instanceof VillagerEntity) {
             VillagerEntity villager = (VillagerEntity) event.getEntity();
-            villager.goalSelector.addGoal(1, new HealGolemGoal(villager));
+            villager.goalSelector.addGoal(1, new HealGolemGoal(villager)); //TODO mixin into the villagers brain and make these tasks instead of goals.
             villager.goalSelector.addGoal(1, new HealGuardAndPlayerGoal(villager, 5.0D, 100, 0, 10.0F));
         }
 

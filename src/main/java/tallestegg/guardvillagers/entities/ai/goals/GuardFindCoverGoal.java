@@ -46,12 +46,13 @@ public class GuardFindCoverGoal extends RandomWalkingGoal {
 
     public boolean findPosition() {
         Vector3d vector3d = this.getPosition();
-        if (vector3d != null) {
+        if (vector3d == null) {
+            return false;
+        } else {
             this.x = vector3d.x;
             this.y = vector3d.y;
             this.z = vector3d.z;
             return true;
         }
-        return false;
     }
 }

@@ -1,4 +1,4 @@
- package tallestegg.guardvillagers.entities;
+package tallestegg.guardvillagers.entities;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -47,14 +47,20 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.IInventoryChangedListener;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.BowItem;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.MilkBucketItem;
+import net.minecraft.item.PotionItem;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.ShootableItem;
 import net.minecraft.item.UseAction;
@@ -101,6 +107,7 @@ import tallestegg.guardvillagers.entities.ai.goals.HeroHurtByTargetGoal;
 import tallestegg.guardvillagers.entities.ai.goals.HeroHurtTargetGoal;
 import tallestegg.guardvillagers.entities.ai.goals.KickGoal;
 import tallestegg.guardvillagers.entities.ai.goals.RaiseShieldGoal;
+import tallestegg.guardvillagers.entities.ai.goals.RangedBowAttackPassiveGoal;
 import tallestegg.guardvillagers.entities.ai.goals.RangedCrossbowAttackPassiveGoal;
 import tallestegg.guardvillagers.networking.GuardOpenInventoryPacket;
 
@@ -269,7 +276,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.put("Inventory", listnbt);
         this.writeAngerNBT(compound);
     }
-    
+
     @Override
     public boolean attackEntityAsMob(Entity entityIn) {
         if (this.isKicking()) {
@@ -291,9 +298,19 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     }
 
     @Override
+    protected void onItemUseFinish() {
+        super.onItemUseFinish();
+        if (this.getHeldItemOffhand().getItem() instanceof PotionItem)
+            this.setHeldItem(Hand.OFF_HAND, new ItemStack(Items.GLASS_BOTTLE));
+        if (this.getHeldItemOffhand().getItem() instanceof MilkBucketItem)
+            this.setHeldItem(Hand.OFF_HAND, new ItemStack(Items.BUCKET));
+        this.setEating(false);
+    }
+
+    @Override
     public ItemStack onFoodEaten(World p_213357_1_, ItemStack p_213357_2_) {
         if (p_213357_2_.isFood()) {
-            this.heal(p_213357_2_.getItem().getFood().getHealing() / 2); //Experimental for now, so potions get a chance too.
+            this.heal(p_213357_2_.getItem().getFood().getHealing() / 2); // Experimental for now, so potions get a chance too.
         }
         super.onFoodEaten(p_213357_1_, p_213357_2_);
         p_213357_1_.playSound((PlayerEntity) null, this.getPosX(), this.getPosY(), this.getPosZ(), SoundEvents.ENTITY_PLAYER_BURP, SoundCategory.PLAYERS, 0.5F, p_213357_1_.rand.nextFloat() * 0.1F + 0.9F);
@@ -402,6 +419,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.goalSelector.addGoal(0, new RaiseShieldGoal(this));
         this.goalSelector.addGoal(1, new GuardFindCoverGoal(this, 1.0D));
         this.goalSelector.addGoal(2, new RangedCrossbowAttackPassiveGoal<>(this, 1.0D, 8.0F));
+        this.goalSelector.addGoal(2, new RangedBowAttackPassiveGoal<>(this, 0.5D, 20, 15.0F));
         this.goalSelector.addGoal(2, new GuardEntity.GuardMeleeGoal(this, 0.8D, true));
         this.goalSelector.addGoal(2, new GuardEntity.FollowHeroGoal(this));
         this.goalSelector.addGoal(2, new HeroHurtByTargetGoal(this));
@@ -478,7 +496,20 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     @Override
     public void attackEntityWithRangedAttack(LivingEntity target, float distanceFactor) {
-        this.func_234281_b_(this, 6.0F);
+        if (this.getHeldItemMainhand().getItem() instanceof CrossbowItem)
+            this.func_234281_b_(this, 6.0F);
+        if (this.getHeldItemMainhand().getItem() instanceof BowItem) {
+            ItemStack itemstack = this.findAmmo(this.getHeldItem(ProjectileHelper.getHandWith(this, Items.BOW)));
+            AbstractArrowEntity abstractarrowentity = ProjectileHelper.fireArrow(this, itemstack, distanceFactor);
+            abstractarrowentity = ((net.minecraft.item.BowItem) this.getHeldItemMainhand().getItem()).customArrow(abstractarrowentity);
+            double d0 = target.getPosX() - this.getPosX();
+            double d1 = target.getPosYHeight(0.3333333333333333D) - abstractarrowentity.getPosY();
+            double d2 = target.getPosZ() - this.getPosZ();
+            double d3 = (double) MathHelper.sqrt(d0 * d0 + d2 * d2);
+            abstractarrowentity.shoot(d0, d1 + d3 * (double) 0.2F, d2, 1.6F, (float) (14 - this.world.getDifficulty().getId() * 4));
+            this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
+            this.world.addEntity(abstractarrowentity);
+        }
     }
 
     @Override
