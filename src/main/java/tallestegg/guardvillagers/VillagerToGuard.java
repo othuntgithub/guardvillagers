@@ -18,6 +18,7 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class VillagerToGuard {
+    //TODO add a config option to only allow guard conversion if the player has hero of the village.
     @SubscribeEvent
     public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         ItemStack itemstack = event.getItemStack();
@@ -26,13 +27,11 @@ public class VillagerToGuard {
             if (target instanceof VillagerEntity) {
                 VillagerEntity villager = (VillagerEntity) event.getTarget();
                 if (!villager.isChild() && villager.getVillagerData().getProfession() == VillagerProfession.NONE || villager.getVillagerData().getProfession() == VillagerProfession.NITWIT) {
-                    if (event.getPlayer().isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
                         this.convertVillager(villager, event.getPlayer());
                         if (!event.getPlayer().abilities.isCreativeMode)
                             itemstack.shrink(1);
                     }
                 }
-            }
         }
     }
 
