@@ -102,6 +102,9 @@ public class GuardModel extends BipedModel<GuardEntity> {
             this.bipedRightArm.rotateAngleY = -0.5F;
             this.bipedRightArm.rotateAngleX = -1.3F;
             this.bipedRightArm.rotateAngleZ = MathHelper.cos(ageInTicks) * 0.1F;
+            this.bipedHead.rotateAngleX = MathHelper.cos(ageInTicks) * 0.2F;
+            this.bipedHead.rotateAngleY = 0.0F;
+            this.bipedHeadwear.copyModelAngles(bipedHead);
         }
     }
 
@@ -112,6 +115,9 @@ public class GuardModel extends BipedModel<GuardEntity> {
             this.bipedLeftArm.rotateAngleY = 0.5F;
             this.bipedLeftArm.rotateAngleX = -1.3F;
             this.bipedLeftArm.rotateAngleZ = MathHelper.cos(ageInTicks) * 0.1F;
+            this.bipedHead.rotateAngleX = MathHelper.cos(ageInTicks) * 0.2F;
+            this.bipedHead.rotateAngleY = 0.0F;
+            this.bipedHeadwear.copyModelAngles(bipedHead);
         }
     }
 }
