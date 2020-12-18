@@ -16,7 +16,9 @@ public class GuardEatFoodGoal extends Goal {
 
     @Override
     public boolean shouldExecute() {
-        return guard.getHealth() < guard.getMaxHealth() && GuardEatFoodGoal.isConsumable(guard.getHeldItemOffhand()) && guard.isEating();
+        return guard.getHealth() < guard.getMaxHealth() && GuardEatFoodGoal.isConsumable(guard.getHeldItemOffhand()) && guard.isEating() 
+                || guard.getHealth() < guard.getMaxHealth() && 
+                GuardEatFoodGoal.isConsumable(guard.getHeldItemOffhand()) && guard.getAttackTarget() == null;
     }
 
     public static boolean isConsumable(ItemStack stack) {
@@ -25,6 +27,8 @@ public class GuardEatFoodGoal extends Goal {
 
     @Override
     public void startExecuting() {
+        if (guard.getAttackTarget() == null)
+            guard.setEating(true);
         guard.setActiveHand(Hand.OFF_HAND);
     }
 }

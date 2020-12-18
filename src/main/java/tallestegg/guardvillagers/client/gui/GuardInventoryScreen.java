@@ -43,8 +43,8 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
         super.drawGuiContainerForegroundLayer(matrixStack, x, y);
         int health = MathHelper.ceil(guard.getHealth());
         int armor = guard.getTotalArmorValue();
-        ITextComponent guardHealthText = new TranslationTextComponent("Health: " + health);
-        ITextComponent guardArmorText = new TranslationTextComponent("Armor: " + armor);
+        ITextComponent guardHealthText = new TranslationTextComponent("guardinventory.health", health);
+        ITextComponent guardArmorText = new TranslationTextComponent("guardinventory.armor", armor);
         this.font.func_243248_b(matrixStack, guardHealthText, 80.0F, 20.0F, 4210752);
         this.font.func_243248_b(matrixStack, guardArmorText, 80.0F, 30.0F, 4210752);
     }
