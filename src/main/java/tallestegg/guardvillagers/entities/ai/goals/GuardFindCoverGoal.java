@@ -16,7 +16,7 @@ public class GuardFindCoverGoal extends RandomWalkingGoal {
 
     @Override
     public boolean shouldExecute() {
-        return guard.getHealth() < guard.getMaxHealth() && this.findPosition() && GuardEatFoodGoal.isConsumable(guard.getHeldItemOffhand()) && !guard.isEating() && guard.getAttackTarget() != null;
+        return guard.getHealth() <= 10 && this.findPosition() && GuardEatFoodGoal.isConsumable(guard.getHeldItemOffhand()) && !guard.isEating() && guard.getAttackTarget() != null;
     }
 
     @Override
