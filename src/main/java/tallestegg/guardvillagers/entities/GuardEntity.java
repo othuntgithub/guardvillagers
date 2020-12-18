@@ -891,7 +891,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
         @Override
         public boolean shouldExecute() {
-            return !(this.guard.getHeldItemMainhand().getItem().isCrossbow(guard.getHeldItemMainhand())) && this.guard.getAttackTarget() != null && super.shouldExecute();
+            return !(this.guard.getHeldItemMainhand().getItem().isCrossbow(guard.getHeldItemMainhand())) && this.guard.getAttackTarget() != null && !this.guard.isEating() && super.shouldExecute();
         }
 
         @Override

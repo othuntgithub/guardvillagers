@@ -2,15 +2,15 @@ package tallestegg.guardvillagers.entities.ai.goals;
 
 import java.util.EnumSet;
 
-import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.Items;
+import tallestegg.guardvillagers.entities.GuardEntity;
 
-public class RangedBowAttackPassiveGoal<T extends CreatureEntity & IRangedAttackMob> extends Goal {
+public class RangedBowAttackPassiveGoal<T extends GuardEntity & IRangedAttackMob> extends Goal {
     private final T entity;
     private final double moveSpeedAmp;
     private int attackCooldown;
@@ -38,7 +38,7 @@ public class RangedBowAttackPassiveGoal<T extends CreatureEntity & IRangedAttack
      * necessary for execution in this method as well.
      */
     public boolean shouldExecute() {
-        return this.entity.getAttackTarget() == null ? false : this.isBowInMainhand();
+        return this.entity.getAttackTarget() != null && this.isBowInMainhand() && !this.entity.isEating();
     }
 
     protected boolean isBowInMainhand() {
