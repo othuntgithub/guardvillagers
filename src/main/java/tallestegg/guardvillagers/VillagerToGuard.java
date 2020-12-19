@@ -14,11 +14,13 @@ import net.minecraft.potion.Effects;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import tallestegg.guardvillagers.configuration.GuardConfig;
 import tallestegg.guardvillagers.entities.GuardEntity;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class VillagerToGuard {
-    //TODO add a config option to only allow guard conversion if the player has hero of the village.
+    // TODO add a config option to only allow guard conversion if the player has
+    // hero of the village.
     @SubscribeEvent
     public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         ItemStack itemstack = event.getItemStack();
@@ -26,12 +28,16 @@ public class VillagerToGuard {
             Entity target = event.getTarget();
             if (target instanceof VillagerEntity) {
                 VillagerEntity villager = (VillagerEntity) event.getTarget();
-                if (!villager.isChild() && villager.getVillagerData().getProfession() == VillagerProfession.NONE || villager.getVillagerData().getProfession() == VillagerProfession.NITWIT) {
-                        this.convertVillager(villager, event.getPlayer());
-                        if (!event.getPlayer().abilities.isCreativeMode)
-                            itemstack.shrink(1);
+                if (!villager.isChild()) {
+                    if (villager.getVillagerData().getProfession() == VillagerProfession.NONE || villager.getVillagerData().getProfession() == VillagerProfession.NITWIT) {
+                        if (!GuardConfig.ConvertVillagerIfHaveHOTV || event.getPlayer().isPotionActive(Effects.HERO_OF_THE_VILLAGE) && GuardConfig.ConvertVillagerIfHaveHOTV) {
+                            this.convertVillager(villager, event.getPlayer());
+                            if (!event.getPlayer().abilities.isCreativeMode)
+                                itemstack.shrink(1);
+                        }
                     }
                 }
+            }
         }
     }
 

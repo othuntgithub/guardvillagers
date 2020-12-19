@@ -23,7 +23,7 @@ public class HeroHurtByTargetGoal extends TargetGoal {
     }
 
     public boolean shouldExecute() {
-        LivingEntity livingentity = this.guard.hero;
+        LivingEntity livingentity = this.guard.getOwner();
         if (livingentity == null) {
             return false;
         } else {
@@ -40,7 +40,7 @@ public class HeroHurtByTargetGoal extends TargetGoal {
 
     public void startExecuting() {
         this.goalOwner.setAttackTarget(this.attacker);
-        LivingEntity livingentity = this.guard.hero;
+        LivingEntity livingentity = this.guard.getOwner();
         if (livingentity != null) {
             this.timestamp = livingentity.getRevengeTimer();
         }

@@ -2,6 +2,7 @@ package tallestegg.guardvillagers.entities;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -73,6 +74,7 @@ import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.potion.Effects;
+import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
@@ -115,15 +117,15 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     private static final DataParameter<Integer> GUARD_VARIANT = EntityDataManager.createKey(GuardEntity.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
+    protected static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(GuardEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID);
     public Inventory guardInventory = new Inventory(6);
     public int kickTicks;
     public int shieldCoolDown;
     public int kickCoolDown;
     private boolean eating;
     public boolean interacting;
-    public boolean following;
+    private boolean following;
     public int coolDown;
-    public PlayerEntity hero;
     private int field_234197_bv_;
     private static final RangedInteger field_234196_bu_ = TickRangeConverter.convertRange(20, 39);
     private UUID field_234198_bw_;
@@ -198,6 +200,21 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     @Override
     public void readAdditional(CompoundNBT compound) {
         super.readAdditional(compound);
+        UUID uuid;
+        if (compound.hasUniqueId("Owner")) {
+            uuid = compound.getUniqueId("Owner");
+        } else {
+            String s = compound.getString("Owner");
+            uuid = PreYggdrasilConverter.convertMobOwnerIfNeeded(this.getServer(), s);
+        }
+
+        if (uuid != null) {
+            try {
+                this.setOwnerId(uuid);
+            } catch (Throwable throwable) {
+                this.setOwnerId(null);
+            }
+        }
         this.setGuardVariant(compound.getInt("Type"));
         this.kickTicks = compound.getInt("KickTicks");
         this.following = compound.getBoolean("Following");
@@ -240,6 +257,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         compound.putBoolean("Following", this.following);
         compound.putBoolean("Interacting", this.interacting);
         compound.putBoolean("Eating", this.isEating());
+        if (this.getOwnerId() != null) {
+            compound.putUniqueId("Owner", this.getOwnerId());
+        }
         ListNBT listnbt = new ListNBT();
         for (int i = 0; i < this.guardInventory.getSizeInventory(); ++i) {
             ItemStack itemstack = this.guardInventory.getStackInSlot(i);
@@ -275,6 +295,29 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         }
         compound.put("Inventory", listnbt);
         this.writeAngerNBT(compound);
+    }
+
+    @Nullable
+    public LivingEntity getOwner() {
+        try {
+            UUID uuid = this.getOwnerId();
+            return uuid == null ? null : this.world.getPlayerByUuid(uuid);
+        } catch (IllegalArgumentException illegalargumentexception) {
+            return null;
+        }
+    }
+
+    public boolean isOwner(LivingEntity entityIn) {
+        return entityIn == this.getOwner();
+    }
+
+    @Nullable
+    public UUID getOwnerId() {
+        return this.dataManager.get(OWNER_UNIQUE_ID).orElse((UUID) null);
+    }
+
+    public void setOwnerId(@Nullable UUID p_184754_1_) {
+        this.dataManager.set(OWNER_UNIQUE_ID, Optional.ofNullable(p_184754_1_));
     }
 
     @Override
@@ -367,6 +410,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.dataManager.register(GUARD_VARIANT, 0);
         this.dataManager.register(DATA_CHARGING_STATE, false);
         this.dataManager.register(KICKING, false);
+        this.dataManager.register(OWNER_UNIQUE_ID, Optional.empty());
     }
 
     public boolean isCharging() {
@@ -565,14 +609,18 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (!this.interacting)
             super.travel(travelVector);
     }
+    
+    public boolean isFollowing() {
+        return this.following;
+    }
+    
+    public void setFollowing(boolean following) {
+        this.following = following;
+    }
 
     @Override
-    public boolean canAttack(EntityType<?> typeIn) {
-        if (this.following && typeIn == EntityType.PLAYER || this.hero != null && typeIn == EntityType.PLAYER) {
-            return false;
-        } else {
-            return super.canAttack(typeIn);
-        }
+    public boolean canAttack(LivingEntity target) {
+        return this.isOwner(target) ? false : super.canAttack(target);
     }
 
     /**
@@ -642,11 +690,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (player.isCrouching() && this.isServerWorld() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && this.getAttackTarget() != player && this.onGround) {
             this.openGui((ServerPlayerEntity) player);
             return ActionResultType.func_233537_a_(this.world.isRemote);
-        }
-        if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-            this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
-            this.following = !this.following;
-            return ActionResultType.SUCCESS;
         }
         return ActionResultType.SUCCESS;
     }
@@ -861,9 +904,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 for (LivingEntity mob : list) {
                     PlayerEntity player = (PlayerEntity) mob;
                     if (!player.isInvisible() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-                        guard.hero = player; // TODO do this better with uuids
+                        guard.setOwnerId(player.getUniqueID()); // TODO do this better with uuids
                         if (guard.following) {
-                            guard.getNavigator().tryMoveToEntityLiving(guard.hero, 0.9D);
+                            guard.getNavigator().tryMoveToEntityLiving(guard.getOwner(), 0.9D);
                         }
                         return guard.following;
                     }
@@ -876,7 +919,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         public void resetTask() {
             this.guard.getNavigator().clearPath();
             guard.following = false;
-            guard.hero = null;
+            guard.setOwnerId(null);
         }
     }
 

@@ -34,6 +34,7 @@ public class GuardConfig {
     public static boolean GuardAlwaysShield;
     public static boolean GuardFormation;
     public static boolean FriendlyFire;
+    public static boolean ConvertVillagerIfHaveHOTV;
     public static List<String> MobBlackList;
 
     public static void bakeConfig() {
@@ -49,6 +50,7 @@ public class GuardConfig {
         GuardFormation = COMMON.GuardFormation.get();
         FriendlyFire = COMMON.FriendlyFire.get();
         MobBlackList = COMMON.MobBlackList.get();
+        ConvertVillagerIfHaveHOTV = COMMON.ConvertVillagerIfHaveHOTV.get();
     }
 
     @SubscribeEvent
@@ -72,11 +74,11 @@ public class GuardConfig {
         public final ForgeConfigSpec.BooleanValue GuardRaiseShield;
         public final ForgeConfigSpec.BooleanValue GuardFormation;
         public final ForgeConfigSpec.BooleanValue FriendlyFire;
+        public final ForgeConfigSpec.BooleanValue ConvertVillagerIfHaveHOTV;
         public final ForgeConfigSpec.ConfigValue<List<String>> MobBlackList;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
             RaidAnimals = builder.comment("Illagers In Raids Attack Animals?").translation(GuardVillagers.MODID + ".config.RaidAnimals").define("Illagers in raids attack animals?", false);
-
             WitchesVillager = builder.comment("Witches Attack Villagers?").translation(GuardVillagers.MODID + ".config.WitchesVillager").define("Witches attack villagers?", true);
             IllusionerRaids = builder.comment("This will make Illusioners get involved in raids").translation(GuardVillagers.MODID + ".config.IllusionerRaids").define("Have Illusioners in raids?", true);
             AttackAllMobs = builder.comment("Guards will attack all hostiles with this option").translation(GuardVillagers.MODID + ".config.AttackAllMobs").define("Guards attack all mobs?", false);
@@ -90,6 +92,7 @@ public class GuardConfig {
                     false);
             GuardFormation = builder.comment("This makes guards form a phalanx").translation(GuardVillagers.MODID + ".config.GuardFormation").define("Have guards form a phalanx?", true);
             FriendlyFire = builder.comment("This will make guards attempt to avoid friendly fire.").translation(GuardVillagers.MODID + ".config.FriendlyFire").define("Have guards avoid friendly fire? (Experimental)", false);
+            ConvertVillagerIfHaveHOTV = builder.comment("This will make it so villagers will only be converted into guards if the player has hero of the village").translation(GuardVillagers.MODID + ".config.hotv").define("Make it so players have to have hero of the village to convert villagers into guards?", false);
         }
     }
 }
