@@ -34,7 +34,7 @@ public class HealGolemGoal extends Goal {
             for (IronGolemEntity golem : list) {
                 if (!golem.isInvisible()) {
                     this.golem = golem;
-                    if (golem.getHealth() < golem.getMaxHealth()) {
+                    if (golem.getHealth() <= 60.0F) {
                         this.healGolem();
                     }
                     return true;

@@ -35,6 +35,8 @@ public class GuardConfig {
     public static boolean GuardFormation;
     public static boolean FriendlyFire;
     public static boolean ConvertVillagerIfHaveHOTV;
+    public static boolean BlackSmithHealing;
+    public static boolean ClericHealing;
     public static List<String> MobBlackList;
 
     public static void bakeConfig() {
@@ -51,6 +53,8 @@ public class GuardConfig {
         FriendlyFire = COMMON.FriendlyFire.get();
         MobBlackList = COMMON.MobBlackList.get();
         ConvertVillagerIfHaveHOTV = COMMON.ConvertVillagerIfHaveHOTV.get();
+        BlackSmithHealing = COMMON.BlacksmithHealing.get();
+        ClericHealing = COMMON.ClericHealing.get();
     }
 
     @SubscribeEvent
@@ -75,6 +79,8 @@ public class GuardConfig {
         public final ForgeConfigSpec.BooleanValue GuardFormation;
         public final ForgeConfigSpec.BooleanValue FriendlyFire;
         public final ForgeConfigSpec.BooleanValue ConvertVillagerIfHaveHOTV;
+        public final ForgeConfigSpec.BooleanValue BlacksmithHealing;
+        public final ForgeConfigSpec.BooleanValue ClericHealing;
         public final ForgeConfigSpec.ConfigValue<List<String>> MobBlackList;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
@@ -93,6 +99,8 @@ public class GuardConfig {
             GuardFormation = builder.comment("This makes guards form a phalanx").translation(GuardVillagers.MODID + ".config.GuardFormation").define("Have guards form a phalanx?", true);
             FriendlyFire = builder.comment("This will make guards attempt to avoid friendly fire.").translation(GuardVillagers.MODID + ".config.FriendlyFire").define("Have guards avoid friendly fire? (Experimental)", false);
             ConvertVillagerIfHaveHOTV = builder.comment("This will make it so villagers will only be converted into guards if the player has hero of the village").translation(GuardVillagers.MODID + ".config.hotv").define("Make it so players have to have hero of the village to convert villagers into guards?", false);
+            BlacksmithHealing = builder.translation(GuardVillagers.MODID + ".config.blacksmith").define("Have it so blacksmiths heal golems under 60 health?", true);
+            ClericHealing = builder.translation(GuardVillagers.MODID + ".config.cleric").define("Have it so clerics heal guards and players with hero of the village?", true);
         }
     }
 }

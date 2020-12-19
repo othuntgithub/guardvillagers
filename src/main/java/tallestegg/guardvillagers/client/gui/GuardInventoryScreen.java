@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -16,7 +15,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
     private static final ResourceLocation GUARD_GUI_TEXTURES = new ResourceLocation("guardvillagers:textures/container/inventory.png");
-    private static final ITextComponent FOLLOWING = new TranslationTextComponent("following");
     private final GuardEntity guard;
     private float mousePosX;
     private float mousePosY;
@@ -28,14 +26,6 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
         this.playerInventoryTitleX = 100;
         this.passEvents = false;
     }
-
-    /*@Override
-    protected void init() {
-        super.init();
-        this.addButton(new Button(this.width / 2 - 137, this.height / 4 + -10, 50, 20, FOLLOWING, (p_214331_1_) -> {
-            guard.setFollowing(!guard.isFollowing());
-        }));
-    }*/
 
     @SuppressWarnings("deprecation")
     @Override

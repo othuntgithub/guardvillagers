@@ -609,11 +609,11 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (!this.interacting)
             super.travel(travelVector);
     }
-    
+
     public boolean isFollowing() {
         return this.following;
     }
-    
+
     public void setFollowing(boolean following) {
         this.following = following;
     }
@@ -690,6 +690,12 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (player.isCrouching() && this.isServerWorld() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE) && this.getAttackTarget() != player && this.onGround) {
             this.openGui((ServerPlayerEntity) player);
             return ActionResultType.func_233537_a_(this.world.isRemote);
+        }
+        if (player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
+            this.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1.0F, 1.0F);
+            this.setFollowing(!this.isFollowing());
+            this.setOwnerId(player.getUniqueID());
+            return ActionResultType.SUCCESS;
         }
         return ActionResultType.SUCCESS;
     }
@@ -879,22 +885,26 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
 
     public static class FollowHeroGoal extends Goal {
         public final GuardEntity guard;
-        protected final EntityPredicate whateverthisis = (new EntityPredicate()).setDistance(64.0D);
 
         public FollowHeroGoal(GuardEntity mob) {
             guard = mob;
             this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
         }
 
+        @Override
         public void startExecuting() {
             super.startExecuting();
-            guard.following = true;
+            guard.getNavigator().tryMoveToEntityLiving(guard.getOwner(), 0.9D);
+        }
+
+        @Override
+        public void tick() {
+            guard.getNavigator().tryMoveToEntityLiving(guard.getOwner(), 0.9D);
         }
 
         @Override
         public boolean shouldContinueExecuting() {
-            super.shouldContinueExecuting();
-            return guard.following;
+            return guard.following && this.shouldExecute();
         }
 
         @Override
@@ -904,11 +914,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 for (LivingEntity mob : list) {
                     PlayerEntity player = (PlayerEntity) mob;
                     if (!player.isInvisible() && player.isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
-                        guard.setOwnerId(player.getUniqueID()); // TODO do this better with uuids
+                        guard.setOwnerId(player.getUniqueID());
                         if (guard.following) {
-                            guard.getNavigator().tryMoveToEntityLiving(guard.getOwner(), 0.9D);
+                            return true;
                         }
-                        return guard.following;
                     }
                 }
             }
@@ -918,8 +927,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         @Override
         public void resetTask() {
             this.guard.getNavigator().clearPath();
-            guard.following = false;
-            guard.setOwnerId(null);
+            if (!guard.getOwner().isPotionActive(Effects.HERO_OF_THE_VILLAGE))
+                guard.setOwnerId(null);
         }
     }
 
