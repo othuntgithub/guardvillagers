@@ -927,8 +927,10 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         @Override
         public void resetTask() {
             this.guard.getNavigator().clearPath();
-            if (!guard.getOwner().isPotionActive(Effects.HERO_OF_THE_VILLAGE))
+            if (guard.getOwner() != null && !guard.getOwner().isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
                 guard.setOwnerId(null);
+                guard.following = false;
+            }
         }
     }
 
