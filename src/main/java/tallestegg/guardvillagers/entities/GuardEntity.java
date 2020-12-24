@@ -36,6 +36,7 @@ import net.minecraft.entity.ai.goal.ResetAngerGoal;
 import net.minecraft.entity.ai.goal.ReturnToVillageGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
+import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
@@ -75,7 +76,6 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.potion.Effects;
 import net.minecraft.server.management.PreYggdrasilConverter;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
@@ -89,6 +89,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
@@ -798,6 +799,27 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                     });
                 }
             }
+        }
+    }
+
+    @Override
+    public void func_241841_a(ServerWorld p_241841_1_, LightningBoltEntity p_241841_2_) {
+        if (p_241841_1_.getDifficulty() != Difficulty.PEACEFUL) {
+            LOGGER.info("Guard {} was struck by lightning {}.", this, p_241841_2_);
+            WitchEntity witchentity = EntityType.WITCH.create(p_241841_1_);
+            witchentity.copyLocationAndAnglesFrom(this);
+            witchentity.onInitialSpawn(p_241841_1_, p_241841_1_.getDifficultyForLocation(witchentity.getPosition()), SpawnReason.CONVERSION, (ILivingEntityData) null, (CompoundNBT) null);
+            witchentity.setNoAI(this.isAIDisabled());
+            if (this.hasCustomName()) {
+                witchentity.setCustomName(this.getCustomName());
+                witchentity.setCustomNameVisible(this.isCustomNameVisible());
+            }
+
+            witchentity.enablePersistence();
+            p_241841_1_.func_242417_l(witchentity);
+            this.remove();
+        } else {
+            super.func_241841_a(p_241841_1_, p_241841_2_);
         }
     }
 
