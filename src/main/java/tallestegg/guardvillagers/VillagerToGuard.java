@@ -19,8 +19,6 @@ import tallestegg.guardvillagers.entities.GuardEntity;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class VillagerToGuard {
-    // TODO add a config option to only allow guard conversion if the player has
-    // hero of the village.
     @SubscribeEvent
     public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         ItemStack itemstack = event.getItemStack();

@@ -75,6 +75,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.potion.Effects;
 import net.minecraft.server.management.PreYggdrasilConverter;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
@@ -389,6 +390,29 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         super.blockUsingShield(entityIn);
         if (entityIn.getHeldItemMainhand().canDisableShield(this.activeItemStack, this, entityIn)) {
             this.disableShield(true);
+        }
+    }
+
+    @Override
+    protected void damageShield(float damage) {
+        if (this.activeItemStack.isShield(this)) {
+            if (damage >= 3.0F) {
+                int i = 1 + MathHelper.floor(damage);
+                Hand hand = this.getActiveHand();
+                this.activeItemStack.damageItem(i, this, (p_213833_1_) -> {
+                    p_213833_1_.sendBreakAnimation(hand);
+                });
+                if (this.activeItemStack.isEmpty()) {
+                    if (hand == Hand.MAIN_HAND) {
+                        this.setItemStackToSlot(EquipmentSlotType.MAINHAND, ItemStack.EMPTY);
+                    } else {
+                        this.setItemStackToSlot(EquipmentSlotType.OFFHAND, ItemStack.EMPTY);
+                    }
+
+                    this.activeItemStack = ItemStack.EMPTY;
+                    this.playSound(SoundEvents.ITEM_SHIELD_BREAK, 0.8F, 0.8F + this.world.rand.nextFloat() * 0.4F);
+                }
+            }
         }
     }
 
