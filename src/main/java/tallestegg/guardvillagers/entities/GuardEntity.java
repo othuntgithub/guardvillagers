@@ -95,7 +95,6 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biome.Category;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
@@ -382,6 +381,9 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         if (this.shieldCoolDown > 0) {
             --this.shieldCoolDown;
         }
+        if (this.getOwner() != null && !this.getOwner().isPotionActive(Effects.HERO_OF_THE_VILLAGE)) {
+            this.setOwnerId(null); // TODO find a better method instead of checking every tick.
+        }
         this.updateArmSwingProgress();
         super.livingTick();
     }
@@ -483,7 +485,6 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         return new ItemStack(GuardItems.GUARD_SPAWN_EGG.get());
     }
 
-    // TODO reorganize this stuff
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new SwimGoal(this));
@@ -538,19 +539,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                 return this.entity.getAttackTarget() == null && super.shouldContinueExecuting();
             }
         });
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
-        this.targetSelector.addGoal(3, new HeroHurtByTargetGoal(this));
-        this.targetSelector.addGoal(3, new HeroHurtTargetGoal(this));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
         if (!GuardConfig.GuardSurrender) {
             this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, RavagerEntity.class, true));
-        }
-        this.targetSelector.addGoal(2, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
-        if (GuardConfig.AttackAllMobs) {
-            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
-                return mob instanceof IMob && !GuardConfig.MobBlackList.contains(mob.getEntityString());
-            }));
         }
         if (GuardConfig.GuardSurrender) {
             this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<RavagerEntity>(this, RavagerEntity.class, true) {
@@ -559,6 +549,17 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
                     return ((GuardEntity) this.goalOwner).getHealth() > 13 && super.shouldExecute();
                 }
             });
+        }
+        this.targetSelector.addGoal(2, (new HurtByTargetGoal(this, GuardEntity.class, IronGolemEntity.class)).setCallsForHelp());
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, WitchEntity.class, true));
+        this.targetSelector.addGoal(3, new HeroHurtByTargetGoal(this));
+        this.targetSelector.addGoal(3, new HeroHurtTargetGoal(this));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
+        if (GuardConfig.AttackAllMobs) {
+            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
+                return mob instanceof IMob && !GuardConfig.MobBlackList.contains(mob.getEntityString());
+            }));
         }
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, this::func_233680_b_));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
@@ -653,33 +654,26 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
      */
     public static int getRandomTypeForBiome(IWorld world, BlockPos pos) {
         Biome biome = world.getBiome(pos);
-        if (biome.getCategory() == Category.PLAINS) {
-            return 0;
-        }
-
-        if (biome.getCategory() == Category.DESERT) {
+        switch (biome.getCategory()) {
+        case DESERT:
             return 1;
-        }
-
-        if (biome.getCategory() == Category.SAVANNA) {
-            return 2;
-        }
-
-        if (biome.getCategory() == Category.SWAMP) {
-            return 3;
-        }
-
-        if (biome.getCategory() == Category.JUNGLE) {
-            return 4;
-        }
-
-        if (biome.getCategory() == Category.TAIGA) {
-            return 5;
-        }
-
-        if (biome.getCategory() == Category.ICY) {
+        case ICY:
             return 6;
-        } else {
+        case JUNGLE:
+            return 4;
+        case MESA:
+            return 1;
+        case NONE:
+            return 0;
+        case PLAINS:
+            return 0;
+        case SAVANNA:
+            return 2;
+        case SWAMP:
+            return 3;
+        case TAIGA:
+            return 5;
+        default:
             return 0;
         }
     }
