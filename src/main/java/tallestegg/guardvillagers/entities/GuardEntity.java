@@ -2,16 +2,20 @@ package tallestegg.guardvillagers.entities;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPredicate;
+import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.ICrossbowUser;
@@ -19,6 +23,7 @@ import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -119,6 +124,8 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
     private static final DataParameter<Boolean> DATA_CHARGING_STATE = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> KICKING = EntityDataManager.createKey(GuardEntity.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(GuardEntity.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+    private static final Map<Pose, EntitySize> SIZE_BY_POSE = ImmutableMap.<Pose, EntitySize>builder().put(Pose.STANDING, EntitySize.flexible(0.6F, 1.95F)).put(Pose.SLEEPING, SLEEPING_SIZE).put(Pose.FALL_FLYING, EntitySize.flexible(0.6F, 0.6F)).put(Pose.SWIMMING, EntitySize.flexible(0.6F, 0.6F))
+            .put(Pose.SPIN_ATTACK, EntitySize.flexible(0.6F, 0.6F)).put(Pose.CROUCHING, EntitySize.flexible(0.6F, 1.75F)).put(Pose.DYING, EntitySize.fixed(0.2F, 0.2F)).build();
     public Inventory guardInventory = new Inventory(6);
     public int kickTicks;
     public int shieldCoolDown;
@@ -386,6 +393,21 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         }
         this.updateArmSwingProgress();
         super.livingTick();
+    }
+
+    @Override
+    public EntitySize getSize(Pose poseIn) {
+        return SIZE_BY_POSE.getOrDefault(poseIn, EntitySize.flexible(0.6F, 1.95F));
+    }
+
+    @Override
+    public float getStandingEyeHeight(Pose poseIn, EntitySize sizeIn) {
+        switch (poseIn) {
+        case CROUCHING:
+            return 1.40F;
+        default:
+            return sizeIn.height * 0.85F;
+        }
     }
 
     @Override

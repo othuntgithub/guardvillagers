@@ -27,6 +27,7 @@ public class GuardInventoryScreen extends ContainerScreen<GuardContainer> {
         this.passEvents = false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
