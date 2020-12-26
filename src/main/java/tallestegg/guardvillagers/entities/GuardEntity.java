@@ -45,6 +45,7 @@ import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.AbstractIllagerEntity;
+import net.minecraft.entity.monster.AbstractRaiderEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.IllusionerEntity;
 import net.minecraft.entity.monster.RavagerEntity;
@@ -577,6 +578,7 @@ public class GuardEntity extends CreatureEntity implements ICrossbowUser, IRange
         this.targetSelector.addGoal(3, new HeroHurtByTargetGoal(this));
         this.targetSelector.addGoal(3, new HeroHurtTargetGoal(this));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractIllagerEntity.class, true));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractRaiderEntity.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IllusionerEntity.class, true));
         if (GuardConfig.AttackAllMobs) {
             this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, MobEntity.class, 5, true, true, (mob) -> {
