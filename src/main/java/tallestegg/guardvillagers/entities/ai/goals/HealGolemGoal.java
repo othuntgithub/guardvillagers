@@ -3,6 +3,7 @@ package tallestegg.guardvillagers.entities.ai.goals;
 import java.util.EnumSet;
 import java.util.List;
 
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
@@ -13,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvents;
+
 //TODO make this a task instead of a goal.
 public class HealGolemGoal extends Goal {
     public final MobEntity healer;
@@ -29,15 +31,15 @@ public class HealGolemGoal extends Goal {
                 && (((VillagerEntity) this.healer).getVillagerData().getProfession() != VillagerProfession.ARMORER) || this.healer.isSleeping()) {
             return false;
         }
-        List<IronGolemEntity> list = this.healer.world.getEntitiesWithinAABB(IronGolemEntity.class, this.healer.getBoundingBox().grow(30.0D));
+        List<IronGolemEntity> list = this.healer.world.getEntitiesWithinAABB(IronGolemEntity.class, this.healer.getBoundingBox().grow(10.0D));
         if (!list.isEmpty()) {
             for (IronGolemEntity golem : list) {
-                if (!golem.isInvisible()) {
-                    this.golem = golem;
+                if (!golem.isInvisible() && golem.getType() == EntityType.IRON_GOLEM) { // Check if the entity is an Iron Golem, not any other golem.
                     if (golem.getHealth() <= 60.0F) {
+                        this.golem = golem;
                         this.healGolem();
+                        return true;
                     }
-                    return true;
                 }
             }
         }
@@ -51,6 +53,13 @@ public class HealGolemGoal extends Goal {
     }
 
     @Override
+    public void startExecuting() {
+        if (golem == null)
+            return;
+        this.healGolem();
+    }
+
+    @Override
     public void tick() {
         if (golem.getHealth() < golem.getMaxHealth()) {
             this.healGolem();
@@ -59,7 +68,6 @@ public class HealGolemGoal extends Goal {
 
     public void healGolem() {
         healer.getNavigator().tryMoveToEntityLiving(golem, 0.5);
-        golem.getNavigator().tryMoveToEntityLiving(healer, 0.5);
         if (healer.getDistance(golem) <= 2.0D) {
             healer.setItemStackToSlot(EquipmentSlotType.MAINHAND, new ItemStack(Items.IRON_INGOT));
             healer.swingArm(Hand.MAIN_HAND);
